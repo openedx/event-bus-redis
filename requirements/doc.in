@@ -4,7 +4,7 @@
 
 -r test.txt               # Core and testing dependencies for this package
 
-doc8                      # reStructuredText style checker
+sphinx-book-theme         # Docs theme
 twine                     # Validates README.rst for usage on PyPI
 build                     # Needed to build the wheel for twine README check
 Sphinx                    # Documentation builder
