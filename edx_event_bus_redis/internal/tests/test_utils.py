@@ -12,13 +12,13 @@ import pytest
 from django.test import TestCase, override_settings
 from openedx_events.data import EventsMetadata
 
-from edx_event_bus_kafka.internal.utils import (
+from edx_event_bus_redis.internal.utils import (
     HEADER_EVENT_TYPE,
     HEADER_ID,
     HEADER_SOURCELIB,
     HEADER_TIME,
-    _get_headers_from_metadata,
-    _get_metadata_from_headers,
+    get_headers_from_metadata,
+    get_metadata_from_headers,
 )
 
 
@@ -55,19 +55,21 @@ class TestTestHelpers(TestCase):
 
 class FakeMessage:
     """
-    A fake confluent_kafka.cimpl.Message that we can actually construct for mocking.
+    A fake confluent_redis.cimpl.Message that we can actually construct for mocking.
 
-    See https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#message
+    See https://docs.confluent.io/platform/current/clients/confluent-redis-python/html/index.html#message
     """
 
     def __init__(
-            self, topic: Optional[str] = None, partition: Optional[int] = None, offset: Optional[int] = None,
-            headers: Optional[list] = None, key: Optional[bytes] = None, value=None,
-            error=None, timestamp=None
-    ):
+            self,
+            topic: Optional[str]=None,
+            headers: Optional[list]=None,
+            key: Optional[bytes]=None,
+            value=None,
+            error=None,
+            timestamp=None
+        ):
         self._topic = topic
-        self._partition = partition
-        self._offset = offset
         self._headers = headers
         self._key = key
         self._value = value
@@ -76,12 +78,6 @@ class FakeMessage:
 
     def topic(self) -> Optional[str]:
         return self._topic
-
-    def partition(self) -> Optional[int]:
-        return self._partition
-
-    def offset(self) -> Optional[int]:
-        return self._offset
 
     def headers(self) -> Optional[list]:
         """List of str/bytes key/value pairs."""
@@ -120,18 +116,15 @@ class TestUtils(TestCase):
                                       sourcehost="host",
                                       minorversion=0,
                                       time=datetime.fromisoformat("2023-01-01T14:00:00+00:00"))
-            headers = _get_headers_from_metadata(event_metadata=metadata)
+            headers = get_headers_from_metadata(event_metadata=metadata)
             self.assertDictEqual(headers, {
-                'ce_type': b'org.openedx.learning.auth.session.login.completed.v1',
-                'ce_id': str(TEST_UUID).encode("utf8"),
-                'ce_source': b'openedx/test/web',
-                'ce_specversion': b'1.0',
+                'type': b'org.openedx.learning.auth.session.login.completed.v1',
+                'id': str(TEST_UUID).encode("utf8"),
+                'source': b'openedx/test/web',
                 'sourcehost': b'host',
-                'content-type': b'application/avro',
-                'ce_datacontenttype': b'application/avro',
-                'ce_time': b'2023-01-01T14:00:00+00:00',
+                'time': b'2023-01-01T14:00:00+00:00',
                 'sourcelib': b'1.2.3',
-                'ce_minorversion': b'0',
+                'minorversion': b'0',
             })
 
     def test_metadata_from_headers(self):
@@ -140,18 +133,15 @@ class TestUtils(TestCase):
         """
         uuid = uuid1()
         headers = [
-            ('ce_type', b'org.openedx.learning.auth.session.login.completed.v1'),
-            ('ce_id', str(uuid).encode("utf8")),
-            ('ce_source', b'openedx/test/web'),
-            ('ce_specversion', b'1.0'),
+            ('type', b'org.openedx.learning.auth.session.login.completed.v1'),
+            ('id', str(uuid).encode("utf8")),
+            ('source', b'openedx/test/web'),
             ('sourcehost', b'testsource'),
-            ('content-type', b'application/avro'),
-            ('ce_datacontenttype', b'application/avro'),
-            ('ce_time', b'2023-01-01T14:00:00+00:00'),
+            ('time', b'2023-01-01T14:00:00+00:00'),
             ('sourcelib', b'1.2.3'),
             ('minorversion', b'0')
         ]
-        generated_metadata = _get_metadata_from_headers(headers)
+        generated_metadata = get_metadata_from_headers(headers)
         expected_metadata = EventsMetadata(
             event_type="org.openedx.learning.auth.session.login.completed.v1",
             id=uuid,
@@ -165,11 +155,11 @@ class TestUtils(TestCase):
 
     TEST_UUID_BYTES = str(TEST_UUID).encode("utf8")
 
-    @patch('edx_event_bus_kafka.internal.utils.oed.datetime')
+    @patch('edx_event_bus_redis.internal.utils.oed.datetime')
     @ddt.data(
-        (TEST_UUID_BYTES, None, None, False),  # As long as we have a ce_id header, we can continue
+        (TEST_UUID_BYTES, None, None, False),  # As long as we have a id header, we can continue
         (b'bad', None, None, True),  # bad uuid
-        (TEST_UUID_BYTES, b'bad', None, True),  # badly-formatted ce_time
+        (TEST_UUID_BYTES, b'bad', None, True),  # badly-formatted time
         (TEST_UUID_BYTES, None, b'bad', True),  # badly-formatted sourcelib
         (None, None, None, True),
     )
@@ -188,12 +178,12 @@ class TestUtils(TestCase):
         ])
         if should_raise:
             with pytest.raises(Exception):
-                _get_metadata_from_headers(headers)
+                get_metadata_from_headers(headers)
         else:
             # check that we use all the regular EventsMetadata defaults for missing fields by constructing one
-            # and comparing it to the one generated from _get_metadata_from_headers
+            # and comparing it to the one generated from get_metadata_from_headers
             expected_metadata = EventsMetadata(event_type="abc", id=TEST_UUID)
-            generated_metadata = _get_metadata_from_headers(headers)
+            generated_metadata = get_metadata_from_headers(headers)
             self.assertDictEqual(attr.asdict(generated_metadata), attr.asdict(expected_metadata))
 
     def test_generate_metadata_fails_with_duplicate_headers(self):
@@ -206,8 +196,8 @@ class TestUtils(TestCase):
             (HEADER_EVENT_TYPE.message_header_key, b'abc')
         ]
         with pytest.raises(Exception) as exc_info:
-            _get_metadata_from_headers(headers)
+            get_metadata_from_headers(headers)
 
         assert exc_info.value.args == (
-            "Multiple \"ce_id\" headers on message. Cannot determine correct metadata.",
+            "Multiple \"id\" headers on message. Cannot determine correct metadata.",
         )

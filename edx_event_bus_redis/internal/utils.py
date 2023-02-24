@@ -13,7 +13,7 @@ from edx_toggles.toggles import SettingToggle
 
 logger = logging.getLogger(__name__)
 
-# .. toggle_name: EVENT_BUS_KAFKA_AUDIT_LOGGING_ENABLED
+# .. toggle_name: EVENT_BUS_REDIS_AUDIT_LOGGING_ENABLED
 # .. toggle_implementation: SettingToggle
 # .. toggle_default: True
 # .. toggle_description: If True, whenever an event is produced or consumed, log enough
@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 #   all the data on the event, but at a minimum will include topic, partition, offset,
 #   message ID, and key. Deployers may wish to disable this if log volume is excessive.
 # .. toggle_use_cases: opt_out
-# .. toggle_creation_date: 2023-02-07
-AUDIT_LOGGING_ENABLED = SettingToggle('EVENT_BUS_KAFKA_AUDIT_LOGGING_ENABLED', default=True)
+# .. toggle_creation_date: 2023-02-24
+AUDIT_LOGGING_ENABLED = SettingToggle('EVENT_BUS_REDIS_AUDIT_LOGGING_ENABLED', default=True)
 
 
 def _sourcelib_tuple_to_str(sourcelib: Tuple):
@@ -49,26 +49,19 @@ class MessageHeader:
         self.__class__._mapping[self.message_header_key] = self
 
 
-HEADER_EVENT_TYPE = MessageHeader("ce_type", event_metadata_field="event_type")
-HEADER_ID = MessageHeader("ce_id", event_metadata_field="id", from_metadata=str, to_metadata=UUID)
-HEADER_SOURCE = MessageHeader("ce_source", event_metadata_field="source")
-HEADER_SPEC_VERSION = MessageHeader("ce_specversion")
-HEADER_TIME = MessageHeader("ce_time", event_metadata_field="time",
+HEADER_EVENT_TYPE = MessageHeader("type", event_metadata_field="event_type")
+HEADER_ID = MessageHeader("id", event_metadata_field="id", from_metadata=str, to_metadata=UUID)
+HEADER_SOURCE = MessageHeader("source", event_metadata_field="source")
+HEADER_TIME = MessageHeader("time", event_metadata_field="time",
                             to_metadata=lambda x: datetime.fromisoformat(x),  # pylint: disable=unnecessary-lambda
                             from_metadata=lambda x: x.isoformat())
-HEADER_MINORVERSION = MessageHeader("ce_minorversion", event_metadata_field="minorversion", to_metadata=int,
+HEADER_MINORVERSION = MessageHeader("minorversion", event_metadata_field="minorversion", to_metadata=int,
                                     from_metadata=str)
 
 # not CloudEvent headers, so no "ce" prefix
 HEADER_SOURCEHOST = MessageHeader("sourcehost", event_metadata_field="sourcehost")
 HEADER_SOURCELIB = MessageHeader("sourcelib", event_metadata_field="sourcelib",
                                  to_metadata=_sourcelib_str_to_tuple, from_metadata=_sourcelib_tuple_to_str)
-
-# The documentation is unclear as to which of the following two headers to use for content type, so for now
-# use both
-HEADER_CONTENT_TYPE = MessageHeader("content-type")
-HEADER_DATA_CONTENT_TYPE = MessageHeader("ce_datacontenttype")
-
 
 def get_message_header_values(headers: List, header: MessageHeader) -> List[str]:
     """
@@ -103,7 +96,7 @@ def last_message_header_value(headers: List, header: MessageHeader) -> Optional[
     return next(reversed(get_message_header_values(headers, header)), None)
 
 
-def _get_metadata_from_headers(headers: List[Tuple]):
+def get_metadata_from_headers(headers: List[Tuple]):
     """
     Create an EventsMetadata object from the headers of a Kafka message
 
@@ -143,9 +136,9 @@ def _get_metadata_from_headers(headers: List[Tuple]):
     return oed.EventsMetadata(**metadata_kwargs)
 
 
-def _get_headers_from_metadata(event_metadata: oed.EventsMetadata):
+def get_headers_from_metadata(event_metadata: oed.EventsMetadata):
     """
-    Create a dictionary of CloudEvent-compliant Kafka headers from an EventsMetadata object.
+    Create a dictionary of headers from an EventsMetadata object.
 
     This method assumes the EventsMetadata object was the one sent with the event data to the original signal handler.
 
@@ -155,12 +148,7 @@ def _get_headers_from_metadata(event_metadata: oed.EventsMetadata):
     Returns:
         A dictionary of headers where the keys are strings and values are binary
     """
-    values = {
-        # Always 1.0. See "Fields" in OEP-41
-        HEADER_SPEC_VERSION.message_header_key: b'1.0',
-        HEADER_CONTENT_TYPE.message_header_key: b'application/avro',
-        HEADER_DATA_CONTENT_TYPE.message_header_key: b'application/avro',
-    }
+    values = {}
     for header in MessageHeader.instances:
         if not header.event_metadata_field:
             continue

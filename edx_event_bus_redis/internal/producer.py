@@ -23,7 +23,7 @@ from openedx_events.event_bus.avro.serializer import AvroSignalSerializer
 from openedx_events.tooling import OpenEdxPublicSignal
 
 from .config import get_full_topic, get_schema_registry_client, load_common_settings
-from .utils import AUDIT_LOGGING_ENABLED, _get_headers_from_metadata
+from .utils import AUDIT_LOGGING_ENABLED, get_headers_from_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -267,7 +267,7 @@ class KafkaEventProducer(EventBusProducer):
 
             event_key = extract_event_key(event_data, event_key_field)
             context.event_key = event_key
-            headers = _get_headers_from_metadata(event_metadata=event_metadata)
+            headers = get_headers_from_metadata(event_metadata=event_metadata)
 
             key_serializer, value_serializer = get_serializers(signal, event_key_field)
             key_bytes = key_serializer(event_key, SerializationContext(full_topic, MessageField.KEY, headers))
