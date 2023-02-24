@@ -13,6 +13,10 @@ astroid==2.14.2
     #   -r requirements/quality.txt
     #   pylint
     #   pylint-celery
+async-timeout==4.0.2
+    # via
+    #   -r requirements/quality.txt
+    #   redis
 attrs==22.2.0
     # via
     #   -r requirements/quality.txt
@@ -258,6 +262,10 @@ pyyaml==6.0
     #   -r requirements/quality.txt
     #   code-annotations
     #   edx-i18n-tools
+redis==4.5.1
+    # via
+    #   -r requirements/quality.txt
+    #   walrus
 requests==2.28.2
     # via
     #   -r requirements/ci.txt
@@ -321,6 +329,8 @@ virtualenv==20.19.0
     # via
     #   -r requirements/ci.txt
     #   tox
+walrus==0.9.2
+    # via -r requirements/quality.txt
 wheel==0.38.4
     # via
     #   -r requirements/pip-tools.txt

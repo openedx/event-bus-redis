@@ -5,3 +5,5 @@ Django             # Web application framework
 openedx-events>=5.0.0                   # Events API
 edx_django_utils
 edx_toggles
+
+walrus             # redis python client

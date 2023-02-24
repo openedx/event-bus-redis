@@ -10,6 +10,10 @@ asgiref==3.6.0
     # via
     #   -r requirements/test.txt
     #   django
+async-timeout==4.0.2
+    # via
+    #   -r requirements/test.txt
+    #   redis
 attrs==22.2.0
     # via
     #   -r requirements/test.txt
@@ -201,6 +205,10 @@ pyyaml==6.0
     #   sphinx-book-theme
 readme-renderer==37.3
     # via twine
+redis==4.5.1
+    # via
+    #   -r requirements/test.txt
+    #   walrus
 requests==2.28.2
     # via
     #   requests-toolbelt
@@ -269,6 +277,8 @@ urllib3==1.26.14
     # via
     #   requests
     #   twine
+walrus==0.9.2
+    # via -r requirements/test.txt
 webencodings==0.5.1
     # via bleach
 zipp==3.14.0
