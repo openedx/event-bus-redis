@@ -11,7 +11,7 @@ from django.core.management.base import BaseCommand
 from django.utils.module_loading import import_string
 from openedx_events.data import EventsMetadata
 
-from edx_event_bus_kafka.internal.producer import create_producer
+from edx_event_bus_redis.internal.producer import create_producer
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +63,5 @@ class Command(BaseCommand):
                 event_data=json.loads(options['data'][0]),
                 event_metadata=EventsMetadata(event_type=event_type),
             )
-            producer.prepare_for_shutdown()  # otherwise command may exit before delivery is complete
         except Exception:  # pylint: disable=broad-except
             logger.exception("Error producing Kafka event")
