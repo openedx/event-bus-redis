@@ -9,6 +9,7 @@ from typing import Optional
 
 from django.conf import settings
 
+
 def load_common_settings() -> Optional[dict]:
     """
     Load common settings, a base for either producer or consumer configuration.
@@ -25,7 +26,6 @@ def load_common_settings() -> Optional[dict]:
     if url is None:
         warnings.warn("Cannot configure event-bus-redis: Missing setting EVENT_BUS_REDIS_CONNECTION_URL")
         return None
-
 
     base_settings = {
         'url': url,

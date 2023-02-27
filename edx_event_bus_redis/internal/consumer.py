@@ -129,7 +129,7 @@ class RedisEventConsumer:
         })
 
         # create redis client and consumer.
-        return None
+        return consumer_config
 
     def _shut_down(self):
         """
@@ -186,7 +186,9 @@ class RedisEventConsumer:
 
                 # Detect probably-broken consumer and exit with error.
                 if CONSECUTIVE_ERRORS_LIMIT and consecutive_errors >= CONSECUTIVE_ERRORS_LIMIT:
-                    raise Exception(f"Too many consecutive errors, exiting ({consecutive_errors} in a row)")
+                    raise Exception(  # pylint: disable=broad-exception-raised
+                        f"Too many consecutive errors, exiting ({consecutive_errors} in a row)"
+                    )
 
                 msg = None
                 try:
@@ -206,7 +208,7 @@ class RedisEventConsumer:
                     # Kill the infinite loop if the error is fatal for the consumer
                     _, redis_error = self._get_redis_message_and_error(message=msg, error=e)
                     # https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.TryAgainError
-                    if redis_error: # and redis_error.fatal()
+                    if redis_error:  # and redis_error.fatal()
                         raise e
                     # Prevent fast error-looping when no event received from broker. Because
                     # DeserializingConsumer raises rather than returning a Message when it has an
@@ -386,7 +388,7 @@ class RedisEventConsumer:
         try:
             # This is gross, but our record_exception wrapper doesn't take args at the moment,
             # and will only read the exception from stack context.
-            raise Exception(error)
+            raise Exception(error)  # pylint: disable=broad-exception-raised
         except BaseException:
             self._add_message_monitoring(run_context=run_context, message=maybe_redis_message, error=error)
             record_exception()

@@ -14,16 +14,17 @@ from django.test.utils import override_settings
 from openedx_events.learning.data import UserData, UserPersonalData
 from openedx_events.learning.signals import SESSION_LOGIN_COMPLETED
 
-from edx_event_bus_redis.internal.consumer import RedisEventConsumer, ReceiverError, UnusableMessageError
+from edx_event_bus_redis.internal.consumer import ReceiverError, RedisEventConsumer, UnusableMessageError
 from edx_event_bus_redis.internal.tests.test_utils import FakeMessage
 from edx_event_bus_redis.management.commands.consume_events import Command
+
 
 def fake_receiver_returns_quietly(**kwargs):
     return
 
 
 def fake_receiver_raises_error(**kwargs):
-    raise Exception("receiver whoops")
+    raise Exception("receiver whoops")  # pylint: disable=broad-exception-raised
 
 
 @override_settings(

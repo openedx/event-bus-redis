@@ -61,14 +61,14 @@ class FakeMessage:
     """
 
     def __init__(
-            self,
-            topic: Optional[str]=None,
-            headers: Optional[list]=None,
-            key: Optional[bytes]=None,
-            value=None,
-            error=None,
-            timestamp=None
-        ):
+        self,
+        topic: Optional[str] = None,
+        headers: Optional[list] = None,
+        key: Optional[bytes] = None,
+        value=None,
+        error=None,
+        timestamp=None
+    ):
         self._topic = topic
         self._headers = headers
         self._key = key

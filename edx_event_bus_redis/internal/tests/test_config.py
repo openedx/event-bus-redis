@@ -24,6 +24,7 @@ class TestCommonSettings(TestCase):
                 'url': 'redis://:password@locahost:6379/0',
             }
 
+
 class TestTopicPrefixing(TestCase):
     """
     Test autoprefixing of base topic.

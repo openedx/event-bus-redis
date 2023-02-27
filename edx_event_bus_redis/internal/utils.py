@@ -63,6 +63,7 @@ HEADER_SOURCEHOST = MessageHeader("sourcehost", event_metadata_field="sourcehost
 HEADER_SOURCELIB = MessageHeader("sourcelib", event_metadata_field="sourcelib",
                                  to_metadata=_sourcelib_str_to_tuple, from_metadata=_sourcelib_tuple_to_str)
 
+
 def get_message_header_values(headers: List, header: MessageHeader) -> List[str]:
     """
     Return all values for this header.
@@ -124,11 +125,13 @@ def get_metadata_from_headers(headers: List[Tuple]):
         if len(header_values) == 0:
             # the id is required, everything else we make optional for now
             if header_key == HEADER_ID.message_header_key:
-                raise Exception(f"Missing \"{header_key}\" header on message, cannot continue")
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    f"Missing \"{header_key}\" header on message, cannot continue"
+                )
             logger.warning(f"Missing \"{header_key}\" header on message, will use EventsMetadata default")
             continue
         if len(header_values) > 1:
-            raise Exception(
+            raise Exception(  # pylint: disable=broad-exception-raised
                 f"Multiple \"{header_key}\" headers on message. Cannot determine correct metadata."
             )
         header_value = header_values[0].decode("utf-8")

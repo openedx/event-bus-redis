@@ -30,7 +30,7 @@ def record_producing_error(error, context):
     try:
         # record_exception() is a wrapper around a New Relic method that can only be called within an except block,
         # so first re-raise the error
-        raise Exception(error)
+        raise Exception(error)  # pylint: disable=broad-exception-raised
     except BaseException:
         record_exception()
         logger.exception(f"Error delivering message to Kafka event bus. {error=!s} {context!r}")
