@@ -11,53 +11,44 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 from edx_django_utils.monitoring import record_exception, set_custom_attribute
 from edx_toggles.toggles import SettingToggle
-from openedx_events.event_bus.avro.deserializer import AvroSignalDeserializer
 from openedx_events.tooling import OpenEdxPublicSignal
+from redis.exceptions import RedisError
 
-from .config import get_full_topic, get_schema_registry_client, load_common_settings
+from .config import get_full_topic, load_common_settings
 from .utils import (
     AUDIT_LOGGING_ENABLED,
     HEADER_EVENT_TYPE,
     HEADER_ID,
-    _get_metadata_from_headers,
     get_message_header_values,
+    get_metadata_from_headers,
     last_message_header_value,
 )
 
 logger = logging.getLogger(__name__)
 
-# See https://github.com/openedx/event-bus-kafka/blob/main/docs/decisions/0005-optional-import-of-confluent-kafka.rst
-try:
-    import confluent_kafka
-    from confluent_kafka import TIMESTAMP_NOT_AVAILABLE, DeserializingConsumer
-    from confluent_kafka.error import KafkaError
-    from confluent_kafka.schema_registry.avro import AvroDeserializer
-except ImportError:  # pragma: no cover
-    confluent_kafka = None
-
-# .. toggle_name: EVENT_BUS_KAFKA_CONSUMERS_ENABLED
+# .. toggle_name: EVENT_BUS_REDIS_CONSUMERS_ENABLED
 # .. toggle_implementation: SettingToggle
 # .. toggle_default: True
 # .. toggle_description: If set to False, consumer will exit immediately. This can be used as an emergency kill-switch
 #   to disable a consumer—as long as the management command is killed and restarted when settings change.
 # .. toggle_use_cases: opt_out
 # .. toggle_creation_date: 2022-01-31
-KAFKA_CONSUMERS_ENABLED = SettingToggle('EVENT_BUS_KAFKA_CONSUMERS_ENABLED', default=True)
+REDIS_CONSUMERS_ENABLED = SettingToggle('EVENT_BUS_REDIS_CONSUMERS_ENABLED', default=True)
 
-# .. setting_name: EVENT_BUS_KAFKA_CONSUMER_POLL_TIMEOUT
+# .. setting_name: EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT
 # .. setting_default: 1.0
-# .. setting_description: How long the consumer should wait, in seconds, for the Kafka broker
+# .. setting_description: How long the consumer should wait, in seconds, for the Redis broker
 #   to respond to a poll() call.
-CONSUMER_POLL_TIMEOUT = getattr(settings, 'EVENT_BUS_KAFKA_CONSUMER_POLL_TIMEOUT', 1.0)
+CONSUMER_POLL_TIMEOUT = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT', 1.0)
 
-# .. setting_name: EVENT_BUS_KAFKA_CONSUMER_POLL_FAILURE_SLEEP
+# .. setting_name: EVENT_BUS_REDIS_CONSUMER_POLL_FAILURE_SLEEP
 # .. setting_default: 1.0
 # .. setting_description: When the consumer fails to retrieve an event from the broker,
 #   it will sleep for this many seconds before trying again. This is to prevent fast error-loops
 #   if the broker is down or the consumer is misconfigured. It *may* also sleep for errors that
 #   involve receiving an unreadable event, but this could change in the future to be more
 #   specific to "no event received from broker".
-POLL_FAILURE_SLEEP = getattr(settings, 'EVENT_BUS_KAFKA_CONSUMER_POLL_FAILURE_SLEEP', 1.0)
+POLL_FAILURE_SLEEP = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_POLL_FAILURE_SLEEP', 1.0)
 
 
 class UnusableMessageError(Exception):
@@ -97,7 +88,7 @@ def _reconnect_to_db_if_needed():
         connection.connect()
 
 
-class KafkaEventConsumer:
+class RedisEventConsumer:
     """
     Construct consumer for the given topic, group, and signal. The consumer can then
     emit events from the event bus using the configured signal.
@@ -108,9 +99,6 @@ class KafkaEventConsumer:
     """
 
     def __init__(self, topic, group_id, signal):
-        if confluent_kafka is None:  # pragma: no cover
-            raise Exception('Library confluent-kafka not available. Cannot create event consumer.')
-
         self.topic = topic
         self.group_id = group_id
         self.signal = signal
@@ -127,96 +115,27 @@ class KafkaEventConsumer:
             DeserializingConsumer if it is.
         """
 
-        schema_registry_client = get_schema_registry_client()
-
-        signal_deserializer = AvroSignalDeserializer(self.signal)
-
-        def inner_from_dict(event_data_dict, ctx=None):  # pylint: disable=unused-argument
-            return signal_deserializer.from_dict(event_data_dict)
-
         consumer_config = load_common_settings()
 
         # We do not deserialize the key because we don't need it for anything yet.
         # Also see https://github.com/openedx/openedx-events/issues/86 for some challenges on determining key schema.
         consumer_config.update({
             'group.id': self.group_id,
-            'value.deserializer': AvroDeserializer(schema_str=signal_deserializer.schema_string(),
-                                                   schema_registry_client=schema_registry_client,
-                                                   from_dict=inner_from_dict),
+            'value.deserializer': None,
             # Turn off auto commit. Auto commit will commit offsets for the entire batch of messages received,
             # potentially resulting in data loss if some of those messages are not fully processed. See
             # https://newrelic.com/blog/best-practices/kafka-consumer-config-auto-commit-data-loss
             'enable.auto.commit': False,
         })
 
-        return DeserializingConsumer(consumer_config)
+        # create redis client and consumer.
+        return None
 
     def _shut_down(self):
         """
         Test utility for shutting down the consumer loop.
         """
         self._shut_down_loop = True
-
-    def reset_offsets_and_sleep_indefinitely(self, offset_timestamp):
-        """
-        Reset any assigned partitions to the given offset, and sleep indefinitely.
-
-        Arguments:
-            offset_timestamp (datetime): Reset the offsets of the consumer partitions to this timestamp.
-        """
-
-        def reset_offsets(consumer, partitions):
-            # This is a callback method used on consumer assignment to handle offset reset logic.
-            # We do not want to attempt to change offsets if the offset is None.
-            if offset_timestamp is None:
-                return
-
-            # Get the offset from the epoch. Kafka expects offsets in milliseconds for offsets_for_times. Although
-            # this is undocumented in the libraries we're using (confluent-kafka and librdkafa), for reference
-            # see the docs for kafka-python:
-            # https://kafka-python.readthedocs.io/en/master/apidoc/KafkaConsumer.html#kafka.KafkaConsumer.offsets_for_times
-            offset_timestamp_ms = int(offset_timestamp.timestamp()*1000)
-            # We set the epoch timestamp in the offset position.
-            for partition in partitions:
-                partition.offset = offset_timestamp_ms
-
-            partitions_with_offsets = consumer.offsets_for_times(partitions, timeout=1.0)
-
-            # Partitions have an error field that may be set on return.
-            errors = [p.error for p in partitions_with_offsets if p.error is not None]
-            if len(errors) > 0:
-                raise Exception("Error getting offsets for timestamps: {errors}")
-
-            logger.info(f'Found offsets for timestamp {offset_timestamp}: {partitions_with_offsets}')
-
-            # We need to commit these offsets to Kafka in order to ensure these offsets are persisted.
-            consumer.commit(offsets=partitions_with_offsets)
-
-        full_topic = get_full_topic(self.topic)
-        # Partition assignment will trigger the reset logic. This should happen on the first poll call,
-        # but will also happen any time the broker needs to rebalance partitions among the consumer
-        # group, which could happen repeatedly over the lifetime of this process.
-        self.consumer.subscribe([full_topic], on_assign=reset_offsets)
-
-        while True:
-            # Allow unit tests to break out of loop
-            if self._shut_down_loop:
-                break
-
-            # This log message may be noisy when we are replaying, but hopefully we only see it
-            # once every 30 seconds.
-            logger.info("Offsets are being reset. Sleeping instead of consuming events.")
-
-            # We are calling poll here because we believe the offsets will not be set
-            # correctly until poll is called, despite the offsets being reset in a different call.
-            # This is because we don't believe that the partitions for the current consumer are assigned
-            # until the first poll happens. Because we are not trying to consume any messages in this mode,
-            # we are deliberately calling poll without processing the message it returns
-            # or commiting the new offset.
-            self.consumer.poll(timeout=CONSUMER_POLL_TIMEOUT)
-
-            time.sleep(30)
-            continue
 
     def _consume_indefinitely(self):
         """
@@ -225,11 +144,11 @@ class KafkaEventConsumer:
 
         # This is already checked at the Command level, but it's possible this loop
         # could get called some other way, so check it here too.
-        if not KAFKA_CONSUMERS_ENABLED.is_enabled():
-            logger.error("Kafka consumers not enabled, exiting.")
+        if not REDIS_CONSUMERS_ENABLED.is_enabled():
+            logger.error("Redis consumers not enabled, exiting.")
             return
 
-        # .. setting_name: EVENT_BUS_KAFKA_CONSUMER_CONSECUTIVE_ERRORS_LIMIT
+        # .. setting_name: EVENT_BUS_REDIS_CONSUMER_CONSECUTIVE_ERRORS_LIMIT
         # .. setting_default: None
         # .. setting_description: If the consumer encounters this many consecutive errors, exit with an
         #   error. This is intended to be used in a context where a management system (such as Kubernetes)
@@ -241,7 +160,7 @@ class KafkaEventConsumer:
         #   include failure to poll, failure to decode events, or errors returned by signal handlers.
         #   This does not prevent committing of offsets back to the broker; any messages that caused an
         #   error will still be marked as consumed, and may need to be replayed.
-        CONSECUTIVE_ERRORS_LIMIT = getattr(settings, 'EVENT_BUS_KAFKA_CONSUMER_CONSECUTIVE_ERRORS_LIMIT', None)
+        CONSECUTIVE_ERRORS_LIMIT = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_CONSECUTIVE_ERRORS_LIMIT', None)
 
         try:
             full_topic = get_full_topic(self.topic)
@@ -250,7 +169,7 @@ class KafkaEventConsumer:
                 'consumer_group': self.group_id,
                 'expected_signal': self.signal,
             }
-            self.consumer.subscribe([full_topic])
+            # TODO: Consume events
             logger.info(f"Running consumer for {run_context!r}")
 
             # How many errors have we seen in a row? If this climbs too high, exit with error.
@@ -271,7 +190,8 @@ class KafkaEventConsumer:
 
                 msg = None
                 try:
-                    msg = self.consumer.poll(timeout=CONSUMER_POLL_TIMEOUT)
+                    # poll for msg
+                    msg = None
                     if msg is not None:
                         # Before processing, make sure our db connection is still active
                         _reconnect_to_db_if_needed()
@@ -284,8 +204,9 @@ class KafkaEventConsumer:
                     consecutive_errors += 1
                     self.record_event_consuming_error(run_context, e, msg)
                     # Kill the infinite loop if the error is fatal for the consumer
-                    _, kafka_error = self._get_kafka_message_and_error(message=msg, error=e)
-                    if kafka_error and kafka_error.fatal():
+                    _, redis_error = self._get_redis_message_and_error(message=msg, error=e)
+                    # https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.TryAgainError
+                    if redis_error: # and redis_error.fatal()
                         raise e
                     # Prevent fast error-looping when no event received from broker. Because
                     # DeserializingConsumer raises rather than returning a Message when it has an
@@ -293,14 +214,15 @@ class KafkaEventConsumer:
                     # slowing down the queue. This is probably close enough, though.
                     if msg is None:
                         time.sleep(POLL_FAILURE_SLEEP)
-                if msg:
+                # if msg:
                     # theoretically we could just call consumer.commit() without passing the specific message
                     # to commit all this consumer's current offset across all partitions since we only process one
                     # message at a time, but limit it to just the offset/partition of the specified message
                     # to be super safe
-                    self.consumer.commit(message=msg)
+                    # self.consumer.commit(message=msg)
         finally:
-            self.consumer.close()
+            # TODO: close consumber
+            pass
 
     def consume_indefinitely(self, offset_timestamp=None):
         """
@@ -321,7 +243,7 @@ class KafkaEventConsumer:
                 "Calling consume_indefinitely with offset_timestamp is deprecated; "
                 "please call reset_offsets_and_sleep_indefinitely directly instead."
             )
-            self.reset_offsets_and_sleep_indefinitely(offset_timestamp)
+            # self.reset_offsets_and_sleep_indefinitely(offset_timestamp)
 
     def emit_signals_from_message(self, msg):
         """
@@ -346,11 +268,11 @@ class KafkaEventConsumer:
         event_types = get_message_header_values(headers, HEADER_EVENT_TYPE)
         if len(event_types) == 0:
             raise UnusableMessageError(
-                "Missing ce_type header on message, cannot determine signal"
+                "Missing type header on message, cannot determine signal"
             )
         if len(event_types) > 1:
             raise UnusableMessageError(
-                "Multiple ce_type headers found on message, cannot determine signal"
+                "Multiple type headers found on message, cannot determine signal"
             )
         event_type = event_types[0]
 
@@ -360,7 +282,7 @@ class KafkaEventConsumer:
                 f"Received message of type {event_type}."
             )
         try:
-            event_metadata = _get_metadata_from_headers(headers)
+            event_metadata = get_metadata_from_headers(headers)
         except Exception as e:
             raise UnusableMessageError(f"Error determining metadata from message headers: {e}") from e
         send_results = self.signal.send_event_with_custom_metadata(event_metadata, **msg.value())
@@ -374,7 +296,7 @@ class KafkaEventConsumer:
         # we just need the logger to spit this out with a timestamp.
         # See ADR: docs/decisions/0010_audit_logging.rst
         if AUDIT_LOGGING_ENABLED.is_enabled():
-            logger.info('Message from Kafka processed successfully')
+            logger.info('Message from Redis processed successfully')
 
     def _check_receiver_results(self, send_results: list):
         """
@@ -424,22 +346,18 @@ class KafkaEventConsumer:
         try:
             message_id = last_message_header_value(msg.headers(), HEADER_ID)
 
-            (ts_type, timestamp_ms) = msg.timestamp()
-            if ts_type == TIMESTAMP_NOT_AVAILABLE:
-                timestamp_info = "none"
-            else:
-                # Could be produce time or broker receive time; not going to bother to specify here.
-                timestamp_info = str(timestamp_ms)
+            timestamp_ms = msg.timestamp()
+            timestamp_info = str(timestamp_ms)
 
             # See ADR for details on why certain fields were included or omitted.
             logger.info(
-                f'Message received from Kafka: topic={msg.topic()}, partition={msg.partition()}, '
-                f'offset={msg.offset()}, message_id={message_id}, key={msg.key()}, '
+                f'Message received from Redis: topic={msg.topic()}, '
+                f'message_id={message_id}, key={msg.key()}, '
                 f'event_timestamp_ms={timestamp_info}'
             )
         except Exception as e:  # pragma: no cover  pylint: disable=broad-except
             # Use this to fix any bugs in what should be benign logging code
-            set_custom_attribute('kafka_logging_error', repr(e))
+            set_custom_attribute('redis_logging_error', repr(e))
 
     def record_event_consuming_error(self, run_context, error, maybe_message):
         """
@@ -449,21 +367,19 @@ class KafkaEventConsumer:
             run_context: Dictionary of contextual information: full_topic, consumer_group,
               and expected_signal.
             error: An exception instance
-            maybe_message: None if event could not be fetched or decoded, or a Kafka Message if
+            maybe_message: None if event could not be fetched or decoded, or a Redis Message if
               one was successfully deserialized but could not be processed for some reason
         """
         context_msg = ", ".join(f"{k}={v!r}" for k, v in run_context.items())
         # Pulls the event message off the error for certain exceptions.
-        maybe_kafka_message, _ = self._get_kafka_message_and_error(message=maybe_message, error=error)
-        if maybe_kafka_message is None:
+        maybe_redis_message, _ = self._get_redis_message_and_error(message=maybe_message, error=error)
+        if maybe_redis_message is None:
             event_msg = "no event available"
         else:
             event_details = {
-                'partition': maybe_kafka_message.partition(),
-                'offset': maybe_kafka_message.offset(),
-                'headers': maybe_kafka_message.headers(),
-                'key': maybe_kafka_message.key(),
-                'value': maybe_kafka_message.value(),
+                'headers': maybe_redis_message.headers(),
+                'key': maybe_redis_message.key(),
+                'value': maybe_redis_message.value(),
             }
             event_msg = f"event details: {event_details!r}"
 
@@ -472,10 +388,10 @@ class KafkaEventConsumer:
             # and will only read the exception from stack context.
             raise Exception(error)
         except BaseException:
-            self._add_message_monitoring(run_context=run_context, message=maybe_kafka_message, error=error)
+            self._add_message_monitoring(run_context=run_context, message=maybe_redis_message, error=error)
             record_exception()
             logger.exception(
-                f"Error consuming event from Kafka: {error!r} in context {context_msg} -- {event_msg}"
+                f"Error consuming event from Redis: {error!r} in context {context_msg} -- {event_msg}"
             )
 
     def _add_message_monitoring(self, run_context, message, error=None):
@@ -490,88 +406,88 @@ class KafkaEventConsumer:
             error: (Optional) An exception instance, or None if no error.
         """
         try:
-            kafka_message, kafka_error = self._get_kafka_message_and_error(message=message, error=error)
+            redis_message, redis_error = self._get_redis_message_and_error(message=message, error=error)
 
-            # .. custom_attribute_name: kafka_topic
+            # .. custom_attribute_name: redis_topic
             # .. custom_attribute_description: The full topic of the message or error.
-            set_custom_attribute('kafka_topic', run_context['full_topic'])
+            set_custom_attribute('redis_topic', run_context['full_topic'])
 
-            if kafka_message:
-                # .. custom_attribute_name: kafka_partition
+            if redis_message:
+                # .. custom_attribute_name: redis_partition
                 # .. custom_attribute_description: The partition of the message.
-                set_custom_attribute('kafka_partition', kafka_message.partition())
-                # .. custom_attribute_name: kafka_offset
-                # .. custom_attribute_description: The offset of the message.
-                set_custom_attribute('kafka_offset', kafka_message.offset())
-                headers = kafka_message.headers() or []  # treat None as []
+                # set_custom_attribute('redis_partition', redis_message.partition())
+                headers = redis_message.headers() or []  # treat None as []
                 message_ids = get_message_header_values(headers, HEADER_ID)
                 if len(message_ids) > 0:
-                    # .. custom_attribute_name: kafka_message_id
+                    # .. custom_attribute_name: redis_message_id
                     # .. custom_attribute_description: The message id which can be matched to the logs. Note that the
                     #   header in the logs will use 'ce_id'.
-                    set_custom_attribute('kafka_message_id', ",".join(message_ids))
+                    set_custom_attribute('redis_message_id', ",".join(message_ids))
                 event_types = get_message_header_values(headers, HEADER_EVENT_TYPE)
                 if len(event_types) > 0:
-                    # .. custom_attribute_name: kafka_event_type
+                    # .. custom_attribute_name: redis_event_type
                     # .. custom_attribute_description: The event type of the message. Note that the header in the logs
                     #   will use 'ce_type'.
-                    set_custom_attribute('kafka_event_type', ",".join(event_types))
+                    set_custom_attribute('redis_event_type', ",".join(event_types))
 
-            if kafka_error:
-                # .. custom_attribute_name: kafka_error_fatal
+            if redis_error:
+                # .. custom_attribute_name: redis_error_fatal
                 # .. custom_attribute_description: Boolean describing if the error is fatal.
-                set_custom_attribute('kafka_error_fatal', kafka_error.fatal())
-                # .. custom_attribute_name: kafka_error_retriable
+                # TODO: https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.TryAgainError
+                # set_custom_attribute('redis_error_fatal', redis_error.fatal())
+                # .. custom_attribute_name: redis_error_retriable
                 # .. custom_attribute_description: Boolean describing if the error is retriable.
-                set_custom_attribute('kafka_error_retriable', kafka_error.retriable())
+                # https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.TryAgainError
+                # set_custom_attribute('redis_error_retriable', redis_error.retriable())
+                pass
 
         except Exception as e:  # pragma: no cover  pylint: disable=broad-except
             # Use this to fix any bugs in what should be benign monitoring code
-            set_custom_attribute('kafka_monitoring_error', repr(e))
+            set_custom_attribute('redis_monitoring_error', repr(e))
 
-    def _get_kafka_message_and_error(self, message, error):
+    def _get_redis_message_and_error(self, message, error):
         """
-        Returns tuple of (kafka_message, kafka_error), if they can be found.
+        Returns tuple of (redis_message, redis_error), if they can be found.
 
         Notes:
             * If the message was sent as a parameter, it will be returned.
-            * If the message was not sent, and a KafkaException was sent, the
+            * If the message was not sent, and a RedisException was sent, the
                 message will be pulled from the exception if it exists.
-            * A KafkaError will be returned if it is either passed directly,
-                or if it was wrapped by a KafkaException.
+            * A RedisError will be returned if it is either passed directly,
+                or if it was wrapped by a RedisException.
 
         Arguments:
             message: None if event could not be fetched or decoded, or a Message if one
               was successfully deserialized but could not be processed for some reason
             error: An exception instance, or None if no error.
         """
-        if not error or isinstance(error, KafkaError):
+        if not error or isinstance(error, RedisError):
             return message, error
 
-        kafka_error = getattr(error, 'kafka_error', None)
-        # KafkaException uses args[0] to wrap the KafkaError
-        if not kafka_error and len(error.args) > 0 and isinstance(error.args[0], KafkaError):
-            kafka_error = error.args[0]
+        redis_error = getattr(error, 'redis_error', None)
+        # RedisException uses args[0] to wrap the RedisError
+        if not redis_error and len(error.args) > 0 and isinstance(error.args[0], RedisError):
+            redis_error = error.args[0]
 
-        kafka_message = getattr(error, 'kafka_message', None)
-        if message and kafka_message and kafka_message != message:  # pragma: no cover
+        redis_message = getattr(error, 'redis_message', None)
+        if message and redis_message and redis_message != message:  # pragma: no cover
             # If this unexpected error ever occurs, we can invest in a better error message
             #   with a test, that includes event header details.
-            logger.error("Error consuming event from Kafka: (UNEXPECTED) The event message did not match"
+            logger.error("Error consuming event from Redis: (UNEXPECTED) The event message did not match"
                          " the message packaged with the error."
-                         f" -- event message={message!r}, error event message={kafka_message!r}.")
+                         f" -- event message={message!r}, error event message={redis_message!r}.")
         # give priority to the passed message, although in theory, it should be the same message if not None
-        kafka_message = message or kafka_message
+        redis_message = message or redis_message
 
-        return kafka_message, kafka_error
+        return redis_message, redis_error
 
 
 class ConsumeEventsCommand(BaseCommand):
     """
-    Management command for Kafka consumer workers in the event bus.
+    Management command for Redis consumer workers in the event bus.
     """
     help = """
-    Consume messages of specified signal type from a Kafka topic and send their data to that signal.
+    Consume messages of specified signal type from a Redis topic and send their data to that signal.
 
     Example::
 
@@ -611,14 +527,8 @@ class ConsumeEventsCommand(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        if confluent_kafka is None:
-            logger.error(
-                "Cannot consume events because confluent_kafka dependency (or one of its extras) was not installed"
-            )
-            return
-
-        if not KAFKA_CONSUMERS_ENABLED.is_enabled():
-            logger.error("Kafka consumers not enabled, exiting.")
+        if not REDIS_CONSUMERS_ENABLED.is_enabled():
+            logger.error("Redis consumers not enabled, exiting.")
             return
 
         try:
@@ -632,7 +542,7 @@ class ConsumeEventsCommand(BaseCommand):
             else:
                 offset_timestamp = None
 
-            event_consumer = KafkaEventConsumer(
+            event_consumer = RedisEventConsumer(
                 topic=options['topic'][0],
                 group_id=options['group_id'][0],
                 signal=signal,
@@ -640,6 +550,7 @@ class ConsumeEventsCommand(BaseCommand):
             if offset_timestamp is None:
                 event_consumer.consume_indefinitely()
             else:
-                event_consumer.reset_offsets_and_sleep_indefinitely(offset_timestamp=offset_timestamp)
+                pass
+                # event_consumer.reset_offsets_and_sleep_indefinitely(offset_timestamp=offset_timestamp)
         except Exception:  # pylint: disable=broad-except
-            logger.exception("Error consuming Kafka events")
+            logger.exception("Error consuming Redis events")
