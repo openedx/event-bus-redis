@@ -99,7 +99,7 @@ def last_message_header_value(headers: List, header: MessageHeader) -> Optional[
 
 def get_metadata_from_headers(headers: List[Tuple]):
     """
-    Create an EventsMetadata object from the headers of a Kafka message
+    Create an EventsMetadata object from the headers of a Redis message
 
     Arguments
         headers: The list of headers returned from calling message.headers() on a consumed message

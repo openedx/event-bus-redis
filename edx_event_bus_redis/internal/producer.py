@@ -1,5 +1,5 @@
 """
-Produce Kafka events from signals.
+Produce Redis events from signals.
 
 Main function is ``create_producer()``, which should be referred to from ``EVENT_BUS_PRODUCER``.
 """
@@ -33,7 +33,7 @@ def record_producing_error(error, context):
         raise Exception(error)  # pylint: disable=broad-exception-raised
     except BaseException:
         record_exception()
-        logger.exception(f"Error delivering message to Kafka event bus. {error=!s} {context!r}")
+        logger.exception(f"Error delivering message to Redis event bus. {error=!s} {context!r}")
 
 
 @attr.s(kw_only=True, repr=False)
@@ -73,21 +73,17 @@ class ProducingContext:
                 return
 
             # `evt.headers()` is None in this callback, so we need to use the bound data.
-            # https://github.com/confluentinc/confluent-kafka-python/issues/574
             message_id = self.event_metadata.id
             # See ADR for details on why certain fields were included or omitted.
             logger.info(
-                f"Message delivered to Kafka event bus: topic={evt.topic()}, partition={evt.partition()}, "
-                f"offset={evt.offset()}, message_id={message_id}, key={evt.key()}"
+                f"Message delivered to Redis event bus: topic={evt.topic()} "
+                f"message_id={message_id}, key={evt.key()}"
             )
 
 
 class RedisEventProducer(EventBusProducer):
     """
-    API singleton for event production to Kafka.
-
-    This is just a wrapper around a confluent_kafka Producer that knows how to
-    serialize a signal to event wire format.
+    API singleton for event production to Redis.
 
     Only one instance (of Producer or this wrapper) should be created,
     since it is stateful and needs lifecycle management.
@@ -129,8 +125,6 @@ class RedisEventProducer(EventBusProducer):
 def create_producer() -> Optional[RedisEventProducer]:
     """
     Create a Producer API instance. Caller should cache the returned object.
-
-    If confluent-kafka library or essential settings are missing, warn and return None.
     """
     producer_settings = load_common_settings()
     if producer_settings is None:

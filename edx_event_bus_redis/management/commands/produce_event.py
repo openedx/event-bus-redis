@@ -21,7 +21,7 @@ class Command(BaseCommand):
     Management command to produce a test event to the event bus.
     """
     help = """
-    Produce a single test event with the given data to the specified Kafka topic.
+    Produce a single test event with the given data to the specified Redis topic.
 
     example:
         python3 manage.py cms produce_event --signal openedx_events.learning.signals.SESSION_LOGIN_COMPLETED \
@@ -64,4 +64,4 @@ class Command(BaseCommand):
                 event_metadata=EventsMetadata(event_type=event_type),
             )
         except Exception:  # pylint: disable=broad-except
-            logger.exception("Error producing Kafka event")
+            logger.exception("Error producing Redis event")

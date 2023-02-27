@@ -111,7 +111,6 @@ class RedisEventConsumer:
         Create a DeserializingConsumer for events of the given signal instance.
 
         Returns
-            None if confluent_kafka is not available.
             DeserializingConsumer if it is.
         """
 
@@ -124,7 +123,7 @@ class RedisEventConsumer:
             'value.deserializer': None,
             # Turn off auto commit. Auto commit will commit offsets for the entire batch of messages received,
             # potentially resulting in data loss if some of those messages are not fully processed. See
-            # https://newrelic.com/blog/best-practices/kafka-consumer-config-auto-commit-data-loss
+            # https://newrelic.com/blog/best-practices/redis-consumer-config-auto-commit-data-loss
             'enable.auto.commit': False,
         })
 

@@ -1,5 +1,5 @@
 """
-Management commands for the Kafka implementation.
+Management commands for the Redis implementation.
 
 (Django requires this package structure.)
 """

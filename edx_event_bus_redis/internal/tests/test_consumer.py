@@ -115,7 +115,7 @@ class TestEmitSignals(TestCase):
         with override_settings(EVENT_BUS_REDIS_AUDIT_LOGGING_ENABLED=audit_logging):
             self.event_consumer.emit_signals_from_message(self.normal_message)
         self.assert_signal_sent_with(self.signal, self.normal_event_data)
-        # Specifically, not called with 'kafka_logging_error'
+        # Specifically, not called with 'redis_logging_error'
         mock_set_attribute.assert_not_called()
         if audit_logging:
             mock_logger.info.assert_has_calls([
@@ -140,7 +140,7 @@ class TestEmitSignals(TestCase):
 
         self.event_consumer.emit_signals_from_message(self.normal_message)
         self.assert_signal_sent_with(self.signal, self.normal_event_data)
-        # Specifically, not called with 'kafka_logging_error'
+        # Specifically, not called with 'redis_logging_error'
         mock_set_attribute.assert_not_called()
         mock_logger.info.assert_has_calls([
             call(
