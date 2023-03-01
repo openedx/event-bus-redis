@@ -57,8 +57,6 @@ HEADER_TIME = MessageHeader("time", event_metadata_field="time",
                             from_metadata=lambda x: x.isoformat())
 HEADER_MINORVERSION = MessageHeader("minorversion", event_metadata_field="minorversion", to_metadata=int,
                                     from_metadata=str)
-
-# not CloudEvent headers, so no "ce" prefix
 HEADER_SOURCEHOST = MessageHeader("sourcehost", event_metadata_field="sourcehost")
 HEADER_SOURCELIB = MessageHeader("sourcelib", event_metadata_field="sourcelib",
                                  to_metadata=_sourcelib_str_to_tuple, from_metadata=_sourcelib_tuple_to_str)
@@ -75,7 +73,6 @@ def get_message_header_values(headers: List, header: MessageHeader) -> List[str]
     Returns:
         List of zero or more header values decoded as strings.
     """
-    # CloudEvents specifies using UTF-8 for header values, so let's be explicit.
     return [value.decode("utf-8") for key, value in headers if key == header.message_header_key]
 
 
@@ -156,7 +153,7 @@ def get_headers_from_metadata(event_metadata: oed.EventsMetadata):
         if not header.event_metadata_field:
             continue
         event_metadata_value = getattr(event_metadata, header.event_metadata_field)
-        # CloudEvents specifies using UTF-8; that should be the default, but let's make it explicit.
+        # Convert string to utf8 encoded bytes
         values[header.message_header_key] = header.from_metadata(event_metadata_value).encode("utf8")
 
     return values
