@@ -71,7 +71,7 @@ class ProducingContext:
         message_id = self.event_metadata.id
         # See ADR for details on why certain fields were included or omitted.
         logger.info(
-            f"Message delivered to Redis event bus: topic={self.full_topic} "
+            f"Message delivered to Redis event bus: topic={self.full_topic}, "
             f"message_id={message_id}, signal={self.signal}, redis_msg_id={redis_msg_id}"
         )
 
