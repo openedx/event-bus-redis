@@ -152,7 +152,7 @@ class TestEventProducer(TestCase):
             metadata = EventsMetadata(event_type=simple_signal.event_type, minorversion=0)
             producer_api = ep.create_producer()
             with patch.object(producer_api, 'client', autospec=True) as mock_client:
-                # imitate a failed send to Kafka
+                # imitate a failed send to Redis
                 mock_client.Stream = Mock(side_effect=Exception('bad!'))
                 producer_api.send(
                     signal=simple_signal,
