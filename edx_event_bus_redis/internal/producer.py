@@ -11,10 +11,12 @@ import attr
 from edx_django_utils.monitoring import record_exception
 from openedx_events.data import EventsMetadata
 from openedx_events.event_bus import EventBusProducer
+from openedx_events.event_bus.avro.serializer import serialize_event_data_to_bytes
 from openedx_events.tooling import OpenEdxPublicSignal
+from walrus import Database
 
 from .config import get_full_topic, load_common_settings
-from .utils import AUDIT_LOGGING_ENABLED
+from .utils import AUDIT_LOGGING_ENABLED, get_headers_from_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -53,32 +55,25 @@ class ProducingContext:
         """Create a logging-friendly string"""
         return " ".join([f"{key}={value!r}" for key, value in attr.asdict(self, recurse=False).items()])
 
-    def on_event_deliver(self, err, evt):
+    def on_event_deliver(self, redis_msg_id):
         """
-        Simple callback method for debugging event production
-
-        If there is any error, log all the known information about the calling context so the event can be recreated
-        and/or resent later. This log will not contain the exact headers but will contain the EventsMetadata object
-        that can be used to recreate them.
+        Simple method for debugging event production
 
         Arguments:
-            err: Error if event production failed
-            evt: Event that was delivered (or failed to be delivered)
+            msg_id: Stream event msg_id.
         """
-        if err is not None:
-            record_producing_error(err, self)
-        else:
-            # Audit logging on success. See ADR: docs/decisions/0010_audit_logging.rst
-            if not AUDIT_LOGGING_ENABLED.is_enabled():
-                return
+        # TODO: see if below ADR can be moved to openedx_events.
+        # Audit logging on success.
+        # See ADR: https://github.com/openedx/event-bus-kafka/blob/main/docs/decisions/0010_audit_logging.rst
+        if not AUDIT_LOGGING_ENABLED.is_enabled():
+            return
 
-            # `evt.headers()` is None in this callback, so we need to use the bound data.
-            message_id = self.event_metadata.id
-            # See ADR for details on why certain fields were included or omitted.
-            logger.info(
-                f"Message delivered to Redis event bus: topic={evt.topic()} "
-                f"message_id={message_id}, key={evt.key()}"
-            )
+        message_id = self.event_metadata.id
+        # See ADR for details on why certain fields were included or omitted.
+        logger.info(
+            f"Message delivered to Redis event bus: topic={self.full_topic}, "
+            f"message_id={message_id}, signal={self.signal}, redis_msg_id={redis_msg_id}"
+        )
 
 
 class RedisEventProducer(EventBusProducer):
@@ -103,22 +98,30 @@ class RedisEventProducer(EventBusProducer):
             signal: The original OpenEdxPublicSignal the event was sent to
             topic: The base (un-prefixed) event bus topic for the event
             event_key_field: Path to the event data field to use as the event key (period-delimited
-              string naming the dictionary keys to descend)
+              string naming the dictionary keys to descend). Not used in redis event bus.
             event_data: The event data (kwargs) sent to the signal
             event_metadata: An EventsMetadata object with all the metadata necessary for the CloudEvent spec
         """
 
         # keep track of the initial arguments for recreating the event in the logs if necessary later
-        context = ProducingContext(signal=signal, initial_topic=topic, event_key_field=event_key_field,
-                                   event_data=event_data, event_metadata=event_metadata)
+        context = ProducingContext(
+            signal=signal,
+            initial_topic=topic,
+            event_key_field=event_key_field,
+            event_data=event_data,
+            event_metadata=event_metadata
+        )
         try:
             full_topic = get_full_topic(topic)
             context.full_topic = full_topic
+            headers = get_headers_from_metadata(event_metadata)
+            serialized_event_data = serialize_event_data_to_bytes(event_data, signal)
+            stream_data = {'event_data': serialized_event_data, **headers}
 
-            # TODO: add event to redis stream
+            stream = self.client.Stream(full_topic)
+            msg_id = stream.add(stream_data)
+            context.on_event_deliver(msg_id)
         except Exception as e:  # pylint: disable=broad-except
-            # Errors caused by the produce call should be handled by the on_delivery callback.
-            # Here we might expect serialization errors, or any errors from preparing to produce.
             record_producing_error(e, context)
 
 
@@ -127,9 +130,8 @@ def create_producer() -> Optional[RedisEventProducer]:
     Create a Producer API instance. Caller should cache the returned object.
     """
     producer_settings = load_common_settings()
-    if producer_settings is None:
+    if producer_settings is None or "url" not in producer_settings:
         return None
 
-    # TODO create redis client
-    client = None
+    client = Database.from_url(producer_settings['url'])
     return RedisEventProducer(client)
