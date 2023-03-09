@@ -11,7 +11,7 @@ import attr
 from edx_django_utils.monitoring import record_exception
 from openedx_events.data import EventsMetadata
 from openedx_events.event_bus import EventBusProducer
-from openedx_events.event_bus.avro.tests.test_utilities import serialize_event_data_to_bytes
+from openedx_events.event_bus.avro.serializer import serialize_event_data_to_bytes
 from openedx_events.tooling import OpenEdxPublicSignal
 from walrus import Database
 
