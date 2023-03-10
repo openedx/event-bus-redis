@@ -110,3 +110,17 @@ install_transifex_client: ## Install the Transifex client
 	git diff -s --exit-code HEAD || { echo "Please commit changes first."; exit 1; }
 	curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
 	git checkout -- LICENSE README.md ## overwritten by Transifex installer
+
+## Local test helpers
+produce_test_event:
+	python manage.py produce_event --signal openedx_events.content_authoring.signals.XBLOCK_DELETED --topic dev-xblock-deleted --key-field None --data '{"xblock_info": {"usage_key": "block-v1:edx+DemoX+Demo_course+type@video+block@UaEBjyMjcLW65gaTXggB93WmvoxGAJa0JeHRrDThk", "block_type": "video"}}'
+
+consume_test_event:
+	python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic dev-xblock-deleted --group_id test_group --consumer_name test_group.c1
+
+multiple_consumer_test_event:
+	python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic dev-xblock-deleted --group_id test_group --consumer_name test_group.c1 &
+	python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic dev-xblock-deleted --group_id test_group --consumer_name test_group.c2 &
+
+kill_all_consume_test_events:
+	pgrep -lf python\ manage.py\ consume_events\ --signal\ org.openedx.content_authoring.xblock.deleted.v1\ --topic\ dev-xblock-deleted\ --group_id\ test_group\ --consumer_name\ test_group. | cut -d" " -f1 | xargs kill -15

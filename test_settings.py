@@ -39,6 +39,23 @@ LOCALE_PATHS = [
     root('edx_event_bus_redis', 'conf', 'locale'),
 ]
 
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+        }
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True
+        },
+    }
+}
+
 ROOT_URLCONF = 'edx_event_bus_redis.urls'
 
 SECRET_KEY = 'insecure-secret-key'
@@ -59,3 +76,6 @@ TEMPLATES = [{
         ],
     },
 }]
+
+EVENT_BUS_PRODUCER = 'edx_event_bus_redis.create_producer'
+EVENT_BUS_REDIS_CONNECTION_URL = 'redis://:password@localhost:6379/'

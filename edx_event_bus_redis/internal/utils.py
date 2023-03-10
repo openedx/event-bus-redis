@@ -76,25 +76,7 @@ def get_message_header_values(headers: List, header: MessageHeader) -> List[str]
     return [value.decode("utf-8") for key, value in headers if key == header.message_header_key]
 
 
-def last_message_header_value(headers: List, header: MessageHeader) -> Optional[str]:
-    """
-    Return the value for the header with the specified key, if there is at least one.
-
-    We should not ordinarily expect there to be more than one instance of a header.
-    However, if there is one, this function will return the last value of it. (The
-    latest value may have been intended to override an earlier value.)
-
-    Arguments:
-        headers: List of key/value tuples. Keys are strings, values are bytestrings.
-        header: The MessageHeader to look for.
-
-    Returns:
-        Decoded value of the last header with this key, or None if there are none.
-    """
-    return next(reversed(get_message_header_values(headers, header)), None)
-
-
-def get_metadata_from_headers(headers: List[Tuple]):
+def get_metadata_from_headers(headers: dict):
     """
     Create an EventsMetadata object from the headers of a Redis message
 
@@ -105,35 +87,16 @@ def get_metadata_from_headers(headers: List[Tuple]):
         An instance of EventsMetadata with the parameters from the headers. Any fields missing from the headers
          are set to the defaults of the EventsMetadata class
     """
-    # Transform list of (header, value) tuples to a {header: [list of values]} dict. Necessary as an intermediate
-    # step because there is no guarantee of unique headers in the list of tuples
-    headers_as_dict = defaultdict(list)
-    metadata_kwargs = {}
-    for key, value in headers:
-        headers_as_dict[key].append(value)
-
     # go through all the headers we care about and set the appropriate field
+    metadata = {}
     for header in MessageHeader.instances:
         metadata_field = header.event_metadata_field
         if not metadata_field:
             continue
         header_key = header.message_header_key
-        header_values = headers_as_dict[header_key]
-        if len(header_values) == 0:
-            # the id is required, everything else we make optional for now
-            if header_key == HEADER_ID.message_header_key:
-                raise Exception(  # pylint: disable=broad-exception-raised
-                    f"Missing \"{header_key}\" header on message, cannot continue"
-                )
-            logger.warning(f"Missing \"{header_key}\" header on message, will use EventsMetadata default")
-            continue
-        if len(header_values) > 1:
-            raise Exception(  # pylint: disable=broad-exception-raised
-                f"Multiple \"{header_key}\" headers on message. Cannot determine correct metadata."
-            )
-        header_value = header_values[0].decode("utf-8")
-        metadata_kwargs[header.event_metadata_field] = header.to_metadata(header_value)
-    return oed.EventsMetadata(**metadata_kwargs)
+        header_value = headers[header_key.encode("utf8")]
+        metadata[header.event_metadata_field] = header.to_metadata(header_value.decode("utf8"))
+    return oed.EventsMetadata(**metadata)
 
 
 def get_headers_from_metadata(event_metadata: oed.EventsMetadata):
