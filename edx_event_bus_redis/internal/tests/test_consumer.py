@@ -2,11 +2,12 @@
 Tests for event_consumer module.
 """
 
-import copy
+from datetime import datetime, timezone
 from unittest.mock import Mock, call, patch
 from uuid import uuid1
 
 import ddt
+from openedx_events.tooling import EventsMetadata
 import pytest
 from django.core.management import call_command
 from django.test import TestCase
@@ -14,8 +15,8 @@ from django.test.utils import override_settings
 from openedx_events.learning.data import UserData, UserPersonalData
 from openedx_events.learning.signals import SESSION_LOGIN_COMPLETED
 
-from edx_event_bus_redis.internal.consumer import ReceiverError, RedisEventConsumer, UnusableMessageError
-from edx_event_bus_redis.internal.tests.test_utils import FakeMessage
+from edx_event_bus_redis.internal.consumer import ReceiverError, RedisEventConsumer
+from edx_event_bus_redis.internal.message import RedisMessage
 from edx_event_bus_redis.management.commands.consume_events import Command
 
 
@@ -33,7 +34,7 @@ def fake_receiver_raises_error(**kwargs):
 @ddt.ddt
 class TestEmitSignals(TestCase):
     """
-    Tests for message parsing and signal-sending.
+    Tests for signal-sending.
     """
 
     def setUp(self):
@@ -49,21 +50,20 @@ class TestEmitSignals(TestCase):
                 )
             )
         }
+        self.event_data_bytes = b'\xf6\x01\x01\x0cfoobob\x1ebob@foo.example\x0eBob Foo'
         self.message_id = uuid1()
         self.message_id_bytes = str(self.message_id).encode('utf-8')
 
         self.signal_type_bytes = b'org.openedx.learning.auth.session.login.completed.v1'
         self.signal_type = self.signal_type_bytes.decode('utf-8')
-        self.normal_message = FakeMessage(
+        self.normal_message = RedisMessage(
+            event_data=self.event_data_bytes,
             topic='local-some-topic',
-            headers=[
-                ('id', self.message_id_bytes),
-                ('type', self.signal_type_bytes),
-            ],
-            key=b'\x00\x00\x00\x00\x01\x0cfoobob',  # Avro, as observed in manual test
-            value=self.normal_event_data,
-            error=None,
-            timestamp=1675114920123,
+            event_metadata=EventsMetadata(
+                id=self.message_id,
+                event_type=self.signal_type,
+                time=datetime.fromtimestamp(1678773365.314331, timezone.utc)
+            )
         )
         self.mock_receiver = Mock()
         self.signal = SESSION_LOGIN_COMPLETED
@@ -122,34 +122,12 @@ class TestEmitSignals(TestCase):
                 call(
                     "Message received from Redis: topic=local-some-topic, "
                     f"message_id={self.message_id}, "
-                    "key=b'\\x00\\x00\\x00\\x00\\x01\\x0cfoobob', event_timestamp_ms=1675114920123"
+                    "redis_msg_id=None, event_timestamp_ms=1678773365.314331"
                 ),
                 call('Message from Redis processed successfully'),
             ])
         else:
             mock_logger.info.assert_not_called()
-
-    @override_settings(
-        EVENT_BUS_TOPIC_PREFIX='local',
-    )
-    @patch('edx_event_bus_redis.internal.consumer.set_custom_attribute', autospec=True)
-    @patch('edx_event_bus_redis.internal.consumer.logger', autospec=True)
-    def test_emit_success_tolerates_missing_timestamp(self, mock_logger, mock_set_attribute):
-        self.signal.disconnect(fake_receiver_raises_error)  # just successes for this one!
-        self.normal_message._timestamp = None  # pylint: disable=protected-access
-
-        self.event_consumer.emit_signals_from_message(self.normal_message)
-        self.assert_signal_sent_with(self.signal, self.normal_event_data)
-        # Specifically, not called with 'redis_logging_error'
-        mock_set_attribute.assert_not_called()
-        mock_logger.info.assert_has_calls([
-            call(
-                "Message received from Redis: topic=local-some-topic, "
-                f"message_id={self.message_id}, "
-                "key=b'\\x00\\x00\\x00\\x00\\x01\\x0cfoobob', event_timestamp_ms=None"
-            ),
-            call('Message from Redis processed successfully'),
-        ])
 
     @patch('django.dispatch.dispatcher.logger', autospec=True)
     def test_emit(self, mock_logger):
@@ -196,66 +174,6 @@ class TestEmitSignals(TestCase):
             "not even a function=Exception('just plain bad')",
         )
 
-    def test_no_type(self):
-        msg = copy.copy(self.normal_message)
-        msg._headers = []  # pylint: disable=protected-access
-
-        with pytest.raises(UnusableMessageError) as excinfo:
-            self.event_consumer.emit_signals_from_message(msg)
-
-        assert excinfo.value.args == (
-            "Missing type header on message, cannot determine signal",
-        )
-        assert not self.mock_receiver.called
-
-    def test_multiple_types(self):
-        """
-        Very unlikely case, but this gets us coverage.
-        """
-        msg = copy.copy(self.normal_message)
-        msg._headers = [['type', b'abc'], ['type', b'def']]  # pylint: disable=protected-access
-
-        with pytest.raises(UnusableMessageError) as excinfo:
-            self.event_consumer.emit_signals_from_message(msg)
-
-        assert excinfo.value.args == (
-            "Multiple type headers found on message, cannot determine signal",
-        )
-        assert not self.mock_receiver.called
-
-    def test_unexpected_signal_type_in_header(self):
-        msg = copy.copy(self.normal_message)
-        msg._headers = [  # pylint: disable=protected-access
-            ['type', b'xxxx']
-        ]
-        with pytest.raises(UnusableMessageError) as excinfo:
-            self.event_consumer.emit_signals_from_message(msg)
-
-        assert excinfo.value.args == (
-            "Signal types do not match. Expected org.openedx.learning.auth.session.login.completed.v1. "
-            "Received message of type xxxx.",
-        )
-        assert not self.mock_receiver.called
-
-    def test_bad_headers(self):
-        """
-        Check that if we cannot process the message headers, we raise an UnusableMessageError
-
-        The various kinds of bad headers are more fully tested in test_utils
-        """
-        self.normal_message._headers = [  # pylint: disable=protected-access
-            ('type', b'org.openedx.learning.auth.session.login.completed.v1'),
-            ('id', b'bad_id')
-        ]
-        with pytest.raises(UnusableMessageError) as excinfo:
-            self.event_consumer.emit_signals_from_message(self.normal_message)
-
-        assert excinfo.value.args == (
-            "Error determining metadata from message headers: badly formed hexadecimal UUID string",
-        )
-
-        assert not self.mock_receiver.called
-
 
 class TestCommand(TestCase):
     """
@@ -270,37 +188,25 @@ class TestCommand(TestCase):
         assert not mock_create_consumer.called
         mock_logger.error.assert_called_once_with("Redis consumers not enabled, exiting.")
 
-    @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type')
-    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer._create_consumer')
-    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer.consume_indefinitely')
-    def test_redis_consumers_normal(self, mock_consume, mock_create_consumer, _gsbt):
+    @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
+    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer')
+    def test_redis_consumers_normal(self, mock_consumer, _):
         call_command(
             Command(),
-            topic='test',
-            group_id='test',
-            signal='openedx',
+            topic=['test'],
+            group_id=['test_group'],
+            signal=['openedx'],
         )
-        assert mock_create_consumer.called
-        assert mock_consume.called
+        mock_consumer.assert_called_once_with(topic='test', group_id='test_group', signal='test-signal', consumer_name=None)
 
-    @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type')
-    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer._create_consumer')
-    def test_redis_consumers_with_timestamp(self, mock_reset_offsets, mock_create_consumer):
+    @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
+    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer')
+    def test_redis_consumers_with_consumer_name(self, mock_consumer, _):
         call_command(
             Command(),
-            topic='test',
-            group_id='test',
-            signal='openedx',
-            offset_time=['2019-05-18T15:17:08.132263']
+            topic=['test'],
+            group_id=['test_group'],
+            signal=['openedx'],
+            consumer_name=['c1'],
         )
-        assert mock_create_consumer.called
-        assert mock_reset_offsets.called
-
-    @patch('edx_event_bus_redis.internal.consumer.logger', autospec=True)
-    @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type')
-    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer._create_consumer')
-    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer.consume_indefinitely')
-    def test_redis_consumers_with_bad_timestamp(self, _ci, _cc, _gsbt, mock_logger):
-        call_command(Command(), topic='test', group_id='test', signal='openedx', offset_time=['notatimestamp'])
-        mock_logger.exception.assert_any_call("Could not parse the offset timestamp.")
-        mock_logger.exception.assert_called_with("Error consuming Redis events")
+        mock_consumer.assert_called_once_with(topic='test', group_id='test_group', signal='test-signal', consumer_name='c1')

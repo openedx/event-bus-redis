@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, Union
+from typing import Dict, NamedTuple, Optional
 
 from openedx_events.tooling import EventsMetadata, OpenEdxPublicSignal
 
@@ -19,18 +19,30 @@ class RedisMessage(NamedTuple):
     event_metadata: EventsMetadata
     msg_id: Optional[bytes] = None
 
-    def to_binary_dict(self):
+    def to_binary_dict(self) -> Dict[bytes, bytes]:
+        """
+        Converts instance to dictionary with binary key value pairs.
+        """
         data = get_headers_from_metadata(self.event_metadata)
         data["event_data"] = self.event_data
         return data
 
     @classmethod
-    def parse(cls, msg: Union[list, tuple], topic: str, expected_signal: Optional[OpenEdxPublicSignal] = None):
-        if isinstance(msg, list):
-            msg = msg[0]
-        msg_id, data = msg
-        event_data_bytes = data.pop(b'event_data')
+    def parse(cls, msg: tuple, topic: str, expected_signal: Optional[OpenEdxPublicSignal] = None):
+        """
+        Takes message from redis stream and parses it to return an instance of RedisMessage.
+
+        Args:
+            msg: Tuple with 1st item being msg_id and 2nd data from message.
+            topic: Stream name.
+            expected_signal [Optional]: If passed, the signal type is matched with type in msg.
+
+        Returns:
+            RedisMessage with msg_id
+        """
         try:
+            msg_id, data = msg
+            event_data_bytes = data.pop(b'event_data')
             metadata = get_metadata_from_headers(data)
         except Exception as e:
             raise UnusableMessageError(f"Error determining metadata from message headers: {e}") from e

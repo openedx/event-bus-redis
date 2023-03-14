@@ -196,6 +196,8 @@ class RedisEventConsumer:
                         # poll for msg
                         msg = self.consumer.read(count=1, block=CONSUMER_POLL_TIMEOUT * 1000)
                     if msg:
+                        if isinstance(msg, list):
+                            msg = msg[0]
                         msg: RedisMessage = RedisMessage.parse(msg, full_topic, expected_signal=self.signal)
                         print(self.consumer_name, msg)
                         # Before processing, make sure our db connection is still active
@@ -297,14 +299,13 @@ class RedisEventConsumer:
         try:
             message_id = msg.event_metadata.id
 
-            timestamp_ms = msg.event_metadata.time
-            timestamp_info = str(timestamp_ms)
+            timestamp_ms = msg.event_metadata.time.timestamp()
 
             # See ADR for details on why certain fields were included or omitted.
             logger.info(
                 f'Message received from Redis: topic={msg.topic}, '
                 f'message_id={message_id}, redis_msg_id={msg.msg_id}, '
-                f'event_timestamp_ms={timestamp_info}'
+                f'event_timestamp_ms={timestamp_ms}'
             )
         except Exception as e:  # pragma: no cover  pylint: disable=broad-except
             # Use this to fix any bugs in what should be benign logging code
@@ -405,7 +406,7 @@ class ConsumeEventsCommand(BaseCommand):
     Management command for Redis consumer workers in the event bus.
     """
     help = """
-    Consume messages of specified signal type from a Redis topic and send their data to that signal.
+    Consume messages of specified signal type from a Redis topic/stream and send their data to that signal.
 
     Example::
 
@@ -457,11 +458,12 @@ class ConsumeEventsCommand(BaseCommand):
         try:
             load_all_signals()
             signal = OpenEdxPublicSignal.get_signal_by_type(options['signal'][0])
+            consumer_name = options['consumer_name'][0] if options['consumer_name'] else None
             event_consumer = RedisEventConsumer(
                 topic=options['topic'][0],
                 group_id=options['group_id'][0],
                 signal=signal,
-                consumer_name=options['consumer_name'][0],
+                consumer_name=consumer_name,
             )
             event_consumer.consume_indefinitely()
         except Exception:  # pylint: disable=broad-except

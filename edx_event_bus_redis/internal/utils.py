@@ -94,8 +94,9 @@ def get_metadata_from_headers(headers: dict):
         if not metadata_field:
             continue
         header_key = header.message_header_key
-        header_value = headers[header_key.encode("utf8")]
-        metadata[header.event_metadata_field] = header.to_metadata(header_value.decode("utf8"))
+        header_value = headers.get(header_key.encode("utf8"))
+        if header_value:
+            metadata[header.event_metadata_field] = header.to_metadata(header_value.decode("utf8"))
     return oed.EventsMetadata(**metadata)
 
 

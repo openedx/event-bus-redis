@@ -5,6 +5,7 @@ In a real-world use case, apps in this project are installed into other
 Django applications, so these settings will not be used.
 """
 
+from os import getenv
 from os.path import abspath, dirname, join
 
 
@@ -77,5 +78,5 @@ TEMPLATES = [{
     },
 }]
 
-EVENT_BUS_PRODUCER = 'edx_event_bus_redis.create_producer'
-EVENT_BUS_REDIS_CONNECTION_URL = 'redis://:password@localhost:6379/'
+EVENT_BUS_PRODUCER = getenv("EVENT_BUS_PRODUCER")
+EVENT_BUS_REDIS_CONNECTION_URL = getenv('EVENT_BUS_REDIS_CONNECTION_URL')

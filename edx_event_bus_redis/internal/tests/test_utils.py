@@ -53,51 +53,6 @@ class TestTestHelpers(TestCase):
         assert f(1, 2, 3, a=4, b=5) == 6
 
 
-class FakeMessage:
-    """
-    A fake confluent_redis.cimpl.Message that we can actually construct for mocking.
-
-    See https://docs.confluent.io/platform/current/clients/confluent-redis-python/html/index.html#message
-    """
-
-    def __init__(
-        self,
-        topic: Optional[str] = None,
-        headers: Optional[list] = None,
-        key: Optional[bytes] = None,
-        value=None,
-        error=None,
-        timestamp=None
-    ):
-        self._topic = topic
-        self._headers = headers
-        self._key = key
-        self._value = value
-        self._error = error
-        self._timestamp = timestamp
-
-    def topic(self) -> Optional[str]:
-        return self._topic
-
-    def headers(self) -> Optional[list]:
-        """List of str/bytes key/value pairs."""
-        return self._headers
-
-    def key(self) -> Optional[bytes]:
-        """Bytes (Avro)."""
-        return self._key
-
-    def value(self):
-        """Deserialized event value."""
-        return self._value
-
-    def error(self):
-        return self._error
-
-    def timestamp(self):
-        return self._timestamp
-
-
 TEST_UUID = uuid1()
 
 
