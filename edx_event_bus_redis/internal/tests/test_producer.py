@@ -209,3 +209,16 @@ class TestCommand(TestCase):
         stream_mock.add.assert_called_once()
         assert stream_mock.add.call_args.args[0][b"event_data"] == b'value-bytes-here'
         fake_logger.exception.assert_not_called()
+
+    @patch('edx_event_bus_redis.management.commands.produce_event.logger')
+    def test_command_failure(self, fake_logger):
+        call_command(Command(),
+                     topic=['test'],
+                     signal=['openedx_events.learning.signals.SESSION_LOGIN_COMPLETED'],
+                     data=['{"user": {"id": 123, "is_active": true,'
+                           ' "pii":{"username": "foobob", "email": "bob@foo.example", "name": "Bob Foo"}}}'],
+                     key_field=['user.pii.username'],
+                     )
+        fake_logger.exception.assert_called_once()
+        (exc_log_msg,) = fake_logger.exception.call_args.args
+        assert "Error producing Redis event" in exc_log_msg
