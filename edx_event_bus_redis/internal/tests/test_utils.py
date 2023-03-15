@@ -72,13 +72,13 @@ class TestUtils(TestCase):
                                       time=datetime.fromisoformat("2023-01-01T14:00:00+00:00"))
             headers = get_headers_from_metadata(event_metadata=metadata)
             self.assertDictEqual(headers, {
-                'type': b'org.openedx.learning.auth.session.login.completed.v1',
-                'id': str(TEST_UUID).encode("utf8"),
-                'source': b'openedx/test/web',
-                'sourcehost': b'host',
-                'time': b'2023-01-01T14:00:00+00:00',
-                'sourcelib': b'1.2.3',
-                'minorversion': b'0',
+                b'type': b'org.openedx.learning.auth.session.login.completed.v1',
+                b'id': str(TEST_UUID).encode("utf8"),
+                b'source': b'openedx/test/web',
+                b'sourcehost': b'host',
+                b'time': b'2023-01-01T14:00:00+00:00',
+                b'sourcelib': b'1.2.3',
+                b'minorversion': b'0',
             })
 
     def test_metadata_from_headers(self):

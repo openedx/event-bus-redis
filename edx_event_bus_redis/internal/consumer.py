@@ -94,6 +94,8 @@ class RedisEventConsumer:
         self.last_read_msg_id = last_read_msg_id
         self.check_backlog = check_backlog
         self.db = self._create_db()
+        self.full_topic = get_full_topic(self.topic)
+        self.consumer = self._create_consumer(self.db, self.full_topic)
         self._shut_down_loop = False
 
     def _create_db(self) -> Database:
@@ -107,10 +109,10 @@ class RedisEventConsumer:
 
     def _create_consumer(self, db: Database, full_topic: str) -> ConsumerGroupStream:
         """
-        Create a DeserializingConsumer for events of the given signal instance.
+        Create a redis stream consumer group and a consumer for events of the given signal instance.
 
         Returns
-            DeserializingConsumer if it is.
+            ConsumerGroupStream
         """
 
         # It is possible to track multiple streams using single consumer group.
@@ -150,14 +152,12 @@ class RedisEventConsumer:
         #   This does not prevent committing of offsets back to the broker; any messages that caused an
         #   error will still be marked as consumed, and may need to be replayed.
         CONSECUTIVE_ERRORS_LIMIT = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_CONSECUTIVE_ERRORS_LIMIT', None)
-        full_topic = get_full_topic(self.topic)
         run_context = {
-            'full_topic': full_topic,
+            'full_topic': self.full_topic,
             'consumer_group': self.group_id,
             'expected_signal': self.signal,
             'consumer_name': self.consumer_name,
         }
-        consumer = self._create_consumer(self.db, full_topic)
 
         try:
             logger.info(f"Running consumer for {run_context!r}")
@@ -187,19 +187,19 @@ class RedisEventConsumer:
                     # Once we consumed our history, we can start getting new messages.
                     if self.check_backlog:
                         logger.debug("Consuming pending msgs first.")
-                        msg_meta = consumer.pending(count=1, consumer=self.consumer_name)
+                        msg_meta = self.consumer.pending(count=1, consumer=self.consumer_name)
                         if not msg_meta:
                             logger.debug("No more pending messages.")
                             self.check_backlog = False
                         else:
-                            redis_raw_msg = consumer[msg_meta[0]['message_id']]
+                            redis_raw_msg = self.consumer[msg_meta[0]['message_id']]
                     else:
                         # poll for msg
-                        redis_raw_msg = consumer.read(count=1, block=CONSUMER_POLL_TIMEOUT * 1000)
+                        redis_raw_msg = self.consumer.read(count=1, block=CONSUMER_POLL_TIMEOUT * 1000)
                     if redis_raw_msg:
                         if isinstance(redis_raw_msg, list):
                             redis_raw_msg = redis_raw_msg[0]
-                        msg = RedisMessage.parse(redis_raw_msg, full_topic, expected_signal=self.signal)
+                        msg = RedisMessage.parse(redis_raw_msg, self.full_topic, expected_signal=self.signal)
                         # Before processing, make sure our db connection is still active
                         _reconnect_to_db_if_needed()
                         self.emit_signals_from_message(msg)
@@ -217,7 +217,7 @@ class RedisEventConsumer:
                     if redis_raw_msg is None:
                         time.sleep(POLL_FAILURE_SLEEP)
                 if msg and msg.msg_id:
-                    consumer.ack(msg.msg_id)
+                    self.consumer.ack(msg.msg_id)
         finally:
             self.db.close()
 
@@ -360,11 +360,11 @@ class RedisEventConsumer:
 
             # .. custom_attribute_name: redis_consumer_group
             # .. custom_attribute_description: The consumer group in redis stream.
-            set_custom_attribute('redis_stream', run_context['consumer_group'])
+            set_custom_attribute('redis_consumer_group', run_context['consumer_group'])
 
             # .. custom_attribute_name: redis_consumer_name
             # .. custom_attribute_description: The consumer name in redis stream group.
-            set_custom_attribute('redis_stream', run_context['consumer_name'])
+            set_custom_attribute('redis_consumer_name', run_context['consumer_name'])
 
             if message:
                 # .. custom_attribute_name: redis_msg_id
@@ -372,10 +372,10 @@ class RedisEventConsumer:
                 set_custom_attribute('redis_msg_id', message.msg_id)
                 # .. custom_attribute_name: id
                 # .. custom_attribute_description: The message id which can be matched to the logs.
-                set_custom_attribute('id', message.event_metadata.id)
+                set_custom_attribute('id', str(message.event_metadata.id))
                 # .. custom_attribute_name: redis_event_type
                 # .. custom_attribute_description: The event type of the message.
-                set_custom_attribute('event_type', message.event_metadata.type)
+                set_custom_attribute('event_type', message.event_metadata.event_type)
 
             if redis_error:
                 # .. custom_attribute_name: redis_error_fatal
@@ -395,7 +395,7 @@ class RedisEventConsumer:
         """
         # If redis.ConnectionError is raised, return fatal as True
         # https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.ConnectionError
-        if not error or isinstance(error, RedisConnectionError):
+        if error and isinstance(error, RedisConnectionError):
             return True, error
 
         return False, error

@@ -31,7 +31,7 @@ class RedisMessage(NamedTuple):
         Converts instance to dictionary with binary key value pairs.
         """
         data = get_headers_from_metadata(self.event_metadata)
-        data["event_data"] = self.event_data
+        data[b"event_data"] = self.event_data
         return data
 
     @classmethod
@@ -49,7 +49,7 @@ class RedisMessage(NamedTuple):
         """
         try:
             msg_id, data = msg
-            event_data_bytes = data.pop(b'event_data')
+            event_data_bytes = data[b'event_data']
             metadata = get_metadata_from_headers(data)
         except Exception as e:
             raise UnusableMessageError(f"Error determining metadata from message headers: {e}") from e

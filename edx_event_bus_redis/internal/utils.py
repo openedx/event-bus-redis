@@ -98,6 +98,6 @@ def get_headers_from_metadata(event_metadata: oed.EventsMetadata):
     for header in MessageHeader.instances:
         event_metadata_value = getattr(event_metadata, header.event_metadata_field)
         # Convert string to utf8 encoded bytes
-        values[header.message_header_key] = header.from_metadata(event_metadata_value).encode("utf8")
+        values[header.message_header_key.encode("utf8")] = header.from_metadata(event_metadata_value).encode("utf8")
 
     return values
