@@ -4,7 +4,7 @@ Utilities for converting between message headers and EventsMetadata
 
 import logging
 from datetime import datetime
-from typing import List, Tuple
+from typing import Tuple
 from uuid import UUID
 
 import openedx_events.data as oed

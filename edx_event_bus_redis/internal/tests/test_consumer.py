@@ -113,7 +113,7 @@ class TestConsumer(TestCase):
         Check the basic loop lifecycle.
         """
         def raise_exception():
-            raise Exception("something broke")
+            raise ValueError("something broke")
 
         # How the emit_signals_from_message() mock will behave on each successive call.
         mock_emit_side_effects = [
@@ -147,7 +147,7 @@ class TestConsumer(TestCase):
         # in some order.
         mock_logger.exception.assert_called_once()
         (exc_log_msg,) = mock_logger.exception.call_args.args
-        assert "Error consuming event from Redis: Exception('something broke') in context" in exc_log_msg
+        assert "Error consuming event from Redis: ValueError('something broke') in context" in exc_log_msg
         assert "full_topic='local-some-topic'" in exc_log_msg
         assert "consumer_group='test_group_id'" in exc_log_msg
         assert ("expected_signal=<OpenEdxPublicSignal: "
@@ -179,7 +179,7 @@ class TestConsumer(TestCase):
     def test_consecutive_error_limit(self):
         """Confirm that consecutive errors can break out of loop."""
         def raise_exception():
-            raise Exception("something broke")
+            raise ValueError("something broke")
 
         exception_count = 4
 
@@ -233,7 +233,7 @@ class TestConsumer(TestCase):
     def test_non_consecutive_errors(self):
         """Confirm that non-consecutive errors may not break out of loop."""
         def raise_exception():
-            raise Exception("something broke")
+            raise ValueError("something broke")
 
         mock_emit_side_effects = [
             raise_exception, raise_exception,
@@ -256,7 +256,6 @@ class TestConsumer(TestCase):
 
         assert mock_emit.call_args_list == [call(self.normal_message)] * len(mock_emit_side_effects)
 
-
     @patch('edx_event_bus_redis.internal.consumer.set_custom_attribute', autospec=True)
     @patch('edx_event_bus_redis.internal.consumer.logger', autospec=True)
     @patch('edx_event_bus_redis.internal.consumer.time.sleep', autospec=True)
@@ -264,7 +263,7 @@ class TestConsumer(TestCase):
         EVENT_BUS_REDIS_CONSUMER_POLL_FAILURE_SLEEP=1
     )
     @ddt.data(
-        (Exception("something random"), False),
+        (ValueError("something random"), False),
         (RedisConnectionError(), True),
     )
     @ddt.unpack
@@ -381,9 +380,9 @@ class TestConsumer(TestCase):
         """
         with pytest.raises(ReceiverError) as exc_info:
             self.event_consumer._check_receiver_results([  # pylint: disable=protected-access
-                (lambda x:x, Exception("for lambda")),
+                (lambda x:x, ValueError("for lambda")),
                 # This would actually raise an error inside send_robust(), but it will serve well enough for testing...
-                ("not even a function", Exception("just plain bad")),
+                ("not even a function", ValueError("just plain bad")),
             ])
         assert exc_info.value.args == (
             "2 receiver(s) out of 2 produced errors (stack trace elsewhere in logs) "
@@ -391,9 +390,9 @@ class TestConsumer(TestCase):
             "org.openedx.learning.auth.session.login.completed.v1>: "
 
             "edx_event_bus_redis.internal.tests.test_consumer.TestConsumer."
-            "test_malformed_receiver_errors.<locals>.<lambda>=Exception('for lambda'), "
+            "test_malformed_receiver_errors.<locals>.<lambda>=ValueError('for lambda'), "
 
-            "not even a function=Exception('just plain bad')",
+            "not even a function=ValueError('just plain bad')",
         )
 
 
@@ -445,8 +444,10 @@ class TestCommand(TestCase):
 
     @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
     @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer._create_db', autospec=True)
-    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer.consume_indefinitely',
-                  side_effect=Exception("some error"))
+    @patch(
+        'edx_event_bus_redis.internal.consumer.RedisEventConsumer.consume_indefinitely',
+        side_effect=ValueError("some error")
+    )
     @patch('edx_event_bus_redis.internal.consumer.logger', autospec=True)
     def test_consume_command_exception(self, mock_logger, _mock_consume, _mock_create_db, _):
         call_command(

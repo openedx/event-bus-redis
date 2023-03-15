@@ -4,11 +4,12 @@ Tests for event_consumer module.
 
 from datetime import datetime, timezone
 from uuid import UUID
+
 import ddt
-from openedx_events.tooling import EventsMetadata
 import pytest
 from django.test import TestCase
 from openedx_events.learning.signals import SESSION_LOGIN_COMPLETED
+from openedx_events.tooling import EventsMetadata
 
 from edx_event_bus_redis.internal.message import RedisMessage, UnusableMessageError
 
