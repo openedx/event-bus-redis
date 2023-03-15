@@ -180,7 +180,8 @@ class RedisEventConsumer:
                         f"Too many consecutive errors, exiting ({consecutive_errors} in a row)"
                     )
 
-                msg = None
+                redis_raw_msg = None
+                msg: Optional[RedisMessage] = None
                 try:
                     # The first time we want to read our pending messages, in case we crashed and are recovering.
                     # Once we consumed our history, we can start getting new messages.
@@ -191,15 +192,14 @@ class RedisEventConsumer:
                             logger.debug("No more pending messages.")
                             self.check_backlog = False
                         else:
-                            msg = consumer[msg_meta[0]['message_id']]
+                            redis_raw_msg = consumer[msg_meta[0]['message_id']]
                     else:
                         # poll for msg
-                        msg = consumer.read(count=1, block=CONSUMER_POLL_TIMEOUT * 1000)
-                    if msg:
-                        if isinstance(msg, list):
-                            msg = msg[0]
-                        msg: RedisMessage = RedisMessage.parse(msg, full_topic, expected_signal=self.signal)
-                        print(self.consumer_name, msg)
+                        redis_raw_msg = consumer.read(count=1, block=CONSUMER_POLL_TIMEOUT * 1000)
+                    if redis_raw_msg:
+                        if isinstance(redis_raw_msg, list):
+                            redis_raw_msg = redis_raw_msg[0]
+                        msg = RedisMessage.parse(redis_raw_msg, full_topic, expected_signal=self.signal)
                         # Before processing, make sure our db connection is still active
                         _reconnect_to_db_if_needed()
                         self.emit_signals_from_message(msg)
@@ -214,7 +214,7 @@ class RedisEventConsumer:
                     if fatal:
                         raise e
                     # Prevent fast error-looping when no event received from broker.
-                    if msg is None:
+                    if redis_raw_msg is None:
                         time.sleep(POLL_FAILURE_SLEEP)
                 if msg and msg.msg_id:
                     consumer.ack(msg.msg_id)

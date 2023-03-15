@@ -39,7 +39,7 @@ class MessageHeader:
     _mapping = {}
     instances = []
 
-    def __init__(self, message_header_key, event_metadata_field=None, to_metadata=None, from_metadata=None):
+    def __init__(self, message_header_key, event_metadata_field, to_metadata=None, from_metadata=None):
         self.message_header_key = message_header_key
         self.event_metadata_field = event_metadata_field
         self.to_metadata = to_metadata or (lambda x: x)
@@ -61,20 +61,6 @@ HEADER_SOURCELIB = MessageHeader("sourcelib", event_metadata_field="sourcelib",
                                  to_metadata=_sourcelib_str_to_tuple, from_metadata=_sourcelib_tuple_to_str)
 
 
-def get_message_header_values(headers: List, header: MessageHeader) -> List[str]:
-    """
-    Return all values for this header.
-
-    Arguments:
-        headers: List of key/value tuples. Keys are strings, values are bytestrings.
-        header: The MessageHeader to look for.
-
-    Returns:
-        List of zero or more header values decoded as strings.
-    """
-    return [value.decode("utf-8") for key, value in headers if key == header.message_header_key]
-
-
 def get_metadata_from_headers(headers: dict):
     """
     Create an EventsMetadata object from the headers of a Redis message
@@ -89,9 +75,6 @@ def get_metadata_from_headers(headers: dict):
     # go through all the headers we care about and set the appropriate field
     metadata = {}
     for header in MessageHeader.instances:
-        metadata_field = header.event_metadata_field
-        if not metadata_field:
-            continue
         header_key = header.message_header_key
         header_value = headers.get(header_key.encode("utf8"))
         if header_value:
@@ -113,8 +96,6 @@ def get_headers_from_metadata(event_metadata: oed.EventsMetadata):
     """
     values = {}
     for header in MessageHeader.instances:
-        if not header.event_metadata_field:
-            continue
         event_metadata_value = getattr(event_metadata, header.event_metadata_field)
         # Convert string to utf8 encoded bytes
         values[header.message_header_key] = header.from_metadata(event_metadata_value).encode("utf8")

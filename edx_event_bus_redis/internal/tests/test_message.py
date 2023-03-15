@@ -2,7 +2,10 @@
 Tests for event_consumer module.
 """
 
+from datetime import datetime, timezone
+from uuid import UUID
 import ddt
+from openedx_events.tooling import EventsMetadata
 import pytest
 from django.test import TestCase
 from openedx_events.learning.signals import SESSION_LOGIN_COMPLETED
@@ -18,15 +21,41 @@ class TestMessage(TestCase):
 
     def setUp(self):
         super().setUp()
+        self.event_id = b'629f9892-c258-11ed-8dac-1c83413013cb'
         self.event_data_bytes = b'\xf6\x01\x01\x0cfoobob\x1ebob@foo.example\x0eBob Foo'
         self.signal = SESSION_LOGIN_COMPLETED
+        self.event_type = b'org.openedx.learning.auth.session.login.completed.v1'
+
+    def test_normal_msg(self):
+        msg_time = datetime.now(timezone.utc)
+        msg = (
+            b'1',
+            {
+                b'id': self.event_id,
+                b'event_data': self.event_data_bytes,
+                b'type': self.event_type,
+                b'time': msg_time.isoformat().encode('utf8'),
+            }
+        )
+        parsed_msg = RedisMessage.parse(msg, topic='some-local-topic')
+        expected_msg = RedisMessage(
+            topic='some-local-topic',
+            event_data=self.event_data_bytes,
+            event_metadata=EventsMetadata(
+                id=UUID(self.event_id.decode()),
+                event_type=self.event_type.decode(),
+                time=msg_time
+            ),
+            msg_id=b'1',
+        )
+        self.assertEqual(parsed_msg, expected_msg)
 
     def test_no_type(self):
         msg = (
             b'1',
             {
                 b'id': b'629f9892-c258-11ed-8dac-1c83413013cb',
-                b'type': b'org.openedx.learning.auth.session.login.completed.v1',
+                b'type': self.event_type,
             }
         )
         with pytest.raises(UnusableMessageError) as excinfo:
