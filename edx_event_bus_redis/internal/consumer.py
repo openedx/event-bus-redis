@@ -12,7 +12,7 @@ from edx_django_utils.monitoring import record_exception, set_custom_attribute
 from edx_toggles.toggles import SettingToggle
 from openedx_events.event_bus.avro.deserializer import deserialize_bytes_to_event_data
 from openedx_events.tooling import OpenEdxPublicSignal, load_all_signals
-from redis.exceptions import ConnectionError
+from redis.exceptions import ConnectionError as RedisConnectionError
 from walrus import Database
 from walrus.containers import ConsumerGroupStream
 
@@ -93,6 +93,7 @@ class RedisEventConsumer:
         self.consumer_name = consumer_name or (self.group_id + '.c1')
         self.last_read_msg_id = last_read_msg_id
         self.check_backlog = check_backlog
+        self.db = self._create_db()
         self._shut_down_loop = False
 
     def _create_db(self) -> Database:
@@ -156,8 +157,7 @@ class RedisEventConsumer:
             'expected_signal': self.signal,
             'consumer_name': self.consumer_name,
         }
-        self.db = self._create_db()
-        self.consumer = self._create_consumer(self.db, full_topic)
+        consumer = self._create_consumer(self.db, full_topic)
 
         try:
             logger.info(f"Running consumer for {run_context!r}")
@@ -186,15 +186,15 @@ class RedisEventConsumer:
                     # Once we consumed our history, we can start getting new messages.
                     if self.check_backlog:
                         logger.debug("Consuming pending msgs first.")
-                        msg_meta = self.consumer.pending(count=1, consumer=self.consumer_name)
+                        msg_meta = consumer.pending(count=1, consumer=self.consumer_name)
                         if not msg_meta:
                             logger.debug("No more pending messages.")
                             self.check_backlog = False
                         else:
-                            msg = self.consumer[msg_meta[0]['message_id']]
+                            msg = consumer[msg_meta[0]['message_id']]
                     else:
                         # poll for msg
-                        msg = self.consumer.read(count=1, block=CONSUMER_POLL_TIMEOUT * 1000)
+                        msg = consumer.read(count=1, block=CONSUMER_POLL_TIMEOUT * 1000)
                     if msg:
                         if isinstance(msg, list):
                             msg = msg[0]
@@ -217,7 +217,7 @@ class RedisEventConsumer:
                     if msg is None:
                         time.sleep(POLL_FAILURE_SLEEP)
                 if msg and msg.msg_id:
-                    self.consumer.ack(msg.msg_id)
+                    consumer.ack(msg.msg_id)
         finally:
             self.db.close()
 
@@ -395,7 +395,7 @@ class RedisEventConsumer:
         """
         # If redis.ConnectionError is raised, return fatal as True
         # https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.ConnectionError
-        if not error or isinstance(error, ConnectionError):
+        if not error or isinstance(error, RedisConnectionError):
             return True, error
 
         return False, error

@@ -1,8 +1,12 @@
+"""
+Redis message wrapper.
+"""
 from typing import Dict, NamedTuple, Optional
 
 from openedx_events.tooling import EventsMetadata, OpenEdxPublicSignal
 
 from edx_event_bus_redis.internal.utils import get_headers_from_metadata, get_metadata_from_headers
+
 
 class UnusableMessageError(Exception):
     """
@@ -14,6 +18,9 @@ class UnusableMessageError(Exception):
 
 
 class RedisMessage(NamedTuple):
+    """
+    Redis message wrapper with ability to parse to & from redis msg tuple.
+    """
     topic: str
     event_data: bytes
     event_metadata: EventsMetadata

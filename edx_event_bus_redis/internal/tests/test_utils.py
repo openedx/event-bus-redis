@@ -2,7 +2,6 @@
 Test header conversion utils
 """
 from datetime import datetime, timezone
-from typing import Optional
 from unittest.mock import Mock, patch
 from uuid import uuid1
 
@@ -87,15 +86,15 @@ class TestUtils(TestCase):
         Check we can generate an EventsMetadata object from valid message headers
         """
         uuid = uuid1()
-        headers = [
-            ('type', b'org.openedx.learning.auth.session.login.completed.v1'),
-            ('id', str(uuid).encode("utf8")),
-            ('source', b'openedx/test/web'),
-            ('sourcehost', b'testsource'),
-            ('time', b'2023-01-01T14:00:00+00:00'),
-            ('sourcelib', b'1.2.3'),
-            ('minorversion', b'0')
-        ]
+        headers = {
+            b'type': b'org.openedx.learning.auth.session.login.completed.v1',
+            b'id': str(uuid).encode("utf8"),
+            b'source': b'openedx/test/web',
+            b'sourcehost': b'testsource',
+            b'time': b'2023-01-01T14:00:00+00:00',
+            b'sourcelib': b'1.2.3',
+            b'minorversion': b'0'
+        }
         generated_metadata = get_metadata_from_headers(headers)
         expected_metadata = EventsMetadata(
             event_type="org.openedx.learning.auth.session.login.completed.v1",
@@ -116,7 +115,6 @@ class TestUtils(TestCase):
         (b'bad', None, None, True),  # bad uuid
         (TEST_UUID_BYTES, b'bad', None, True),  # badly-formatted time
         (TEST_UUID_BYTES, None, b'bad', True),  # badly-formatted sourcelib
-        (None, None, None, True),
     )
     @ddt.unpack
     def test_generate_metadata_from_missing_or_bad_headers(self, msg_id, msg_time, source_lib, should_raise, mock_dt):
@@ -125,12 +123,12 @@ class TestUtils(TestCase):
         """
         now = datetime.now(timezone.utc)
         mock_dt.now = Mock(return_value=now)
-        headers = filter(lambda x: x[1] is not None, [
-            (HEADER_ID.message_header_key, msg_id),
-            (HEADER_TIME.message_header_key, msg_time),
-            (HEADER_SOURCELIB.message_header_key, source_lib),
-            (HEADER_EVENT_TYPE.message_header_key, b'abc')
-        ])
+        headers = {
+            HEADER_ID.message_header_key.encode('utf8'): msg_id,
+            HEADER_TIME.message_header_key.encode('utf8'): msg_time,
+            HEADER_SOURCELIB.message_header_key.encode('utf8'): source_lib,
+            HEADER_EVENT_TYPE.message_header_key.encode('utf8'): b'abc'
+        }
         if should_raise:
             with pytest.raises(Exception):
                 get_metadata_from_headers(headers)
@@ -140,19 +138,3 @@ class TestUtils(TestCase):
             expected_metadata = EventsMetadata(event_type="abc", id=TEST_UUID)
             generated_metadata = get_metadata_from_headers(headers)
             self.assertDictEqual(attr.asdict(generated_metadata), attr.asdict(expected_metadata))
-
-    def test_generate_metadata_fails_with_duplicate_headers(self):
-        """
-        Check that we raise if there are duplicate headers
-        """
-        headers = [
-            (HEADER_ID.message_header_key, str(TEST_UUID).encode("utf-8")),
-            (HEADER_ID.message_header_key, str(uuid1()).encode("utf-8")),
-            (HEADER_EVENT_TYPE.message_header_key, b'abc')
-        ]
-        with pytest.raises(Exception) as exc_info:
-            get_metadata_from_headers(headers)
-
-        assert exc_info.value.args == (
-            "Multiple \"id\" headers on message. Cannot determine correct metadata.",
-        )

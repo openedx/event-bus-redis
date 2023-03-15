@@ -21,7 +21,6 @@ class TestMessage(TestCase):
         self.event_data_bytes = b'\xf6\x01\x01\x0cfoobob\x1ebob@foo.example\x0eBob Foo'
         self.signal = SESSION_LOGIN_COMPLETED
 
-
     def test_no_type(self):
         msg = (
             b'1',

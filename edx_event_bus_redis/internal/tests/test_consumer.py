@@ -7,13 +7,13 @@ from unittest.mock import Mock, call, patch
 from uuid import uuid1
 
 import ddt
-from openedx_events.tooling import EventsMetadata
 import pytest
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 from openedx_events.learning.data import UserData, UserPersonalData
 from openedx_events.learning.signals import SESSION_LOGIN_COMPLETED
+from openedx_events.tooling import EventsMetadata
 
 from edx_event_bus_redis.internal.consumer import ReceiverError, RedisEventConsumer
 from edx_event_bus_redis.internal.message import RedisMessage
@@ -197,7 +197,12 @@ class TestCommand(TestCase):
             group_id=['test_group'],
             signal=['openedx'],
         )
-        mock_consumer.assert_called_once_with(topic='test', group_id='test_group', signal='test-signal', consumer_name=None)
+        mock_consumer.assert_called_once_with(
+            topic='test',
+            group_id='test_group',
+            signal='test-signal',
+            consumer_name=None
+        )
 
     @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
     @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer')
@@ -209,4 +214,9 @@ class TestCommand(TestCase):
             signal=['openedx'],
             consumer_name=['c1'],
         )
-        mock_consumer.assert_called_once_with(topic='test', group_id='test_group', signal='test-signal', consumer_name='c1')
+        mock_consumer.assert_called_once_with(
+            topic='test',
+            group_id='test_group',
+            signal='test-signal',
+            consumer_name='c1'
+        )
