@@ -210,7 +210,7 @@ class RedisEventConsumer:
                     consecutive_errors += 1
                     self.record_event_consuming_error(run_context, e, msg)
                     # Kill the infinite loop if the error is fatal for the consumer
-                    fatal, _ = self._is_fatal_redis_error(error=e)
+                    fatal = self._is_fatal_redis_error(error=e)
                     if fatal:
                         raise e
                     # Prevent fast error-looping when no event received from broker.
@@ -218,6 +218,7 @@ class RedisEventConsumer:
                         time.sleep(POLL_FAILURE_SLEEP)
                 if msg and msg.msg_id:
                     self.consumer.ack(msg.msg_id)
+                    self.consumer.set_id(msg.msg_id.decode('utf8'))
         finally:
             self.db.close()
 
@@ -352,7 +353,7 @@ class RedisEventConsumer:
             error: (Optional) An exception instance, or None if no error.
         """
         try:
-            fatal, redis_error = self._is_fatal_redis_error(error=error)
+            fatal = self._is_fatal_redis_error(error=error)
 
             # .. custom_attribute_name: redis_stream
             # .. custom_attribute_description: The full topic of the message or error.
@@ -377,7 +378,7 @@ class RedisEventConsumer:
                 # .. custom_attribute_description: The event type of the message.
                 set_custom_attribute('event_type', message.event_metadata.event_type)
 
-            if redis_error:
+            if error:
                 # .. custom_attribute_name: redis_error_fatal
                 # .. custom_attribute_description: Boolean describing if the error is fatal.
                 set_custom_attribute('redis_error_fatal', fatal)
@@ -386,9 +387,9 @@ class RedisEventConsumer:
             # Use this to fix any bugs in what should be benign monitoring code
             set_custom_attribute('redis_monitoring_error', repr(e))
 
-    def _is_fatal_redis_error(self, error: Optional[Exception]) -> Tuple[bool, Optional[Exception]]:
+    def _is_fatal_redis_error(self, error: Optional[Exception]) -> bool:
         """
-        Returns a tuple of boolean, error where flag is true if error is related to redis and fatal.
+        Returns a boolean where it is true if error is related to redis and fatal.
 
         Arguments:
             error: An exception instance, or None if no error.
@@ -396,9 +397,9 @@ class RedisEventConsumer:
         # If redis.ConnectionError is raised, return fatal as True
         # https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.ConnectionError
         if error and isinstance(error, RedisConnectionError):
-            return True, error
+            return True
 
-        return False, error
+        return False
 
 
 class ConsumeEventsCommand(BaseCommand):
@@ -437,14 +438,14 @@ class ConsumeEventsCommand(BaseCommand):
         )
         parser.add_argument(
             '-i', '--last_read_msg_id',
-            nargs=1,
+            nargs='?',
             required=False,
             default="$",
             help='Id of message last read from the stream.'
         )
         parser.add_argument(
             '-n', '--consumer_name',
-            nargs=1,
+            nargs='?',
             required=False,
             default=None,
             help='Unique name for this consumer instance.'
@@ -458,12 +459,12 @@ class ConsumeEventsCommand(BaseCommand):
         try:
             load_all_signals()
             signal = OpenEdxPublicSignal.get_signal_by_type(options['signal'][0])
-            consumer_name = options['consumer_name'][0] if options['consumer_name'] else None
             event_consumer = RedisEventConsumer(
                 topic=options['topic'][0],
                 group_id=options['group_id'][0],
                 signal=signal,
-                consumer_name=consumer_name,
+                consumer_name=options['consumer_name'],
+                last_read_msg_id=options['last_read_msg_id'],
             )
             event_consumer.consume_indefinitely()
         except Exception:  # pylint: disable=broad-except

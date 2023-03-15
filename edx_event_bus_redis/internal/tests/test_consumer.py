@@ -422,7 +422,8 @@ class TestCommand(TestCase):
             topic='test',
             group_id='test_group',
             signal='test-signal',
-            consumer_name=None
+            consumer_name=None,
+            last_read_msg_id='$',
         )
 
     @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
@@ -433,13 +434,14 @@ class TestCommand(TestCase):
             topic=['test'],
             group_id=['test_group'],
             signal=['openedx'],
-            consumer_name=['c1'],
+            consumer_name='c1',
         )
         mock_consumer.assert_called_once_with(
             topic='test',
             group_id='test_group',
             signal='test-signal',
-            consumer_name='c1'
+            consumer_name='c1',
+            last_read_msg_id='$',
         )
 
     @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
@@ -455,7 +457,7 @@ class TestCommand(TestCase):
             topic=['test'],
             group_id=['test_group'],
             signal=['openedx'],
-            consumer_name=['c1'],
+            consumer_name='c1',
         )
         mock_logger.exception.assert_called_once()
         (exc_log_msg,) = mock_logger.exception.call_args.args
