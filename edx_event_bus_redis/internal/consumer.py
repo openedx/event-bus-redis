@@ -3,7 +3,7 @@ Core consumer and event-loop code.
 """
 import logging
 import time
-from typing import Optional, Tuple
+from typing import Optional
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
