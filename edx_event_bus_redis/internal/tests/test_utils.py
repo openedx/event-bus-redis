@@ -16,6 +16,7 @@ from edx_event_bus_redis.internal.utils import (
     HEADER_ID,
     HEADER_SOURCELIB,
     HEADER_TIME,
+    encode,
     get_headers_from_metadata,
     get_metadata_from_headers,
 )
@@ -73,7 +74,7 @@ class TestUtils(TestCase):
             headers = get_headers_from_metadata(event_metadata=metadata)
             self.assertDictEqual(headers, {
                 b'type': b'org.openedx.learning.auth.session.login.completed.v1',
-                b'id': str(TEST_UUID).encode("utf8"),
+                b'id': encode(str(TEST_UUID)),
                 b'source': b'openedx/test/web',
                 b'sourcehost': b'host',
                 b'time': b'2023-01-01T14:00:00+00:00',
@@ -88,7 +89,7 @@ class TestUtils(TestCase):
         uuid = uuid1()
         headers = {
             b'type': b'org.openedx.learning.auth.session.login.completed.v1',
-            b'id': str(uuid).encode("utf8"),
+            b'id': encode(str(uuid)),
             b'source': b'openedx/test/web',
             b'sourcehost': b'testsource',
             b'time': b'2023-01-01T14:00:00+00:00',
@@ -107,7 +108,7 @@ class TestUtils(TestCase):
         )
         self.assertDictEqual(attr.asdict(generated_metadata), attr.asdict(expected_metadata))
 
-    TEST_UUID_BYTES = str(TEST_UUID).encode("utf8")
+    TEST_UUID_BYTES = encode(str(TEST_UUID))
 
     @patch('edx_event_bus_redis.internal.utils.oed.datetime')
     @ddt.data(
@@ -124,10 +125,10 @@ class TestUtils(TestCase):
         now = datetime.now(timezone.utc)
         mock_dt.now = Mock(return_value=now)
         headers = {
-            HEADER_ID.message_header_key.encode('utf8'): msg_id,
-            HEADER_TIME.message_header_key.encode('utf8'): msg_time,
-            HEADER_SOURCELIB.message_header_key.encode('utf8'): source_lib,
-            HEADER_EVENT_TYPE.message_header_key.encode('utf8'): b'abc'
+            encode(HEADER_ID.message_header_key): msg_id,
+            encode(HEADER_TIME.message_header_key): msg_time,
+            encode(HEADER_SOURCELIB.message_header_key): source_lib,
+            encode(HEADER_EVENT_TYPE.message_header_key): b'abc'
         }
         if should_raise:
             with pytest.raises(Exception):

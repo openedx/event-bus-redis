@@ -19,7 +19,7 @@ from walrus.containers import ConsumerGroupStream
 from edx_event_bus_redis.internal.message import RedisMessage
 
 from .config import get_full_topic, load_common_settings
-from .utils import AUDIT_LOGGING_ENABLED
+from .utils import AUDIT_LOGGING_ENABLED, decode
 
 logger = logging.getLogger(__name__)
 
@@ -218,7 +218,7 @@ class RedisEventConsumer:
                         time.sleep(POLL_FAILURE_SLEEP)
                 if msg and msg.msg_id:
                     self.consumer.ack(msg.msg_id)
-                    self.consumer.set_id(msg.msg_id.decode('utf8'))
+                    self.consumer.set_id(decode(msg.msg_id))
         finally:
             self.db.close()
 

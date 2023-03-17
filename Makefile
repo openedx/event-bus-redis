@@ -123,4 +123,4 @@ multiple_consumer_test_event:
 	EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --consumer_name test_group.c2 &
 
 kill_all_consume_test_events:
-	pgrep -lf python\ manage.py\ consume_events\ --signal\ org.openedx.content_authoring.xblock.deleted.v1\ --topic\ dev-xblock-deleted\ --group_id\ test_group\ --consumer_name\ test_group. | cut -d" " -f1 | xargs kill -15
+	pgrep -lf python\ manage.py\ consume_events\ --signal\ org.openedx.content_authoring.xblock.deleted.v1\ --topic\ xblock-deleted\ --group_id\ test_group\ --consumer_name\ test_group. | cut -d" " -f1 | xargs kill -15

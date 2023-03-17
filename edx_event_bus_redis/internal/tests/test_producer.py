@@ -17,6 +17,7 @@ from openedx_events.event_bus.avro.tests.test_utilities import SubTestData0, cre
 from openedx_events.learning.data import UserData, UserPersonalData
 
 import edx_event_bus_redis.internal.producer as ep
+from edx_event_bus_redis.internal.utils import encode
 from edx_event_bus_redis.management.commands.produce_event import Command
 
 
@@ -126,10 +127,10 @@ class TestEventProducer(TestCase):
         mock_client.Stream.assert_called_once_with('prod-user-stuff')
         expected_headers = {
             b'type': b'org.openedx.learning.auth.session.login.completed.v1',
-            b'id': str(metadata.id).encode("utf8"),
+            b'id': encode(str(metadata.id)),
             b'source': b'openedx/test/web',
-            b'sourcehost': metadata.sourcehost.encode("utf8"),
-            b'time': now.isoformat().encode("utf8"),
+            b'sourcehost': encode(metadata.sourcehost),
+            b'time': encode(now.isoformat()),
             b'minorversion': b'0',
             b'sourcelib': b'1.2.3',
         }

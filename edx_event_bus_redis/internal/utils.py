@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 # .. toggle_use_cases: opt_out
 # .. toggle_creation_date: 2023-02-24
 AUDIT_LOGGING_ENABLED = SettingToggle('EVENT_BUS_REDIS_AUDIT_LOGGING_ENABLED', default=True)
+MSG_ENCODING = 'utf8'
 
 
 def _sourcelib_tuple_to_str(sourcelib: Tuple):
@@ -30,6 +31,20 @@ def _sourcelib_tuple_to_str(sourcelib: Tuple):
 
 def _sourcelib_str_to_tuple(sourcelib_as_str: str):
     return tuple(map(int, sourcelib_as_str.split(".")))
+
+
+def encode(value: str) -> bytes:
+    """
+    Convert string to utf8 encoded bytes.
+    """
+    return value.encode(MSG_ENCODING)
+
+
+def decode(value: bytes) -> str:
+    """
+    Convert bytes to string.
+    """
+    return value.decode(MSG_ENCODING)
 
 
 class MessageHeader:
@@ -76,9 +91,9 @@ def get_metadata_from_headers(headers: dict):
     metadata = {}
     for header in MessageHeader.instances:
         header_key = header.message_header_key
-        header_value = headers.get(header_key.encode("utf8"))
+        header_value = headers.get(encode(header_key))
         if header_value:
-            metadata[header.event_metadata_field] = header.to_metadata(header_value.decode("utf8"))
+            metadata[header.event_metadata_field] = header.to_metadata(decode(header_value))
     return oed.EventsMetadata(**metadata)
 
 
@@ -97,7 +112,6 @@ def get_headers_from_metadata(event_metadata: oed.EventsMetadata):
     values = {}
     for header in MessageHeader.instances:
         event_metadata_value = getattr(event_metadata, header.event_metadata_field)
-        # Convert string to utf8 encoded bytes
-        values[header.message_header_key.encode("utf8")] = header.from_metadata(event_metadata_value).encode("utf8")
+        values[encode(header.message_header_key)] = encode(header.from_metadata(event_metadata_value))
 
     return values

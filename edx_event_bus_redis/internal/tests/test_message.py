@@ -12,6 +12,7 @@ from openedx_events.learning.signals import SESSION_LOGIN_COMPLETED
 from openedx_events.tooling import EventsMetadata
 
 from edx_event_bus_redis.internal.message import RedisMessage, UnusableMessageError
+from edx_event_bus_redis.internal.utils import encode
 
 
 @ddt.ddt
@@ -35,7 +36,7 @@ class TestMessage(TestCase):
                 b'id': self.event_id,
                 b'event_data': self.event_data_bytes,
                 b'type': self.event_type,
-                b'time': msg_time.isoformat().encode('utf8'),
+                b'time': encode(msg_time.isoformat()),
             }
         )
         parsed_msg = RedisMessage.parse(msg, topic='some-local-topic')
