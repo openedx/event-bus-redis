@@ -13,6 +13,7 @@ from edx_toggles.toggles import SettingToggle
 from openedx_events.event_bus.avro.deserializer import deserialize_bytes_to_event_data
 from openedx_events.tooling import OpenEdxPublicSignal, load_all_signals
 from redis.exceptions import ConnectionError as RedisConnectionError
+from redis.exceptions import ResponseError
 from walrus import Database
 from walrus.containers import ConsumerGroupStream
 
@@ -118,7 +119,10 @@ class RedisEventConsumer:
         # It is possible to track multiple streams using single consumer group.
         # But for simplicity, we are only supporting one stream till the need arises.
         consumer = db.consumer_group(self.group_id, [full_topic], consumer=self.consumer_name)
-        consumer.create(mkstream=True)
+        try:
+            consumer.create(mkstream=True)
+        except ResponseError:
+            logger.warning("Stream already created by another consumer.")
         consumer.set_id(self.last_read_msg_id)
         return consumer.streams[full_topic]
 

@@ -73,23 +73,7 @@ Testing locally
 ---------------
 
 * Install all dependencies using ``make requirements``
-* Run redis server via devstack by adding below section to ``docker-compose.yml`` file in devstack, this will bind redis to localhost port ``6379``.
-
-.. code-block:: yaml
-
-  redis:
-    container_name: "edx.${COMPOSE_PROJECT_NAME:-devstack}.redis"
-    hostname: redis.devstack.edx
-    image: redis:6.2.7
-    command: redis-server --requirepass password
-    networks:
-      default:
-        aliases:
-          - edx.devstack.redis
-    # add below section
-    ports:
-      - "6379:6379"
-
+* Run ``make redis-up`` in current directory.
 * Run ``make consume_test_event`` to start running a single consumer or ``make multiple_consumer_test_event`` to run two consumers with different consumer names.
 * Run ``make produce_test_event`` in a separate terminal to produce a fake event, the consumer should log this event.
 * You can also add a fake handler to test emitted signal via consumer. Add below code snippet to ``edx_event_bus_redis/internal/consumer.py``.

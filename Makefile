@@ -1,6 +1,8 @@
 .PHONY: clean compile_translations coverage diff_cover docs dummy_translations \
         extract_translations fake_translations help pii_check pull_translations push_translations \
-        quality requirements selfcheck test test-all upgrade validate install_transifex_client
+        quality requirements selfcheck test test-all upgrade validate install_transifex_client \
+	produce_test_event consume_test_event multiple_consumer_test_event kill_all_consume_test_events \
+	redis-up redis-down
 
 .DEFAULT_GOAL := help
 
@@ -124,3 +126,9 @@ multiple_consumer_test_event:
 
 kill_all_consume_test_events:
 	pgrep -lf python\ manage.py\ consume_events\ --signal\ org.openedx.content_authoring.xblock.deleted.v1\ --topic\ xblock-deleted\ --group_id\ test_group\ --consumer_name\ test_group. | cut -d" " -f1 | xargs kill -15
+
+redis-up:
+	docker compose up
+
+redis-down:
+	docker compose down
