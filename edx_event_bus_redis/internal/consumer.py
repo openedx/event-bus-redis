@@ -20,7 +20,7 @@ from walrus.containers import ConsumerGroupStream
 from edx_event_bus_redis.internal.message import RedisMessage
 
 from .config import get_full_topic, load_common_settings
-from .utils import AUDIT_LOGGING_ENABLED, decode
+from .utils import AUDIT_LOGGING_ENABLED
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +87,7 @@ class RedisEventConsumer:
     Can also consume messages indefinitely off the queue.
     """
 
-    def __init__(self, topic, group_id, signal, consumer_name=None, last_read_msg_id="$", check_backlog=True):
+    def __init__(self, topic, group_id, signal, consumer_name=None, last_read_msg_id=None, check_backlog=False):
         self.topic = topic
         self.group_id = group_id
         self.signal = signal
@@ -123,7 +123,12 @@ class RedisEventConsumer:
             consumer.create(mkstream=True)
         except ResponseError:
             logger.warning("Stream already created by another consumer.")
-        consumer.set_id(self.last_read_msg_id)
+        # If last_read_msg_id is set, we will replay events after this msg.
+        if self.last_read_msg_id:
+            consumer.set_id(self.last_read_msg_id)
+        # If check_backlog and last_read_msg_id option is not set, only process new messages.
+        elif not self.check_backlog:
+            consumer.set_id("$")
         return consumer.streams[full_topic]
 
     def _shut_down(self):
@@ -131,6 +136,18 @@ class RedisEventConsumer:
         Test utility for shutting down the consumer loop.
         """
         self._shut_down_loop = True
+
+    def _read_pending_msgs(self) -> Optional[tuple]:
+        """
+        Read pending messages, if no messages found set check_backlog to False.
+        """
+        logger.debug("Consuming pending msgs first.")
+        msg_meta = self.consumer.pending(count=1, consumer=self.consumer_name)
+        if not msg_meta:
+            logger.debug("No more pending messages.")
+            self.check_backlog = False
+            return None
+        return self.consumer[msg_meta[0]['message_id']]
 
     def _consume_indefinitely(self):
         """
@@ -163,7 +180,7 @@ class RedisEventConsumer:
             'consumer_name': self.consumer_name,
         }
 
-        try:
+        try:  # pylint: disable=too-many-nested-blocks
             logger.info(f"Running consumer for {run_context!r}")
 
             # How many errors have we seen in a row? If this climbs too high, exit with error.
@@ -190,13 +207,7 @@ class RedisEventConsumer:
                     # The first time we want to read our pending messages, in case we crashed and are recovering.
                     # Once we consumed our history, we can start getting new messages.
                     if self.check_backlog:
-                        logger.debug("Consuming pending msgs first.")
-                        msg_meta = self.consumer.pending(count=1, consumer=self.consumer_name)
-                        if not msg_meta:
-                            logger.debug("No more pending messages.")
-                            self.check_backlog = False
-                        else:
-                            redis_raw_msg = self.consumer[msg_meta[0]['message_id']]
+                        redis_raw_msg = self._read_pending_msgs()
                     else:
                         # poll for msg
                         redis_raw_msg = self.consumer.read(count=1, block=CONSUMER_POLL_TIMEOUT * 1000)
@@ -214,15 +225,18 @@ class RedisEventConsumer:
                     consecutive_errors += 1
                     self.record_event_consuming_error(run_context, e, msg)
                     # Kill the infinite loop if the error is fatal for the consumer
-                    fatal = self._is_fatal_redis_error(error=e)
-                    if fatal:
+                    if self._is_fatal_redis_error(error=e):
                         raise e
                     # Prevent fast error-looping when no event received from broker.
-                    if redis_raw_msg is None:
+                    if not redis_raw_msg:
                         time.sleep(POLL_FAILURE_SLEEP)
-                if msg and msg.msg_id:
-                    self.consumer.ack(msg.msg_id)
-                    self.consumer.set_id(decode(msg.msg_id))
+                finally:
+                    # Acknowledge message as long as it is received. If only successfully processed events are
+                    # acknowledged, we might end up trying to process incorrect messages whenever we run with
+                    # check_backlog option. This is necessary as redis streams cannot enforce a schema while publishing
+                    # like kafka with avro.
+                    if redis_raw_msg:
+                        self.consumer.ack(redis_raw_msg[0])
         finally:
             self.db.close()
 
@@ -393,13 +407,15 @@ class RedisEventConsumer:
 
     def _is_fatal_redis_error(self, error: Optional[Exception]) -> bool:
         """
-        Returns a boolean where it is true if error is related to redis and fatal.
+        Returns True if error is a RedisConnectionError, False otherwise.
+
+        The redis.ConnectionError can be considered fatal as it is the base exception for errors from which consumer
+        might not be able to recover like AuthenticationError, AuthorizationError, MaxConnectionsError etc.
+        https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.ConnectionError
 
         Arguments:
             error: An exception instance, or None if no error.
         """
-        # If redis.ConnectionError is raised, return fatal as True
-        # https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.ConnectionError
         if error and isinstance(error, RedisConnectionError):
             return True
 
@@ -417,6 +433,15 @@ class ConsumeEventsCommand(BaseCommand):
 
         python3 manage.py cms consume_events -t user-login -g user-activity-service \
             -s org.openedx.learning.auth.session.login.completed.v1
+
+        # process unread messages from the topic by this consumer group.
+        python3 manage.py cms consume_events -t user-login -g user-activity-service \
+            -s org.openedx.learning.auth.session.login.completed.v1 --check_backlog
+
+        # replay events from specific msg id.
+        python3 manage.py cms consume_events -t user-login -g user-activity-service \
+            -s org.openedx.learning.auth.session.login.completed.v1 \
+            --last_read_msg_id 1679676448892-0
     """
 
     def add_arguments(self, parser):
@@ -441,11 +466,16 @@ class ConsumeEventsCommand(BaseCommand):
             help='Type of signal to emit from consumed messages.'
         )
         parser.add_argument(
+            '-b', '--check_backlog',
+            action='store_true',
+            help='Process unread messages'
+        )
+        parser.add_argument(
             '-i', '--last_read_msg_id',
             nargs='?',
             required=False,
-            default="$",
-            help='Id of message last read from the stream.'
+            default=None,
+            help='Replay events from this msg id.'
         )
         parser.add_argument(
             '-n', '--consumer_name',
@@ -469,6 +499,7 @@ class ConsumeEventsCommand(BaseCommand):
                 signal=signal,
                 consumer_name=options['consumer_name'],
                 last_read_msg_id=options['last_read_msg_id'],
+                check_backlog=options['check_backlog'],
             )
             event_consumer.consume_indefinitely()
         except Exception:  # pylint: disable=broad-except

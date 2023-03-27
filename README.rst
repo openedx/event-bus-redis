@@ -72,6 +72,8 @@ Every time you develop something in this repo
 Testing locally
 ---------------
 
+* Please execute below commands in virtual environment to avoid messing with
+  your main python installation.
 * Install all dependencies using ``make requirements``
 * Run ``make redis-up`` in current directory.
 * Run ``make consume_test_event`` to start running a single consumer or ``make multiple_consumer_test_event`` to run two consumers with different consumer names.

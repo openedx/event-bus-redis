@@ -14,6 +14,7 @@ from django.test.utils import override_settings
 from openedx_events.learning.data import UserData, UserPersonalData
 from openedx_events.learning.signals import SESSION_LOGIN_COMPLETED
 from openedx_events.tooling import EventsMetadata
+from redis import ResponseError
 from redis.exceptions import ConnectionError as RedisConnectionError
 
 from edx_event_bus_redis.internal.consumer import ReceiverError, RedisEventConsumer
@@ -74,7 +75,12 @@ class TestConsumer(TestCase):
         self.signal.connect(fake_receiver_raises_error)
         self.signal.connect(self.mock_receiver)
         with patch('edx_event_bus_redis.internal.consumer.Database.from_url', autospec=True):
-            self.event_consumer = RedisEventConsumer('local-some-topic', 'test_group_id', self.signal)
+            self.event_consumer = RedisEventConsumer(
+                'local-some-topic',
+                'test_group_id',
+                self.signal,
+                check_backlog=True
+            )
 
     def tearDown(self):
         self.signal.disconnect(fake_receiver_returns_quietly)
@@ -100,6 +106,34 @@ class TestConsumer(TestCase):
         metadata = call_kwargs['metadata']
         assert metadata.event_type == signal.event_type
         assert metadata.sourcehost is not None
+
+    @patch('edx_event_bus_redis.internal.consumer.logger', autospec=True)
+    @ddt.data(('some-id', False), (None, True), ('some-id', True), (None, False))
+    @ddt.unpack
+    def test_consumer_creation(self, last_read_msg_id, check_backlog, mock_logger):
+        """
+        Check consumer msg id value based on initialization values.
+        """
+        mock_consumer = MagicMock()
+        mock_consumer.create.side_effect = ResponseError()
+        mock_db = MagicMock(**{'consumer_group.return_value': mock_consumer})
+        with patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer._create_db', return_value=mock_db):
+            RedisEventConsumer(
+                'local-some-topic',
+                'test_group_id',
+                self.signal,
+                last_read_msg_id=last_read_msg_id,
+                check_backlog=check_backlog,
+            )
+            mock_logger.warning.assert_called_once()
+            assert "Stream already created" in mock_logger.warning.call_args.args[0]
+            mock_consumer.create.assert_called_once()
+            if last_read_msg_id:
+                mock_consumer.set_id.assert_called_once_with(last_read_msg_id)
+            elif not check_backlog:
+                mock_consumer.set_id.assert_called_once_with('$')
+            else:
+                mock_consumer.set_id.assert_not_called()
 
     @patch('edx_event_bus_redis.internal.consumer.set_custom_attribute', autospec=True)
     @patch('edx_event_bus_redis.internal.consumer.logger', autospec=True)
@@ -139,7 +173,9 @@ class TestConsumer(TestCase):
             self.event_consumer.consume_indefinitely()
 
         # Check that each of the mocked out methods got called as expected.
-        mock_consumer.pending.assert_called_with(count=1, consumer='test_group_id.c1')
+        if pending_return_value:
+            mock_consumer.pending.assert_called_with(count=1, consumer='test_group_id.c1')
+        mock_consumer.ack.assert_called_with(b'1')
         # Check that emit was called the expected number of times
         assert mock_emit.call_args_list == [call(self.normal_message)] * len(mock_emit_side_effects)
 
@@ -423,7 +459,8 @@ class TestCommand(TestCase):
             group_id='test_group',
             signal='test-signal',
             consumer_name=None,
-            last_read_msg_id='$',
+            last_read_msg_id=None,
+            check_backlog=False,
         )
 
     @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
@@ -441,7 +478,8 @@ class TestCommand(TestCase):
             group_id='test_group',
             signal='test-signal',
             consumer_name='c1',
-            last_read_msg_id='$',
+            last_read_msg_id=None,
+            check_backlog=False,
         )
 
     @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
