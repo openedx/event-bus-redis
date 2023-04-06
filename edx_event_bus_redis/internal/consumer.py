@@ -438,7 +438,7 @@ class ConsumeEventsCommand(BaseCommand):
         python3 manage.py cms consume_events -t user-login -g user-activity-service \
             -s org.openedx.learning.auth.session.login.completed.v1 --check_backlog
 
-        # replay events from specific msg id.
+        # replay events from specific redis msg id.
         python3 manage.py cms consume_events -t user-login -g user-activity-service \
             -s org.openedx.learning.auth.session.login.completed.v1 \
             --last_read_msg_id 1679676448892-0

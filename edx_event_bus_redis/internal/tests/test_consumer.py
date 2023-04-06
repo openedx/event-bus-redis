@@ -185,6 +185,8 @@ class TestConsumer(TestCase):
         mock_consumer.pending.assert_called_with(count=1, consumer='test_group_id.c1')
         if not is_pending:
             mock_consumer.read.assert_called()
+        else:
+            mock_consumer.read.assert_not_called()
         mock_consumer.ack.assert_called_with(b'1')
         # Check that emit was called the expected number of times
         assert mock_method.call_args_list == [call(self.normal_message)] * len(mock_emit_side_effects)
@@ -225,47 +227,38 @@ class TestConsumer(TestCase):
         """
         Check the loop lifecycle if no events are triggered.
         """
-        # How the _is_fatal_redis_error() mock will behave on each successive call.
-        mock_side_effects = [
-            lambda: None,  # accept and ignore a message
-            # Final "call" just serves to stop the loop
-            self.event_consumer._shut_down  # pylint: disable=protected-access
-        ]
-        mock_read_value = []
         mock_pending_value = None
-        side_effect_method = '_is_fatal_redis_error'
+        side_effect_method = 'emit_signals_from_message'
 
         with patch.object(
             self.event_consumer, side_effect_method,
-            side_effect=side_effects(mock_side_effects),
+            side_effect=side_effects([self.event_consumer._shut_down])  # pylint: disable=protected-access
         ) as mock_method:
             mock_consumer = MagicMock(
                 **{
-                    'read.return_value': mock_read_value,
+                    'read.side_effect': ([], (b'1', self.normal_message.to_binary_dict())),
                     'pending.return_value': mock_pending_value,
                     '__getitem__.return_value': None,
                 },
                 autospec=True
             )
             self.event_consumer.db = Mock()
+            self.event_consumer.check_backlog = False
             self.event_consumer.consumer = mock_consumer
             self.event_consumer.consume_indefinitely()
 
         # Check that each of the mocked out methods got called as expected.
-        mock_consumer.pending.assert_called_with(count=1, consumer='test_group_id.c1')
+        mock_consumer.pending.assert_not_called()
         mock_consumer.read.assert_called()
-        mock_consumer.ack.assert_not_called()
-        # Check that emit was called the expected number of times
-        assert mock_method.call_args_list == [call(error=None)] * len(mock_side_effects)
-        # Check that there was one error log message and that it contained all the right parts,
-        # in some order.
+        mock_consumer.ack.assert_called_once()
+        mock_method.assert_called_once_with(self.normal_message)
 
         mock_set_custom_attribute.assert_has_calls(
             [
                 call('redis_consumer_group', 'test_group_id'),
                 call('redis_consumer_name', 'test_group_id.c1'),
                 call('redis_stream', 'local-some-topic'),
-            ] * len(mock_side_effects),
+            ] * 2,
             any_order=True,
         )
 
