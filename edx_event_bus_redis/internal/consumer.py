@@ -475,7 +475,7 @@ class ConsumeEventsCommand(BaseCommand):
             nargs='?',
             required=False,
             default=None,
-            help='Replay events from this msg id.'
+            help='Replay events from this redis msg id. For example: 1679676448892-0'
         )
         parser.add_argument(
             '-n', '--consumer_name',

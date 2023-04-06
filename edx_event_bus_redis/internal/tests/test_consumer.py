@@ -31,6 +31,10 @@ def fake_receiver_raises_error(**kwargs):
     raise Exception("receiver whoops")  # pylint: disable=broad-exception-raised
 
 
+def raise_exception():
+    raise ValueError("something broke")
+
+
 @override_settings(
     EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/',
 )
@@ -139,16 +143,13 @@ class TestConsumer(TestCase):
     @patch('edx_event_bus_redis.internal.consumer.logger', autospec=True)
     @patch('edx_event_bus_redis.internal.consumer.time.sleep', autospec=True)
     @ddt.data(
-        None,  # no pending msg
-        [{'message_id': b'some-id'}],  # one pending msg
+        False,  # no pending msg, but has new msgs
+        True,  # has pending msgs and new msgs
     )
-    def test_consume_loop(self, pending_return_value, mock_sleep, mock_logger, mock_set_custom_attribute):
+    def test_consume_loop(self, is_pending, mock_sleep, mock_logger, mock_set_custom_attribute):
         """
         Check the basic loop lifecycle.
         """
-        def raise_exception():
-            raise ValueError("something broke")
-
         # How the emit_signals_from_message() mock will behave on each successive call.
         mock_emit_side_effects = [
             lambda: None,  # accept and ignore a message
@@ -158,14 +159,22 @@ class TestConsumer(TestCase):
             # Final "call" just serves to stop the loop
             self.event_consumer._shut_down  # pylint: disable=protected-access
         ]
+        mock_read_value = [(b'1', self.normal_message.to_binary_dict())]
+        mock_pending_value = None
+        side_effect_method = 'emit_signals_from_message'
+        if is_pending:
+            mock_pending_value = [{'message_id': b'some-id'}]
 
         with patch.object(
-                self.event_consumer, 'emit_signals_from_message',
-                side_effect=side_effects(mock_emit_side_effects),
-        ) as mock_emit:
+            self.event_consumer, side_effect_method,
+            side_effect=side_effects(mock_emit_side_effects),
+        ) as mock_method:
             mock_consumer = MagicMock(
-                **{'read.return_value': [(b'1', self.normal_message.to_binary_dict())], 'pending.return_value':
-                    pending_return_value, '__getitem__.return_value': (b'1', self.normal_message.to_binary_dict())},
+                **{
+                    'read.return_value': mock_read_value,
+                    'pending.return_value': mock_pending_value,
+                    '__getitem__.return_value': (b'1', self.normal_message.to_binary_dict())
+                },
                 autospec=True
             )
             self.event_consumer.db = Mock()
@@ -173,16 +182,17 @@ class TestConsumer(TestCase):
             self.event_consumer.consume_indefinitely()
 
         # Check that each of the mocked out methods got called as expected.
-        if pending_return_value:
-            mock_consumer.pending.assert_called_with(count=1, consumer='test_group_id.c1')
+        mock_consumer.pending.assert_called_with(count=1, consumer='test_group_id.c1')
+        if not is_pending:
+            mock_consumer.read.assert_called()
         mock_consumer.ack.assert_called_with(b'1')
         # Check that emit was called the expected number of times
-        assert mock_emit.call_args_list == [call(self.normal_message)] * len(mock_emit_side_effects)
-
+        assert mock_method.call_args_list == [call(self.normal_message)] * len(mock_emit_side_effects)
         # Check that there was one error log message and that it contained all the right parts,
         # in some order.
         mock_logger.exception.assert_called_once()
         (exc_log_msg,) = mock_logger.exception.call_args.args
+
         assert "Error consuming event from Redis: ValueError('something broke') in context" in exc_log_msg
         assert "full_topic='local-some-topic'" in exc_log_msg
         assert "consumer_group='test_group_id'" in exc_log_msg
@@ -209,14 +219,64 @@ class TestConsumer(TestCase):
         mock_sleep.assert_not_called()
         self.event_consumer.db.close.assert_called_once_with()  # since shutdown was requested, not because of exception
 
+    @patch('edx_event_bus_redis.internal.consumer.set_custom_attribute', autospec=True)
+    @patch('edx_event_bus_redis.internal.consumer.time.sleep', autospec=True)
+    def test_consume_loop_with_no_events(self, mock_sleep, mock_set_custom_attribute):
+        """
+        Check the loop lifecycle if no events are triggered.
+        """
+        # How the _is_fatal_redis_error() mock will behave on each successive call.
+        mock_side_effects = [
+            lambda: None,  # accept and ignore a message
+            # Final "call" just serves to stop the loop
+            self.event_consumer._shut_down  # pylint: disable=protected-access
+        ]
+        mock_read_value = []
+        mock_pending_value = None
+        side_effect_method = '_is_fatal_redis_error'
+
+        with patch.object(
+            self.event_consumer, side_effect_method,
+            side_effect=side_effects(mock_side_effects),
+        ) as mock_method:
+            mock_consumer = MagicMock(
+                **{
+                    'read.return_value': mock_read_value,
+                    'pending.return_value': mock_pending_value,
+                    '__getitem__.return_value': None,
+                },
+                autospec=True
+            )
+            self.event_consumer.db = Mock()
+            self.event_consumer.consumer = mock_consumer
+            self.event_consumer.consume_indefinitely()
+
+        # Check that each of the mocked out methods got called as expected.
+        mock_consumer.pending.assert_called_with(count=1, consumer='test_group_id.c1')
+        mock_consumer.read.assert_called()
+        mock_consumer.ack.assert_not_called()
+        # Check that emit was called the expected number of times
+        assert mock_method.call_args_list == [call(error=None)] * len(mock_side_effects)
+        # Check that there was one error log message and that it contained all the right parts,
+        # in some order.
+
+        mock_set_custom_attribute.assert_has_calls(
+            [
+                call('redis_consumer_group', 'test_group_id'),
+                call('redis_consumer_name', 'test_group_id.c1'),
+                call('redis_stream', 'local-some-topic'),
+            ] * len(mock_side_effects),
+            any_order=True,
+        )
+
+        mock_sleep.assert_not_called()
+        self.event_consumer.db.close.assert_called_once_with()  # since shutdown was requested, not because of exception
+
     @override_settings(
         EVENT_BUS_REDIS_CONSUMER_CONSECUTIVE_ERRORS_LIMIT=4,
     )
     def test_consecutive_error_limit(self):
         """Confirm that consecutive errors can break out of loop."""
-        def raise_exception():
-            raise ValueError("something broke")
-
         exception_count = 4
 
         with patch.object(
@@ -268,9 +328,6 @@ class TestConsumer(TestCase):
     )
     def test_non_consecutive_errors(self):
         """Confirm that non-consecutive errors may not break out of loop."""
-        def raise_exception():
-            raise ValueError("something broke")
-
         mock_emit_side_effects = [
             raise_exception, raise_exception,
             lambda: None,  # an iteration that doesn't raise an exception
@@ -416,7 +473,7 @@ class TestConsumer(TestCase):
         """
         with pytest.raises(ReceiverError) as exc_info:
             self.event_consumer._check_receiver_results([  # pylint: disable=protected-access
-                (lambda x:x, ValueError("for lambda")),
+                (lambda x:x, Exception("for lambda")),
                 # This would actually raise an error inside send_robust(), but it will serve well enough for testing...
                 ("not even a function", ValueError("just plain bad")),
             ])
@@ -426,7 +483,7 @@ class TestConsumer(TestCase):
             "org.openedx.learning.auth.session.login.completed.v1>: "
 
             "edx_event_bus_redis.internal.tests.test_consumer.TestConsumer."
-            "test_malformed_receiver_errors.<locals>.<lambda>=ValueError('for lambda'), "
+            "test_malformed_receiver_errors.<locals>.<lambda>=Exception('for lambda'), "
 
             "not even a function=ValueError('just plain bad')",
         )
@@ -465,21 +522,23 @@ class TestCommand(TestCase):
 
     @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
     @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer')
-    def test_redis_consumers_with_consumer_name(self, mock_consumer, _):
+    def test_redis_consumers_with_all_params(self, mock_consumer, _):
         call_command(
             Command(),
             topic=['test'],
             group_id=['test_group'],
             signal=['openedx'],
             consumer_name='c1',
+            last_read_msg_id="a-msg-id",
+            check_backlog=True,
         )
         mock_consumer.assert_called_once_with(
             topic='test',
             group_id='test_group',
             signal='test-signal',
             consumer_name='c1',
-            last_read_msg_id=None,
-            check_backlog=False,
+            last_read_msg_id="a-msg-id",
+            check_backlog=True,
         )
 
     @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")

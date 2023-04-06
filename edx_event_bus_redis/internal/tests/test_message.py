@@ -1,5 +1,5 @@
 """
-Tests for event_consumer module.
+Tests for message module.
 """
 
 from datetime import datetime, timezone
