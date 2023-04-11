@@ -3,26 +3,24 @@ Core consumer and event-loop code.
 """
 import logging
 import time
-import warnings
-from datetime import datetime
+from typing import Optional
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import connection
 from edx_django_utils.monitoring import record_exception, set_custom_attribute
 from edx_toggles.toggles import SettingToggle
-from openedx_events.tooling import OpenEdxPublicSignal
-from redis.exceptions import RedisError
+from openedx_events.event_bus.avro.deserializer import deserialize_bytes_to_event_data
+from openedx_events.tooling import OpenEdxPublicSignal, load_all_signals
+from redis.exceptions import ConnectionError as RedisConnectionError
+from redis.exceptions import ResponseError
+from walrus import Database
+from walrus.containers import ConsumerGroupStream
+
+from edx_event_bus_redis.internal.message import RedisMessage
 
 from .config import get_full_topic, load_common_settings
-from .utils import (
-    AUDIT_LOGGING_ENABLED,
-    HEADER_EVENT_TYPE,
-    HEADER_ID,
-    get_message_header_values,
-    get_metadata_from_headers,
-    last_message_header_value,
-)
+from .utils import AUDIT_LOGGING_ENABLED
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +37,7 @@ REDIS_CONSUMERS_ENABLED = SettingToggle('EVENT_BUS_REDIS_CONSUMERS_ENABLED', def
 # .. setting_default: 1.0
 # .. setting_description: How long the consumer should wait, in seconds, for the Redis broker
 #   to respond to a poll() call.
-CONSUMER_POLL_TIMEOUT = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT', 1.0)
+CONSUMER_POLL_TIMEOUT = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT', 1)
 
 # .. setting_name: EVENT_BUS_REDIS_CONSUMER_POLL_FAILURE_SLEEP
 # .. setting_default: 1.0
@@ -49,15 +47,6 @@ CONSUMER_POLL_TIMEOUT = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT
 #   involve receiving an unreadable event, but this could change in the future to be more
 #   specific to "no event received from broker".
 POLL_FAILURE_SLEEP = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_POLL_FAILURE_SLEEP', 1.0)
-
-
-class UnusableMessageError(Exception):
-    """
-    Indicates that a message was successfully received but could not be processed.
-
-    This could be invalid headers, an unknown signal, or other issue specific to
-    the contents of the message.
-    """
 
 
 class ReceiverError(Exception):
@@ -98,43 +87,67 @@ class RedisEventConsumer:
     Can also consume messages indefinitely off the queue.
     """
 
-    def __init__(self, topic, group_id, signal):
+    def __init__(self, topic, group_id, signal, consumer_name=None, last_read_msg_id=None, check_backlog=False):
         self.topic = topic
         self.group_id = group_id
         self.signal = signal
-        self.consumer = self._create_consumer()
+        self.consumer_name = consumer_name or (self.group_id + '.c1')
+        self.last_read_msg_id = last_read_msg_id
+        self.check_backlog = check_backlog
+        self.db = self._create_db()
+        self.full_topic = get_full_topic(self.topic)
+        self.consumer = self._create_consumer(self.db, self.full_topic)
         self._shut_down_loop = False
 
-    # return type (Optional[DeserializingConsumer]) removed from signature to avoid error on import
-    def _create_consumer(self):
+    def _create_db(self) -> Database:
         """
-        Create a DeserializingConsumer for events of the given signal instance.
+        Create a connection to redis
+        """
+        config = load_common_settings()
+        if config is None:
+            raise ValueError("Missing redis connection url")
+        return Database.from_url(config['url'])
+
+    def _create_consumer(self, db: Database, full_topic: str) -> ConsumerGroupStream:
+        """
+        Create a redis stream consumer group and a consumer for events of the given signal instance.
 
         Returns
-            DeserializingConsumer if it is.
+            ConsumerGroupStream
         """
 
-        consumer_config = load_common_settings()
-
-        # We do not deserialize the key because we don't need it for anything yet.
-        # Also see https://github.com/openedx/openedx-events/issues/86 for some challenges on determining key schema.
-        consumer_config.update({
-            'group.id': self.group_id,
-            'value.deserializer': None,
-            # Turn off auto commit. Auto commit will commit offsets for the entire batch of messages received,
-            # potentially resulting in data loss if some of those messages are not fully processed. See
-            # https://newrelic.com/blog/best-practices/redis-consumer-config-auto-commit-data-loss
-            'enable.auto.commit': False,
-        })
-
-        # create redis client and consumer.
-        return consumer_config
+        # It is possible to track multiple streams using single consumer group.
+        # But for simplicity, we are only supporting one stream till the need arises.
+        consumer = db.consumer_group(self.group_id, [full_topic], consumer=self.consumer_name)
+        try:
+            consumer.create(mkstream=True)
+        except ResponseError:
+            logger.warning("Stream already created by another consumer.")
+        # If last_read_msg_id is set, we will replay events after this msg.
+        if self.last_read_msg_id:
+            consumer.set_id(self.last_read_msg_id)
+        # If check_backlog and last_read_msg_id option is not set, only process new messages.
+        elif not self.check_backlog:
+            consumer.set_id("$")
+        return consumer.streams[full_topic]
 
     def _shut_down(self):
         """
         Test utility for shutting down the consumer loop.
         """
         self._shut_down_loop = True
+
+    def _read_pending_msgs(self) -> Optional[tuple]:
+        """
+        Read pending messages, if no messages found set check_backlog to False.
+        """
+        logger.debug("Consuming pending msgs first.")
+        msg_meta = self.consumer.pending(count=1, consumer=self.consumer_name)
+        if not msg_meta:
+            logger.debug("No more pending messages.")
+            self.check_backlog = False
+            return None
+        return self.consumer[msg_meta[0]['message_id']]
 
     def _consume_indefinitely(self):
         """
@@ -160,15 +173,14 @@ class RedisEventConsumer:
         #   This does not prevent committing of offsets back to the broker; any messages that caused an
         #   error will still be marked as consumed, and may need to be replayed.
         CONSECUTIVE_ERRORS_LIMIT = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_CONSECUTIVE_ERRORS_LIMIT', None)
+        run_context = {
+            'full_topic': self.full_topic,
+            'consumer_group': self.group_id,
+            'expected_signal': self.signal,
+            'consumer_name': self.consumer_name,
+        }
 
-        try:
-            full_topic = get_full_topic(self.topic)
-            run_context = {
-                'full_topic': full_topic,
-                'consumer_group': self.group_id,
-                'expected_signal': self.signal,
-            }
-            # TODO: Consume events
+        try:  # pylint: disable=too-many-nested-blocks
             logger.info(f"Running consumer for {run_context!r}")
 
             # How many errors have we seen in a row? If this climbs too high, exit with error.
@@ -189,14 +201,22 @@ class RedisEventConsumer:
                         f"Too many consecutive errors, exiting ({consecutive_errors} in a row)"
                     )
 
-                msg = None
+                redis_raw_msg = None
+                msg: Optional[RedisMessage] = None
                 try:
-                    # poll for msg
-                    msg = None
-                    if msg is not None:
+                    # The first time we want to read our pending messages, in case we crashed and are recovering.
+                    # Once we consumed our history, we can start getting new messages.
+                    if self.check_backlog:
+                        redis_raw_msg = self._read_pending_msgs()
+                    else:
+                        # poll for msg
+                        redis_raw_msg = self.consumer.read(count=1, block=CONSUMER_POLL_TIMEOUT * 1000)
+                    if redis_raw_msg:
+                        if isinstance(redis_raw_msg, list):
+                            redis_raw_msg = redis_raw_msg[0]
+                        msg = RedisMessage.parse(redis_raw_msg, self.full_topic, expected_signal=self.signal)
                         # Before processing, make sure our db connection is still active
                         _reconnect_to_db_if_needed()
-
                         self.emit_signals_from_message(msg)
                         consecutive_errors = 0
 
@@ -205,88 +225,39 @@ class RedisEventConsumer:
                     consecutive_errors += 1
                     self.record_event_consuming_error(run_context, e, msg)
                     # Kill the infinite loop if the error is fatal for the consumer
-                    _, redis_error = self._get_redis_message_and_error(message=msg, error=e)
-                    # https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.TryAgainError
-                    if redis_error:  # and redis_error.fatal()
+                    if self._is_fatal_redis_error(error=e):
                         raise e
-                    # Prevent fast error-looping when no event received from broker. Because
-                    # DeserializingConsumer raises rather than returning a Message when it has an
-                    # error() value, this may be triggered even when a Message *was* returned,
-                    # slowing down the queue. This is probably close enough, though.
-                    if msg is None:
+                    # Prevent fast error-looping when no event received from broker.
+                    if not redis_raw_msg:
                         time.sleep(POLL_FAILURE_SLEEP)
-                # if msg:
-                    # theoretically we could just call consumer.commit() without passing the specific message
-                    # to commit all this consumer's current offset across all partitions since we only process one
-                    # message at a time, but limit it to just the offset/partition of the specified message
-                    # to be super safe
-                    # self.consumer.commit(message=msg)
+                finally:
+                    # Acknowledge message as long as it is received. If only successfully processed events are
+                    # acknowledged, we might end up trying to process incorrect messages whenever we run with
+                    # check_backlog option. This is necessary as redis streams cannot enforce a schema while publishing
+                    # like kafka with avro.
+                    if redis_raw_msg:
+                        self.consumer.ack(redis_raw_msg[0])
         finally:
-            # TODO: close consumber
-            pass
+            self.db.close()
 
-    def consume_indefinitely(self, offset_timestamp=None):
+    def consume_indefinitely(self):
         """
         Consume events from a topic in an infinite loop.
-
-        Arguments:
-            offset_timestamp (datetime): Optional and deprecated; if supplied, calls
-                ``reset_offsets_and_sleep_indefinitely`` instead. Relying code should
-                switch to calling that method directly.
         """
-        # TODO: Once this deprecated argument can be removed, just
-        # remove this delegation method entirely and rename
-        # `_consume_indefinitely` to no longer have the `_` prefix.
-        if offset_timestamp is None:
-            self._consume_indefinitely()
-        else:
-            warnings.warn(
-                "Calling consume_indefinitely with offset_timestamp is deprecated; "
-                "please call reset_offsets_and_sleep_indefinitely directly instead."
-            )
-            # self.reset_offsets_and_sleep_indefinitely(offset_timestamp)
+        self._consume_indefinitely()
 
-    def emit_signals_from_message(self, msg):
+    def emit_signals_from_message(self, msg: RedisMessage):
         """
         Determine the correct signal and send the event from the message.
 
         Arguments:
-            msg (Message): Consumed message.
+            msg (RedisMessage): Consumed message.
         """
         self._log_message_received(msg)
 
-        # DeserializingConsumer.poll() always returns either a valid message
-        # or None, and raises an exception in all other cases. This means
-        # we don't need to check msg.error() ourselves. But... check it here
-        # anyway for robustness against code changes.
-        if msg.error() is not None:
-            raise UnusableMessageError(
-                f"Polled message had error object (shouldn't happen): {msg.error()!r}"
-            )
-
-        headers = msg.headers() or []  # treat None as []
-
-        event_types = get_message_header_values(headers, HEADER_EVENT_TYPE)
-        if len(event_types) == 0:
-            raise UnusableMessageError(
-                "Missing type header on message, cannot determine signal"
-            )
-        if len(event_types) > 1:
-            raise UnusableMessageError(
-                "Multiple type headers found on message, cannot determine signal"
-            )
-        event_type = event_types[0]
-
-        if event_type != self.signal.event_type:
-            raise UnusableMessageError(
-                f"Signal types do not match. Expected {self.signal.event_type}. "
-                f"Received message of type {event_type}."
-            )
-        try:
-            event_metadata = get_metadata_from_headers(headers)
-        except Exception as e:
-            raise UnusableMessageError(f"Error determining metadata from message headers: {e}") from e
-        send_results = self.signal.send_event_with_custom_metadata(event_metadata, **msg.value())
+        signal = OpenEdxPublicSignal.get_signal_by_type(msg.event_metadata.event_type)
+        event_data = deserialize_bytes_to_event_data(msg.event_data, signal)
+        send_results = signal.send_event_with_custom_metadata(msg.event_metadata, **event_data)
         # Raise an exception if any receivers errored out. This allows logging of the receivers
         # along with partition, offset, etc. in record_event_consuming_error. Hopefully the
         # receiver code is idempotent and we can just replay any messages that were involved.
@@ -331,7 +302,7 @@ class RedisEventConsumer:
                 errors
             )
 
-    def _log_message_received(self, msg):
+    def _log_message_received(self, msg: RedisMessage):
         """
         Log that a message was received, for audit log purposes.
 
@@ -345,16 +316,15 @@ class RedisEventConsumer:
             return
 
         try:
-            message_id = last_message_header_value(msg.headers(), HEADER_ID)
+            message_id = msg.event_metadata.id
 
-            timestamp_ms = msg.timestamp()
-            timestamp_info = str(timestamp_ms)
+            timestamp_ms = msg.event_metadata.time.timestamp()
 
             # See ADR for details on why certain fields were included or omitted.
             logger.info(
-                f'Message received from Redis: topic={msg.topic()}, '
-                f'message_id={message_id}, key={msg.key()}, '
-                f'event_timestamp_ms={timestamp_info}'
+                f'Message received from Redis: topic={msg.topic}, '
+                f'message_id={message_id}, redis_msg_id={msg.msg_id}, '
+                f'event_timestamp_ms={timestamp_ms}'
             )
         except Exception as e:  # pragma: no cover  pylint: disable=broad-except
             # Use this to fix any bugs in what should be benign logging code
@@ -373,23 +343,17 @@ class RedisEventConsumer:
         """
         context_msg = ", ".join(f"{k}={v!r}" for k, v in run_context.items())
         # Pulls the event message off the error for certain exceptions.
-        maybe_redis_message, _ = self._get_redis_message_and_error(message=maybe_message, error=error)
-        if maybe_redis_message is None:
+        if maybe_message is None:
             event_msg = "no event available"
         else:
-            event_details = {
-                'headers': maybe_redis_message.headers(),
-                'key': maybe_redis_message.key(),
-                'value': maybe_redis_message.value(),
-            }
-            event_msg = f"event details: {event_details!r}"
+            event_msg = f"event details: {maybe_message}"
 
         try:
             # This is gross, but our record_exception wrapper doesn't take args at the moment,
             # and will only read the exception from stack context.
             raise Exception(error)  # pylint: disable=broad-exception-raised
         except BaseException:
-            self._add_message_monitoring(run_context=run_context, message=maybe_redis_message, error=error)
+            self._add_message_monitoring(run_context=run_context, message=maybe_message, error=error)
             record_exception()
             logger.exception(
                 f"Error consuming event from Redis: {error!r} in context {context_msg} -- {event_msg}"
@@ -407,80 +371,55 @@ class RedisEventConsumer:
             error: (Optional) An exception instance, or None if no error.
         """
         try:
-            redis_message, redis_error = self._get_redis_message_and_error(message=message, error=error)
+            fatal = self._is_fatal_redis_error(error=error)
 
-            # .. custom_attribute_name: redis_topic
+            # .. custom_attribute_name: redis_stream
             # .. custom_attribute_description: The full topic of the message or error.
-            set_custom_attribute('redis_topic', run_context['full_topic'])
+            set_custom_attribute('redis_stream', run_context['full_topic'])
 
-            if redis_message:
-                # .. custom_attribute_name: redis_partition
-                # .. custom_attribute_description: The partition of the message.
-                # set_custom_attribute('redis_partition', redis_message.partition())
-                headers = redis_message.headers() or []  # treat None as []
-                message_ids = get_message_header_values(headers, HEADER_ID)
-                if len(message_ids) > 0:
-                    # .. custom_attribute_name: redis_message_id
-                    # .. custom_attribute_description: The message id which can be matched to the logs. Note that the
-                    #   header in the logs will use 'ce_id'.
-                    set_custom_attribute('redis_message_id', ",".join(message_ids))
-                event_types = get_message_header_values(headers, HEADER_EVENT_TYPE)
-                if len(event_types) > 0:
-                    # .. custom_attribute_name: redis_event_type
-                    # .. custom_attribute_description: The event type of the message. Note that the header in the logs
-                    #   will use 'ce_type'.
-                    set_custom_attribute('redis_event_type', ",".join(event_types))
+            # .. custom_attribute_name: redis_consumer_group
+            # .. custom_attribute_description: The consumer group in redis stream.
+            set_custom_attribute('redis_consumer_group', run_context['consumer_group'])
 
-            if redis_error:
+            # .. custom_attribute_name: redis_consumer_name
+            # .. custom_attribute_description: The consumer name in redis stream group.
+            set_custom_attribute('redis_consumer_name', run_context['consumer_name'])
+
+            if message:
+                # .. custom_attribute_name: redis_msg_id
+                # .. custom_attribute_description: The message id from redis stream.
+                set_custom_attribute('redis_msg_id', message.msg_id)
+                # .. custom_attribute_name: id
+                # .. custom_attribute_description: The message id which can be matched to the logs.
+                set_custom_attribute('id', str(message.event_metadata.id))
+                # .. custom_attribute_name: redis_event_type
+                # .. custom_attribute_description: The event type of the message.
+                set_custom_attribute('event_type', message.event_metadata.event_type)
+
+            if error:
                 # .. custom_attribute_name: redis_error_fatal
                 # .. custom_attribute_description: Boolean describing if the error is fatal.
-                # TODO: https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.TryAgainError
-                # set_custom_attribute('redis_error_fatal', redis_error.fatal())
-                # .. custom_attribute_name: redis_error_retriable
-                # .. custom_attribute_description: Boolean describing if the error is retriable.
-                # https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.TryAgainError
-                # set_custom_attribute('redis_error_retriable', redis_error.retriable())
-                pass
+                set_custom_attribute('redis_error_fatal', fatal)
 
         except Exception as e:  # pragma: no cover  pylint: disable=broad-except
             # Use this to fix any bugs in what should be benign monitoring code
             set_custom_attribute('redis_monitoring_error', repr(e))
 
-    def _get_redis_message_and_error(self, message, error):
+    def _is_fatal_redis_error(self, error: Optional[Exception]) -> bool:
         """
-        Returns tuple of (redis_message, redis_error), if they can be found.
+        Returns True if error is a RedisConnectionError, False otherwise.
 
-        Notes:
-            * If the message was sent as a parameter, it will be returned.
-            * If the message was not sent, and a RedisException was sent, the
-                message will be pulled from the exception if it exists.
-            * A RedisError will be returned if it is either passed directly,
-                or if it was wrapped by a RedisException.
+        The redis.ConnectionError can be considered fatal as it is the base exception for errors from which consumer
+        might not be able to recover like AuthenticationError, AuthorizationError, MaxConnectionsError etc.
+        https://redis.readthedocs.io/en/stable/exceptions.html#redis.exceptions.ConnectionError
 
         Arguments:
-            message: None if event could not be fetched or decoded, or a Message if one
-              was successfully deserialized but could not be processed for some reason
             error: An exception instance, or None if no error.
         """
-        if not error or isinstance(error, RedisError):
-            return message, error
+        if error and isinstance(error, RedisConnectionError):
+            return True
 
-        redis_error = getattr(error, 'redis_error', None)
-        # RedisException uses args[0] to wrap the RedisError
-        if not redis_error and len(error.args) > 0 and isinstance(error.args[0], RedisError):
-            redis_error = error.args[0]
-
-        redis_message = getattr(error, 'redis_message', None)
-        if message and redis_message and redis_message != message:  # pragma: no cover
-            # If this unexpected error ever occurs, we can invest in a better error message
-            #   with a test, that includes event header details.
-            logger.error("Error consuming event from Redis: (UNEXPECTED) The event message did not match"
-                         " the message packaged with the error."
-                         f" -- event message={message!r}, error event message={redis_message!r}.")
-        # give priority to the passed message, although in theory, it should be the same message if not None
-        redis_message = message or redis_message
-
-        return redis_message, redis_error
+        return False
 
 
 class ConsumeEventsCommand(BaseCommand):
@@ -488,12 +427,21 @@ class ConsumeEventsCommand(BaseCommand):
     Management command for Redis consumer workers in the event bus.
     """
     help = """
-    Consume messages of specified signal type from a Redis topic and send their data to that signal.
+    Consume messages of specified signal type from a Redis topic/stream and send their data to that signal.
 
     Example::
 
         python3 manage.py cms consume_events -t user-login -g user-activity-service \
             -s org.openedx.learning.auth.session.login.completed.v1
+
+        # process unread messages from the topic by this consumer group.
+        python3 manage.py cms consume_events -t user-login -g user-activity-service \
+            -s org.openedx.learning.auth.session.login.completed.v1 --check_backlog
+
+        # replay events from specific redis msg id.
+        python3 manage.py cms consume_events -t user-login -g user-activity-service \
+            -s org.openedx.learning.auth.session.login.completed.v1 \
+            --last_read_msg_id 1679676448892-0
     """
 
     def add_arguments(self, parser):
@@ -518,13 +466,23 @@ class ConsumeEventsCommand(BaseCommand):
             help='Type of signal to emit from consumed messages.'
         )
         parser.add_argument(
-            '-o', '--offset_time',
-            nargs=1,
+            '-b', '--check_backlog',
+            action='store_true',
+            help='Process unread messages'
+        )
+        parser.add_argument(
+            '-i', '--last_read_msg_id',
+            nargs='?',
             required=False,
             default=None,
-            help='The timestamp (in ISO format) that we would like to reset the consumers to. '
-                 'If this is used, the consumers will only reset the offsets of the topic '
-                 'but will not actually consume and process any messages.'
+            help='Replay events from this redis msg id. For example: 1679676448892-0'
+        )
+        parser.add_argument(
+            '-n', '--consumer_name',
+            nargs='?',
+            required=False,
+            default=None,
+            help='Unique name for this consumer instance.'
         )
 
     def handle(self, *args, **options):
@@ -533,25 +491,16 @@ class ConsumeEventsCommand(BaseCommand):
             return
 
         try:
+            load_all_signals()
             signal = OpenEdxPublicSignal.get_signal_by_type(options['signal'][0])
-            if options['offset_time'] and options['offset_time'][0] is not None:
-                try:
-                    offset_timestamp = datetime.fromisoformat(options['offset_time'][0])
-                except ValueError:
-                    logger.exception('Could not parse the offset timestamp.')
-                    raise
-            else:
-                offset_timestamp = None
-
             event_consumer = RedisEventConsumer(
                 topic=options['topic'][0],
                 group_id=options['group_id'][0],
                 signal=signal,
+                consumer_name=options['consumer_name'],
+                last_read_msg_id=options['last_read_msg_id'],
+                check_backlog=options['check_backlog'],
             )
-            if offset_timestamp is None:
-                event_consumer.consume_indefinitely()
-            else:
-                pass
-                # event_consumer.reset_offsets_and_sleep_indefinitely(offset_timestamp=offset_timestamp)
+            event_consumer.consume_indefinitely()
         except Exception:  # pylint: disable=broad-except
             logger.exception("Error consuming Redis events")

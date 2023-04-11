@@ -15,8 +15,10 @@ from openedx_events.event_bus.avro.serializer import serialize_event_data_to_byt
 from openedx_events.tooling import OpenEdxPublicSignal
 from walrus import Database
 
+from edx_event_bus_redis.internal.message import RedisMessage
+
 from .config import get_full_topic, load_common_settings
-from .utils import AUDIT_LOGGING_ENABLED, get_headers_from_metadata
+from .utils import AUDIT_LOGGING_ENABLED
 
 logger = logging.getLogger(__name__)
 
@@ -114,9 +116,9 @@ class RedisEventProducer(EventBusProducer):
         try:
             full_topic = get_full_topic(topic)
             context.full_topic = full_topic
-            headers = get_headers_from_metadata(event_metadata)
-            serialized_event_data = serialize_event_data_to_bytes(event_data, signal)
-            stream_data = {'event_data': serialized_event_data, **headers}
+            event_bytes = serialize_event_data_to_bytes(event_data, signal)
+            message = RedisMessage(topic=full_topic, event_data=event_bytes, event_metadata=event_metadata)
+            stream_data = message.to_binary_dict()
 
             stream = self.client.Stream(full_topic)
             msg_id = stream.add(stream_data)

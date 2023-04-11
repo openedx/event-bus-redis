@@ -17,6 +17,7 @@ from openedx_events.event_bus.avro.tests.test_utilities import SubTestData0, cre
 from openedx_events.learning.data import UserData, UserPersonalData
 
 import edx_event_bus_redis.internal.producer as ep
+from edx_event_bus_redis.internal.utils import encode
 from edx_event_bus_redis.management.commands.produce_event import Command
 
 
@@ -125,16 +126,16 @@ class TestEventProducer(TestCase):
         mock_serializer.assert_called_once_with(self.event_data, self.signal)
         mock_client.Stream.assert_called_once_with('prod-user-stuff')
         expected_headers = {
-            'type': b'org.openedx.learning.auth.session.login.completed.v1',
-            'id': str(metadata.id).encode("utf8"),
-            'source': b'openedx/test/web',
-            'sourcehost': metadata.sourcehost.encode("utf8"),
-            'time': now.isoformat().encode("utf8"),
-            'minorversion': b'0',
-            'sourcelib': b'1.2.3',
+            b'type': b'org.openedx.learning.auth.session.login.completed.v1',
+            b'id': encode(str(metadata.id)),
+            b'source': b'openedx/test/web',
+            b'sourcehost': encode(metadata.sourcehost),
+            b'time': encode(now.isoformat()),
+            b'minorversion': b'0',
+            b'sourcelib': b'1.2.3',
         }
 
-        stream_mock.add.assert_called_once_with({'event_data': b'value-bytes-here', **expected_headers})
+        stream_mock.add.assert_called_once_with({b'event_data': b'value-bytes-here', **expected_headers})
 
     @patch(
         'edx_event_bus_redis.internal.producer.serialize_event_data_to_bytes', autospec=True,
@@ -207,5 +208,18 @@ class TestCommand(TestCase):
         mocked_client.Stream.assert_called_once_with('dev-test')
         # Actual event producing is tested elsewhere, this is just to make sure the command produces *something*
         stream_mock.add.assert_called_once()
-        assert stream_mock.add.call_args.args[0]["event_data"] == b'value-bytes-here'
+        assert stream_mock.add.call_args.args[0][b"event_data"] == b'value-bytes-here'
         fake_logger.exception.assert_not_called()
+
+    @patch('edx_event_bus_redis.management.commands.produce_event.logger')
+    def test_command_failure(self, fake_logger):
+        call_command(Command(),
+                     topic=['test'],
+                     signal=['openedx_events.learning.signals.SESSION_LOGIN_COMPLETED'],
+                     data=['{"user": {"id": 123, "is_active": true,'
+                           ' "pii":{"username": "foobob", "email": "bob@foo.example", "name": "Bob Foo"}}}'],
+                     key_field=['user.pii.username'],
+                     )
+        fake_logger.exception.assert_called_once()
+        (exc_log_msg,) = fake_logger.exception.call_args.args
+        assert "Error producing Redis event" in exc_log_msg

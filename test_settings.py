@@ -5,6 +5,7 @@ In a real-world use case, apps in this project are installed into other
 Django applications, so these settings will not be used.
 """
 
+from os import getenv
 from os.path import abspath, dirname, join
 
 
@@ -39,6 +40,23 @@ LOCALE_PATHS = [
     root('edx_event_bus_redis', 'conf', 'locale'),
 ]
 
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+        }
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True
+        },
+    }
+}
+
 ROOT_URLCONF = 'edx_event_bus_redis.urls'
 
 SECRET_KEY = 'insecure-secret-key'
@@ -59,3 +77,7 @@ TEMPLATES = [{
         ],
     },
 }]
+
+EVENT_BUS_PRODUCER = getenv('EVENT_BUS_PRODUCER')
+EVENT_BUS_REDIS_CONNECTION_URL = getenv('EVENT_BUS_REDIS_CONNECTION_URL')
+EVENT_BUS_TOPIC_PREFIX = getenv('EVENT_BUS_TOPIC_PREFIX')

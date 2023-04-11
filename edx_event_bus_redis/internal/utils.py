@@ -3,9 +3,8 @@ Utilities for converting between message headers and EventsMetadata
 """
 
 import logging
-from collections import defaultdict
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Tuple
 from uuid import UUID
 
 import openedx_events.data as oed
@@ -23,6 +22,7 @@ logger = logging.getLogger(__name__)
 # .. toggle_use_cases: opt_out
 # .. toggle_creation_date: 2023-02-24
 AUDIT_LOGGING_ENABLED = SettingToggle('EVENT_BUS_REDIS_AUDIT_LOGGING_ENABLED', default=True)
+MSG_ENCODING = 'utf8'
 
 
 def _sourcelib_tuple_to_str(sourcelib: Tuple):
@@ -33,6 +33,20 @@ def _sourcelib_str_to_tuple(sourcelib_as_str: str):
     return tuple(map(int, sourcelib_as_str.split(".")))
 
 
+def encode(value: str) -> bytes:
+    """
+    Convert string to utf8 encoded bytes.
+    """
+    return value.encode(MSG_ENCODING)
+
+
+def decode(value: bytes) -> str:
+    """
+    Convert bytes to string.
+    """
+    return value.decode(MSG_ENCODING)
+
+
 class MessageHeader:
     """
     Utility class for converting between message headers and EventsMetadata objects
@@ -40,7 +54,7 @@ class MessageHeader:
     _mapping = {}
     instances = []
 
-    def __init__(self, message_header_key, event_metadata_field=None, to_metadata=None, from_metadata=None):
+    def __init__(self, message_header_key, event_metadata_field, to_metadata=None, from_metadata=None):
         self.message_header_key = message_header_key
         self.event_metadata_field = event_metadata_field
         self.to_metadata = to_metadata or (lambda x: x)
@@ -62,39 +76,7 @@ HEADER_SOURCELIB = MessageHeader("sourcelib", event_metadata_field="sourcelib",
                                  to_metadata=_sourcelib_str_to_tuple, from_metadata=_sourcelib_tuple_to_str)
 
 
-def get_message_header_values(headers: List, header: MessageHeader) -> List[str]:
-    """
-    Return all values for this header.
-
-    Arguments:
-        headers: List of key/value tuples. Keys are strings, values are bytestrings.
-        header: The MessageHeader to look for.
-
-    Returns:
-        List of zero or more header values decoded as strings.
-    """
-    return [value.decode("utf-8") for key, value in headers if key == header.message_header_key]
-
-
-def last_message_header_value(headers: List, header: MessageHeader) -> Optional[str]:
-    """
-    Return the value for the header with the specified key, if there is at least one.
-
-    We should not ordinarily expect there to be more than one instance of a header.
-    However, if there is one, this function will return the last value of it. (The
-    latest value may have been intended to override an earlier value.)
-
-    Arguments:
-        headers: List of key/value tuples. Keys are strings, values are bytestrings.
-        header: The MessageHeader to look for.
-
-    Returns:
-        Decoded value of the last header with this key, or None if there are none.
-    """
-    return next(reversed(get_message_header_values(headers, header)), None)
-
-
-def get_metadata_from_headers(headers: List[Tuple]):
+def get_metadata_from_headers(headers: dict):
     """
     Create an EventsMetadata object from the headers of a Redis message
 
@@ -105,35 +87,14 @@ def get_metadata_from_headers(headers: List[Tuple]):
         An instance of EventsMetadata with the parameters from the headers. Any fields missing from the headers
          are set to the defaults of the EventsMetadata class
     """
-    # Transform list of (header, value) tuples to a {header: [list of values]} dict. Necessary as an intermediate
-    # step because there is no guarantee of unique headers in the list of tuples
-    headers_as_dict = defaultdict(list)
-    metadata_kwargs = {}
-    for key, value in headers:
-        headers_as_dict[key].append(value)
-
     # go through all the headers we care about and set the appropriate field
+    metadata = {}
     for header in MessageHeader.instances:
-        metadata_field = header.event_metadata_field
-        if not metadata_field:
-            continue
         header_key = header.message_header_key
-        header_values = headers_as_dict[header_key]
-        if len(header_values) == 0:
-            # the id is required, everything else we make optional for now
-            if header_key == HEADER_ID.message_header_key:
-                raise Exception(  # pylint: disable=broad-exception-raised
-                    f"Missing \"{header_key}\" header on message, cannot continue"
-                )
-            logger.warning(f"Missing \"{header_key}\" header on message, will use EventsMetadata default")
-            continue
-        if len(header_values) > 1:
-            raise Exception(  # pylint: disable=broad-exception-raised
-                f"Multiple \"{header_key}\" headers on message. Cannot determine correct metadata."
-            )
-        header_value = header_values[0].decode("utf-8")
-        metadata_kwargs[header.event_metadata_field] = header.to_metadata(header_value)
-    return oed.EventsMetadata(**metadata_kwargs)
+        header_value = headers.get(encode(header_key))
+        if header_value:
+            metadata[header.event_metadata_field] = header.to_metadata(decode(header_value))
+    return oed.EventsMetadata(**metadata)
 
 
 def get_headers_from_metadata(event_metadata: oed.EventsMetadata):
@@ -150,10 +111,7 @@ def get_headers_from_metadata(event_metadata: oed.EventsMetadata):
     """
     values = {}
     for header in MessageHeader.instances:
-        if not header.event_metadata_field:
-            continue
         event_metadata_value = getattr(event_metadata, header.event_metadata_field)
-        # Convert string to utf8 encoded bytes
-        values[header.message_header_key] = header.from_metadata(event_metadata_value).encode("utf8")
+        values[encode(header.message_header_key)] = encode(header.from_metadata(event_metadata_value))
 
     return values

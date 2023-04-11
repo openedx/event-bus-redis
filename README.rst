@@ -16,12 +16,6 @@ Purpose
 
 Redis Streams implementation for the Open edX event bus.
 
-TODO: The ``README.rst`` file should start with a brief description of the repository and its purpose.
-It should be described in the context of other repositories under the ``openedx``
-organization. It should make clear where this fits in to the overall Open edX
-codebase and should be oriented towards people who are new to the Open edX
-project.
-
 Getting Started
 ***************
 
@@ -74,6 +68,26 @@ Every time you develop something in this repo
   git push
 
   # Open a PR and ask for review.
+
+Testing locally
+---------------
+
+* Please execute below commands in virtual environment to avoid messing with
+  your main python installation.
+* Install all dependencies using ``make requirements``
+* Run ``make redis-up`` in current directory.
+* Run ``make consume_test_event`` to start running a single consumer or ``make multiple_consumer_test_event`` to run two consumers with different consumer names.
+* Run ``make produce_test_event`` in a separate terminal to produce a fake event, the consumer should log this event.
+* You can also add a fake handler to test emitted signal via consumer. Add below code snippet to ``edx_event_bus_redis/internal/consumer.py``.
+
+.. code-block:: python
+
+  from django.dispatch import receiver
+  from openedx_events.content_authoring.signals import XBLOCK_DELETED
+  @receiver(XBLOCK_DELETED)
+  def deleted_handler(sender, signal, **kwargs):
+      print(f"""=======================================  signal: {signal}""")
+      print(f"""=======================================  kwargs: {kwargs}""")
 
 Deploying
 =========

@@ -1,6 +1,8 @@
 .PHONY: clean compile_translations coverage diff_cover docs dummy_translations \
         extract_translations fake_translations help pii_check pull_translations push_translations \
-        quality requirements selfcheck test test-all upgrade validate install_transifex_client
+        quality requirements selfcheck test test-all upgrade validate install_transifex_client \
+	produce_test_event consume_test_event multiple_consumer_test_event kill_all_consume_test_events \
+	redis-up redis-down
 
 .DEFAULT_GOAL := help
 
@@ -110,3 +112,23 @@ install_transifex_client: ## Install the Transifex client
 	git diff -s --exit-code HEAD || { echo "Please commit changes first."; exit 1; }
 	curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
 	git checkout -- LICENSE README.md ## overwritten by Transifex installer
+
+## Local test helpers
+produce_test_event:
+	EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py produce_event --signal openedx_events.content_authoring.signals.XBLOCK_DELETED --topic xblock-deleted --key-field None --data '{"xblock_info": {"usage_key": "block-v1:edx+DemoX+Demo_course+type@video+block@UaEBjyMjcLW65gaTXggB93WmvoxGAJa0JeHRrDThk", "block_type": "video"}}'
+
+consume_test_event:
+	EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --consumer_name test_group.c1
+
+multiple_consumer_test_event:
+	EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --consumer_name test_group.c1 &
+	EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --consumer_name test_group.c2 &
+
+kill_all_consume_test_events:
+	pgrep -lf python\ manage.py\ consume_events\ --signal\ org.openedx.content_authoring.xblock.deleted.v1\ --topic\ xblock-deleted\ --group_id\ test_group\ --consumer_name\ test_group. | cut -d" " -f1 | xargs kill -15
+
+redis-up:
+	docker compose up
+
+redis-down:
+	docker compose down

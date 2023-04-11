@@ -1,0 +1,9 @@
+# Run redis via docker to test events locally.
+services:
+  redis:
+    container_name: "event_bus_redis"
+    hostname: event.bus.redis
+    image: redis:6.2.7
+    command: redis-server --requirepass password
+    ports:
+      - "6379:6379"
