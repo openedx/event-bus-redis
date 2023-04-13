@@ -132,7 +132,7 @@ newrelic==8.8.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-openedx-events==7.0.0
+git+https://github.com/open-craft/openedx-events.git@navin/load-consumer
     # via -r requirements/test.txt
 packaging==23.1
     # via

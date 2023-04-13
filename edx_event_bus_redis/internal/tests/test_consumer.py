@@ -8,7 +8,6 @@ from uuid import uuid1
 
 import ddt
 import pytest
-from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 from openedx_events.learning.data import UserData, UserPersonalData
@@ -20,7 +19,6 @@ from redis.exceptions import ConnectionError as RedisConnectionError
 from edx_event_bus_redis.internal.consumer import ReceiverError, RedisEventConsumer
 from edx_event_bus_redis.internal.message import RedisMessage
 from edx_event_bus_redis.internal.tests.test_utils import side_effects
-from edx_event_bus_redis.management.commands.consume_events import Command
 
 
 def fake_receiver_returns_quietly(**kwargs):
@@ -480,75 +478,3 @@ class TestConsumer(TestCase):
 
             "not even a function=ValueError('just plain bad')",
         )
-
-
-class TestCommand(TestCase):
-    """
-    Tests for the consume_events management command
-    """
-
-    @override_settings(EVENT_BUS_REDIS_CONSUMERS_ENABLED=False)
-    @patch('edx_event_bus_redis.internal.consumer.logger', autospec=True)
-    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer._create_consumer')
-    def test_redis_consumers_disabled(self, mock_create_consumer, mock_logger):
-        call_command(Command(), topic='test', group_id='test', signal='')
-        assert not mock_create_consumer.called
-        mock_logger.error.assert_called_once_with("Redis consumers not enabled, exiting.")
-
-    @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
-    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer')
-    def test_redis_consumers_normal(self, mock_consumer, _):
-        call_command(
-            Command(),
-            topic=['test'],
-            group_id=['test_group'],
-            signal=['openedx'],
-        )
-        mock_consumer.assert_called_once_with(
-            topic='test',
-            group_id='test_group',
-            signal='test-signal',
-            consumer_name=None,
-            last_read_msg_id=None,
-            check_backlog=False,
-        )
-
-    @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
-    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer')
-    def test_redis_consumers_with_all_params(self, mock_consumer, _):
-        call_command(
-            Command(),
-            topic=['test'],
-            group_id=['test_group'],
-            signal=['openedx'],
-            consumer_name='c1',
-            last_read_msg_id="a-msg-id",
-            check_backlog=True,
-        )
-        mock_consumer.assert_called_once_with(
-            topic='test',
-            group_id='test_group',
-            signal='test-signal',
-            consumer_name='c1',
-            last_read_msg_id="a-msg-id",
-            check_backlog=True,
-        )
-
-    @patch('edx_event_bus_redis.internal.consumer.OpenEdxPublicSignal.get_signal_by_type', return_value="test-signal")
-    @patch('edx_event_bus_redis.internal.consumer.RedisEventConsumer._create_db', autospec=True)
-    @patch(
-        'edx_event_bus_redis.internal.consumer.RedisEventConsumer.consume_indefinitely',
-        side_effect=ValueError("some error")
-    )
-    @patch('edx_event_bus_redis.internal.consumer.logger', autospec=True)
-    def test_consume_command_exception(self, mock_logger, _mock_consume, _mock_create_db, _):
-        call_command(
-            Command(),
-            topic=['test'],
-            group_id=['test_group'],
-            signal=['openedx'],
-            consumer_name='c1',
-        )
-        mock_logger.exception.assert_called_once()
-        (exc_log_msg,) = mock_logger.exception.call_args.args
-        assert "Error consuming Redis events" in exc_log_msg

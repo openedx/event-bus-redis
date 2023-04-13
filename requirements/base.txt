@@ -50,7 +50,7 @@ markupsafe==2.1.2
     # via jinja2
 newrelic==8.8.0
     # via edx-django-utils
-openedx-events==7.0.0
+git+https://github.com/open-craft/openedx-events.git@navin/load-consumer
     # via -r requirements/base.in
 pbr==5.11.1
     # via stevedore

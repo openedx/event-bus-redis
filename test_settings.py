@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.sessions',
     'edx_event_bus_redis',
+    'openedx_events',
 )
 
 LOCALE_PATHS = [
@@ -81,3 +82,4 @@ TEMPLATES = [{
 EVENT_BUS_PRODUCER = getenv('EVENT_BUS_PRODUCER')
 EVENT_BUS_REDIS_CONNECTION_URL = getenv('EVENT_BUS_REDIS_CONNECTION_URL')
 EVENT_BUS_TOPIC_PREFIX = getenv('EVENT_BUS_TOPIC_PREFIX')
+EVENT_BUS_CONSUMER = getenv('EVENT_BUS_CONSUMER')
