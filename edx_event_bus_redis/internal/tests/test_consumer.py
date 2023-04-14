@@ -82,7 +82,8 @@ class TestConsumer(TestCase):
                 'test_group_id',
                 self.signal,
                 consumer_name='test_group_id.c1',
-                check_backlog=True
+                check_backlog=True,
+                claim_msgs_older_than=10,
             )
 
     def tearDown(self):
@@ -182,6 +183,7 @@ class TestConsumer(TestCase):
             self.event_consumer.consume_indefinitely()
 
         # Check that each of the mocked out methods got called as expected.
+        mock_consumer.autoclaim.assert_called_with('test_group_id.c1', count=1, min_idle_time=10)
         mock_consumer.pending.assert_called_with(count=1, consumer='test_group_id.c1')
         if not is_pending:
             mock_consumer.read.assert_called()
@@ -229,6 +231,7 @@ class TestConsumer(TestCase):
         """
         mock_pending_value = None
         side_effect_method = 'emit_signals_from_message'
+        self.event_consumer.claim_msgs_older_than = None
 
         with patch.object(
             self.event_consumer, side_effect_method,
@@ -248,7 +251,8 @@ class TestConsumer(TestCase):
             self.event_consumer.consume_indefinitely()
 
         # Check that each of the mocked out methods got called as expected.
-        mock_consumer.pending.assert_not_called()
+        mock_consumer.autoclaim.assert_not_called()
+        mock_consumer.pending.assert_called_once()
         mock_consumer.read.assert_called()
         mock_consumer.ack.assert_called_once()
         mock_method.assert_called_once_with(self.normal_message)
