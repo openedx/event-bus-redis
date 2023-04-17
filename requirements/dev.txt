@@ -8,7 +8,7 @@ asgiref==3.6.0
     # via
     #   -r requirements/quality.txt
     #   django
-astroid==2.15.2
+astroid==2.15.3
     # via
     #   -r requirements/quality.txt
     #   pylint
@@ -17,7 +17,7 @@ async-timeout==4.0.2
     # via
     #   -r requirements/quality.txt
     #   redis
-attrs==22.2.0
+attrs==23.1.0
     # via
     #   -r requirements/quality.txt
     #   openedx-events
@@ -223,7 +223,7 @@ pyproject-hooks==1.0.0
     # via
     #   -r requirements/pip-tools.txt
     #   build
-pytest==7.3.0
+pytest==7.3.1
     # via
     #   -r requirements/quality.txt
     #   pytest-cov

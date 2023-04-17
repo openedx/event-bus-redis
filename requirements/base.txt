@@ -8,7 +8,7 @@ asgiref==3.6.0
     # via django
 async-timeout==4.0.2
     # via redis
-attrs==22.2.0
+attrs==23.1.0
     # via openedx-events
 cffi==1.15.1
     # via pynacl
