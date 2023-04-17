@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 REDIS_CONSUMERS_ENABLED = SettingToggle('EVENT_BUS_REDIS_CONSUMERS_ENABLED', default=True)
 
 # .. setting_name: EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT
-# .. setting_default: 1.0
+# .. setting_default: 1
 # .. setting_description: How long the consumer should wait, in seconds, for the Redis broker
 #   to respond to a poll() call.
 CONSUMER_POLL_TIMEOUT = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT', 1)
@@ -94,7 +94,7 @@ class RedisEventConsumer(EventBusConsumer):
         last_read_msg_id: Start reading msgs from a specific redis msg id.
         check_backlog: flag to process all messages that were not read by this consumer group.
         claim_msgs_older_than: claim pending msgs from other consumers in the group with idle time older
-        than a specific time (in milliseconds).
+            than a specific time (in milliseconds).
         has_pending_msgs: flag to process pending msgs first.
         db: Walrus object for redis connection.
         full_topic: topic prefixed with environment name.
@@ -109,6 +109,7 @@ class RedisEventConsumer(EventBusConsumer):
         self.consumer_name = consumer_name
         self.last_read_msg_id = last_read_msg_id
         self.check_backlog = check_backlog
+        # always process read but pending msgs first for the consumer in the group.
         self.has_pending_msgs = True
         self.claim_msgs_older_than = claim_msgs_older_than
         self.db = self._create_db()
@@ -156,7 +157,7 @@ class RedisEventConsumer(EventBusConsumer):
 
     def _read_pending_msgs(self) -> Optional[tuple]:
         """
-        Read pending messages, if no messages found set check_backlog to False.
+        Read pending messages, if no messages found set has_pending_msgs to False.
         """
         logger.debug("Consuming pending msgs first.")
         if self.claim_msgs_older_than is not None:
