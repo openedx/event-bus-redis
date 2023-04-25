@@ -157,18 +157,16 @@ class RedisEventConsumer(EventBusConsumer):
 
     def _read_pending_msgs(self) -> Optional[tuple]:
         """
-        Read pending messages, if no messages found set has_pending_msgs to False.
+        Read pending messages, if no messages found return None.
         """
         logger.debug("Consuming pending msgs first.")
         if self.claim_msgs_older_than is not None:
             self.consumer.autoclaim(self.consumer_name, min_idle_time=self.claim_msgs_older_than, count=1)
         msg_meta = self.consumer.pending(count=1, consumer=self.consumer_name)
-        if not msg_meta:
-            logger.debug("No more pending messages.")
-            self.has_pending_msgs = False
-            self.claim_msgs_older_than = None
-            return None
-        return self.consumer[msg_meta[0]['message_id']]
+        if msg_meta:
+            return self.consumer[msg_meta[0]['message_id']]
+        logger.debug("No more pending messages.")
+        return None
 
     def _consume_indefinitely(self):
         """
@@ -227,6 +225,9 @@ class RedisEventConsumer(EventBusConsumer):
                     # Once we consumed our history, we can start getting new messages.
                     if self.has_pending_msgs:
                         redis_raw_msg = self._read_pending_msgs()
+                        if redis_raw_msg is None:
+                            self.has_pending_msgs = False
+                            self.claim_msgs_older_than = None
                     else:
                         # poll for msg
                         redis_raw_msg = self.consumer.read(count=1, block=CONSUMER_POLL_TIMEOUT * 1000)
