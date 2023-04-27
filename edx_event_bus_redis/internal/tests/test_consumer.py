@@ -81,6 +81,7 @@ class TestConsumer(TestCase):
                 'local-some-topic',
                 'test_group_id',
                 self.signal,
+                consumer_name='test_group_id.c1',
                 check_backlog=True
             )
 
@@ -124,6 +125,7 @@ class TestConsumer(TestCase):
                 'local-some-topic',
                 'test_group_id',
                 self.signal,
+                consumer_name='test_group_id.c1',
                 last_read_msg_id=last_read_msg_id,
                 check_backlog=check_backlog,
             )
@@ -406,7 +408,7 @@ class TestConsumer(TestCase):
     @override_settings(EVENT_BUS_REDIS_CONNECTION_URL=None)
     def test_missing_url_setting(self):
         with pytest.raises(ValueError, match="Missing"):
-            RedisEventConsumer('local-some-topic', 'test_group_id', self.signal)
+            RedisEventConsumer('local-some-topic', 'test_group_id', self.signal, 'test_group_id.c1')
 
     @override_settings(
         EVENT_BUS_TOPIC_PREFIX='local',

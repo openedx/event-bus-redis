@@ -98,11 +98,11 @@ class RedisEventConsumer(EventBusConsumer):
         consumer: consumer instance.
     """
 
-    def __init__(self, topic, group_id, signal, consumer_name=None, last_read_msg_id=None, check_backlog=False):
+    def __init__(self, topic, group_id, signal, consumer_name, last_read_msg_id=None, check_backlog=False):
         self.topic = topic
         self.group_id = group_id
         self.signal = signal
-        self.consumer_name = consumer_name or (self.group_id + '.c1')
+        self.consumer_name = consumer_name
         self.last_read_msg_id = last_read_msg_id
         self.check_backlog = check_backlog
         self.db = self._create_db()
