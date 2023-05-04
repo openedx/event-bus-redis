@@ -2,7 +2,7 @@
 -c constraints.txt
 
 Django             # Web application framework
-openedx-events>=7.0.0                   # Use serialize & deserialize utility
+openedx-events>=7.1.0                   # consumer api and consume_events provided
 edx_django_utils
 edx_toggles
 

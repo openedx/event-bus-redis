@@ -16,10 +16,11 @@ Unreleased
 
 *
 
-[0.1.0] - 2023-02-22
+[0.1.0] - 2023-05-04
 ************************************************
 
 Added
 =====
 
 * First release on PyPI.
+* Redis streams consumer and producer implemented.

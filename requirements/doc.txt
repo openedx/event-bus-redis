@@ -16,7 +16,7 @@ async-timeout==4.0.2
     # via
     #   -r requirements/test.txt
     #   redis
-attrs==22.2.0
+attrs==23.1.0
     # via
     #   -r requirements/test.txt
     #   openedx-events
@@ -35,6 +35,7 @@ certifi==2022.12.7
 cffi==1.15.1
     # via
     #   -r requirements/test.txt
+    #   cryptography
     #   pynacl
 charset-normalizer==3.1.0
     # via requests
@@ -47,13 +48,15 @@ code-annotations==1.3.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
-coverage[toml]==7.2.3
+coverage[toml]==7.2.5
     # via
     #   -r requirements/test.txt
     #   pytest-cov
+cryptography==40.0.2
+    # via secretstorage
 ddt==1.6.0
     # via -r requirements/test.txt
-django==3.2.18
+django==3.2.19
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/test.txt
@@ -98,7 +101,7 @@ idna==3.4
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==6.3.0
+importlib-metadata==6.6.0
     # via
     #   keyring
     #   sphinx
@@ -111,6 +114,10 @@ iniconfig==2.0.0
     #   pytest
 jaraco-classes==3.2.3
     # via keyring
+jeepney==0.8.0
+    # via
+    #   keyring
+    #   secretstorage
 jinja2==3.1.2
     # via
     #   -r requirements/test.txt
@@ -132,7 +139,7 @@ newrelic==8.8.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-openedx-events==7.0.0
+openedx-events==7.1.0
     # via -r requirements/test.txt
 packaging==23.1
     # via
@@ -151,7 +158,7 @@ pluggy==1.0.0
     # via
     #   -r requirements/test.txt
     #   pytest
-psutil==5.9.4
+psutil==5.9.5
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -161,7 +168,7 @@ pycparser==2.21
     #   cffi
 pydata-sphinx-theme==0.13.3
     # via sphinx-book-theme
-pygments==2.15.0
+pygments==2.15.1
     # via
     #   accessible-pygments
     #   pydata-sphinx-theme
@@ -178,7 +185,7 @@ pynacl==1.5.0
     #   edx-django-utils
 pyproject-hooks==1.0.0
     # via build
-pytest==7.3.0
+pytest==7.3.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -206,22 +213,24 @@ redis==4.5.4
     # via
     #   -r requirements/test.txt
     #   walrus
-requests==2.28.2
+requests==2.29.0
     # via
     #   requests-toolbelt
     #   sphinx
     #   twine
-requests-toolbelt==0.10.1
+requests-toolbelt==1.0.0
     # via twine
 rfc3986==2.0.0
     # via twine
-rich==13.3.4
+rich==13.3.5
     # via twine
+secretstorage==3.3.3
+    # via keyring
 six==1.16.0
     # via bleach
 snowballstemmer==2.2.0
     # via sphinx
-soupsieve==2.4
+soupsieve==2.4.1
     # via beautifulsoup4
 sphinx==5.3.0
     # via
@@ -243,7 +252,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-sqlparse==0.4.3
+sqlparse==0.4.4
     # via
     #   -r requirements/test.txt
     #   django

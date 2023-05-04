@@ -6,12 +6,12 @@ import time
 from typing import Optional
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
 from django.db import connection
 from edx_django_utils.monitoring import record_exception, set_custom_attribute
 from edx_toggles.toggles import SettingToggle
+from openedx_events.event_bus import EventBusConsumer
 from openedx_events.event_bus.avro.deserializer import deserialize_bytes_to_event_data
-from openedx_events.tooling import OpenEdxPublicSignal, load_all_signals
+from openedx_events.tooling import OpenEdxPublicSignal
 from redis.exceptions import ConnectionError as RedisConnectionError
 from redis.exceptions import ResponseError
 from walrus import Database
@@ -77,7 +77,7 @@ def _reconnect_to_db_if_needed():
         connection.connect()
 
 
-class RedisEventConsumer:
+class RedisEventConsumer(EventBusConsumer):
     """
     Construct consumer for the given topic, group, and signal. The consumer can then
     emit events from the event bus using the configured signal.
@@ -85,13 +85,24 @@ class RedisEventConsumer:
     Note that the topic should be specified here *without* the optional environment prefix.
 
     Can also consume messages indefinitely off the queue.
+
+    Attributes:
+        topic: Topic/stream name.
+        group_id: consumer group name.
+        signal: openedx_events signal.
+        consumer_name: unique name for consumer within a group.
+        last_read_msg_id: Start reading msgs from a specific redis msg id.
+        check_backlog: flag to process all messages that were not read by this consumer group.
+        db: Walrus object for redis connection.
+        full_topic: topic prefixed with environment name.
+        consumer: consumer instance.
     """
 
-    def __init__(self, topic, group_id, signal, consumer_name=None, last_read_msg_id=None, check_backlog=False):
+    def __init__(self, topic, group_id, signal, consumer_name, last_read_msg_id=None, check_backlog=False):
         self.topic = topic
         self.group_id = group_id
         self.signal = signal
-        self.consumer_name = consumer_name or (self.group_id + '.c1')
+        self.consumer_name = consumer_name
         self.last_read_msg_id = last_read_msg_id
         self.check_backlog = check_backlog
         self.db = self._create_db()
@@ -154,8 +165,6 @@ class RedisEventConsumer:
         Consume events from a topic in an infinite loop.
         """
 
-        # This is already checked at the Command level, but it's possible this loop
-        # could get called some other way, so check it here too.
         if not REDIS_CONSUMERS_ENABLED.is_enabled():
             logger.error("Redis consumers not enabled, exiting.")
             return
@@ -420,87 +429,3 @@ class RedisEventConsumer:
             return True
 
         return False
-
-
-class ConsumeEventsCommand(BaseCommand):
-    """
-    Management command for Redis consumer workers in the event bus.
-    """
-    help = """
-    Consume messages of specified signal type from a Redis topic/stream and send their data to that signal.
-
-    Example::
-
-        python3 manage.py cms consume_events -t user-login -g user-activity-service \
-            -s org.openedx.learning.auth.session.login.completed.v1
-
-        # process unread messages from the topic by this consumer group.
-        python3 manage.py cms consume_events -t user-login -g user-activity-service \
-            -s org.openedx.learning.auth.session.login.completed.v1 --check_backlog
-
-        # replay events from specific redis msg id.
-        python3 manage.py cms consume_events -t user-login -g user-activity-service \
-            -s org.openedx.learning.auth.session.login.completed.v1 \
-            --last_read_msg_id 1679676448892-0
-    """
-
-    def add_arguments(self, parser):
-
-        parser.add_argument(
-            '-t', '--topic',
-            nargs=1,
-            required=True,
-            help='Topic to consume (without environment prefix)'
-        )
-
-        parser.add_argument(
-            '-g', '--group_id',
-            nargs=1,
-            required=True,
-            help='Consumer group id'
-        )
-        parser.add_argument(
-            '-s', '--signal',
-            nargs=1,
-            required=True,
-            help='Type of signal to emit from consumed messages.'
-        )
-        parser.add_argument(
-            '-b', '--check_backlog',
-            action='store_true',
-            help='Process unread messages'
-        )
-        parser.add_argument(
-            '-i', '--last_read_msg_id',
-            nargs='?',
-            required=False,
-            default=None,
-            help='Replay events from this redis msg id. For example: 1679676448892-0'
-        )
-        parser.add_argument(
-            '-n', '--consumer_name',
-            nargs='?',
-            required=False,
-            default=None,
-            help='Unique name for this consumer instance.'
-        )
-
-    def handle(self, *args, **options):
-        if not REDIS_CONSUMERS_ENABLED.is_enabled():
-            logger.error("Redis consumers not enabled, exiting.")
-            return
-
-        try:
-            load_all_signals()
-            signal = OpenEdxPublicSignal.get_signal_by_type(options['signal'][0])
-            event_consumer = RedisEventConsumer(
-                topic=options['topic'][0],
-                group_id=options['group_id'][0],
-                signal=signal,
-                consumer_name=options['consumer_name'],
-                last_read_msg_id=options['last_read_msg_id'],
-                check_backlog=options['check_backlog'],
-            )
-            event_consumer.consume_indefinitely()
-        except Exception:  # pylint: disable=broad-except
-            logger.exception("Error consuming Redis events")
