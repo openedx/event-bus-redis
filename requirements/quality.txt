@@ -80,7 +80,7 @@ exceptiongroup==1.1.1
     # via
     #   -r requirements/test.txt
     #   pytest
-fastavro==1.7.3
+fastavro==1.7.4
     # via
     #   -r requirements/test.txt
     #   openedx-events
@@ -136,7 +136,7 @@ pycparser==2.21
     #   cffi
 pydocstyle==6.3.0
     # via -r requirements/quality.in
-pylint==2.17.3
+pylint==2.17.4
     # via
     #   edx-lint
     #   pylint-celery

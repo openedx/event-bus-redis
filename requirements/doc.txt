@@ -30,7 +30,7 @@ bleach==6.0.0
     # via readme-renderer
 build==0.10.0
     # via -r requirements/doc.in
-certifi==2022.12.7
+certifi==2023.5.7
     # via requests
 cffi==1.15.1
     # via
@@ -93,7 +93,7 @@ exceptiongroup==1.1.1
     # via
     #   -r requirements/test.txt
     #   pytest
-fastavro==1.7.3
+fastavro==1.7.4
     # via
     #   -r requirements/test.txt
     #   openedx-events
@@ -213,7 +213,7 @@ redis==4.5.4
     # via
     #   -r requirements/test.txt
     #   walrus
-requests==2.29.0
+requests==2.30.0
     # via
     #   requests-toolbelt
     #   sphinx
@@ -279,7 +279,7 @@ typing-extensions==4.5.0
     # via
     #   pydata-sphinx-theme
     #   rich
-urllib3==1.26.15
+urllib3==2.0.2
     # via
     #   requests
     #   twine
