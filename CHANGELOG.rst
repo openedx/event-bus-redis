@@ -16,6 +16,19 @@ Unreleased
 
 *
 
+[0.1.1] - 2023-05-12
+************************************************
+
+Added
+=====
+
+* Option to claim messages from other consumers based on idle time.
+
+Changed
+=======
+
+* Setting ``check_backlog`` will read messages that were not read by this consumer group.
+
 [0.1.0] - 2023-05-04
 ************************************************
 
