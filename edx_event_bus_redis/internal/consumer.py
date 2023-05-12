@@ -79,8 +79,8 @@ def _reconnect_to_db_if_needed():
 
 class RedisEventConsumer(EventBusConsumer):
     """
-    Construct consumer for the given topic, group, and signal. The consumer can then
-    emit events from the event bus using the configured signal.
+    Construct consumer for the given topic and group. The consumer can then
+    emit events coming from the topic.
 
     Note that the topic should be specified here *without* the optional environment prefix.
 
@@ -89,7 +89,7 @@ class RedisEventConsumer(EventBusConsumer):
     Attributes:
         topic: Topic/stream name.
         group_id: consumer group name.
-        signal: openedx_events signal.
+        signal: DEPRECATED, will be removed in a future release
         consumer_name: unique name for consumer within a group.
         last_read_msg_id: Start reading msgs from a specific redis msg id.
         check_backlog: flag to process all messages that were not read by this consumer group.
@@ -101,11 +101,10 @@ class RedisEventConsumer(EventBusConsumer):
         consumer: consumer instance.
     """
 
-    def __init__(self, topic, group_id, signal, consumer_name, last_read_msg_id=None, check_backlog=False,
-                 claim_msgs_older_than=None):
+    def __init__(self, topic, group_id, consumer_name, signal=None,  # pylint: disable=unused-argument
+                 last_read_msg_id=None, check_backlog=False, claim_msgs_older_than=None):
         self.topic = topic
         self.group_id = group_id
-        self.signal = signal
         self.consumer_name = consumer_name
         self.last_read_msg_id = last_read_msg_id
         self.check_backlog = check_backlog
@@ -128,7 +127,7 @@ class RedisEventConsumer(EventBusConsumer):
 
     def _create_consumer(self, db: Database, full_topic: str) -> ConsumerGroupStream:
         """
-        Create a redis stream consumer group and a consumer for events of the given signal instance.
+        Create a redis stream consumer group and a consumer for the given topic
 
         Returns
             ConsumerGroupStream
@@ -193,7 +192,6 @@ class RedisEventConsumer(EventBusConsumer):
         run_context = {
             'full_topic': self.full_topic,
             'consumer_group': self.group_id,
-            'expected_signal': self.signal,
             'consumer_name': self.consumer_name,
         }
 
@@ -234,7 +232,7 @@ class RedisEventConsumer(EventBusConsumer):
                     if redis_raw_msg:
                         if isinstance(redis_raw_msg, list):
                             redis_raw_msg = redis_raw_msg[0]
-                        msg = RedisMessage.parse(redis_raw_msg, self.full_topic, expected_signal=self.signal)
+                        msg = RedisMessage.parse(redis_raw_msg, self.full_topic)
                         # Before processing, make sure our db connection is still active
                         _reconnect_to_db_if_needed()
                         self.emit_signals_from_message(msg)
@@ -281,7 +279,7 @@ class RedisEventConsumer(EventBusConsumer):
         # Raise an exception if any receivers errored out. This allows logging of the receivers
         # along with partition, offset, etc. in record_event_consuming_error. Hopefully the
         # receiver code is idempotent and we can just replay any messages that were involved.
-        self._check_receiver_results(send_results)
+        self._check_receiver_results(send_results, signal)
 
         # At the very end, log that a message was processed successfully.
         # Since we're single-threaded, no other information is needed;
@@ -290,12 +288,13 @@ class RedisEventConsumer(EventBusConsumer):
         if AUDIT_LOGGING_ENABLED.is_enabled():
             logger.info('Message from Redis processed successfully')
 
-    def _check_receiver_results(self, send_results: list):
+    def _check_receiver_results(self, send_results: list, signal: OpenEdxPublicSignal):
         """
         Raises exception if any of the receivers produced an exception.
 
         Arguments:
             send_results: Output of ``send_events``, a list of ``(receiver, response)`` tuples.
+            signal: The signal used to send the events
         """
         error_descriptions = []
         errors = []
@@ -318,7 +317,7 @@ class RedisEventConsumer(EventBusConsumer):
             raise ReceiverError(
                 f"{len(error_descriptions)} receiver(s) out of {len(send_results)} "
                 "produced errors (stack trace elsewhere in logs) "
-                f"when handling signal {self.signal}: {', '.join(error_descriptions)}",
+                f"when handling signal {signal}: {', '.join(error_descriptions)}",
                 errors
             )
 
@@ -356,7 +355,7 @@ class RedisEventConsumer(EventBusConsumer):
 
         Arguments:
             run_context: Dictionary of contextual information: full_topic, consumer_group,
-              and expected_signal.
+              and consumer_name.
             error: An exception instance
             maybe_message: None if event could not be fetched or decoded, or a Redis Message if
               one was successfully deserialized but could not be processed for some reason
@@ -385,7 +384,6 @@ class RedisEventConsumer(EventBusConsumer):
 
         Arguments:
             run_context: Dictionary of contextual information: full_topic, consumer_group,
-              and expected_signal.
             message: None if event could not be fetched or decoded, or a Message if one
               was successfully deserialized but could not be processed for some reason
             error: (Optional) An exception instance, or None if no error.

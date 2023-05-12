@@ -77,24 +77,6 @@ class TestMessage(TestCase):
             "__init__() missing 1 required positional argument: 'event_type'",
         )
 
-    def test_unexpected_signal_type_in_msg(self):
-        msg = (
-            b'1',
-            {
-                b'id': b'629f9892-c258-11ed-8dac-1c83413013cb',
-                b'event_data': self.event_data_bytes,
-                b'type': b'incorrect-type',
-            }
-        )
-
-        with pytest.raises(UnusableMessageError) as excinfo:
-            RedisMessage.parse(msg, topic='some-local-topic', expected_signal=self.signal)
-
-        assert excinfo.value.args == (
-            "Signal types do not match. Expected org.openedx.learning.auth.session.login.completed.v1. "
-            "Received message of type incorrect-type.",
-        )
-
     def test_bad_msg(self):
         """
         Check that if we cannot process the message headers, we raise an UnusableMessageError
@@ -111,7 +93,7 @@ class TestMessage(TestCase):
         )
 
         with pytest.raises(UnusableMessageError) as excinfo:
-            RedisMessage.parse(msg, topic='some-local-topic', expected_signal=self.signal)
+            RedisMessage.parse(msg, topic='some-local-topic')
 
         assert excinfo.value.args == (
             "Error determining metadata from message headers: badly formed hexadecimal UUID string",
