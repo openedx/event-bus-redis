@@ -42,7 +42,7 @@ edx-opaque-keys[django]==2.3.0
     # via openedx-events
 edx-toggles==5.0.0
     # via -r requirements/base.in
-fastavro==1.7.3
+fastavro==1.7.4
     # via openedx-events
 jinja2==3.1.2
     # via code-annotations
@@ -50,7 +50,7 @@ markupsafe==2.1.2
     # via jinja2
 newrelic==8.8.0
     # via edx-django-utils
-openedx-events==7.1.0
+openedx-events==7.2.0
     # via -r requirements/base.in
 pbr==5.11.1
     # via stevedore
@@ -68,7 +68,7 @@ pytz==2023.3
     # via django
 pyyaml==6.0
     # via code-annotations
-redis==4.5.4
+redis==4.5.5
     # via walrus
 sqlparse==0.4.4
     # via django

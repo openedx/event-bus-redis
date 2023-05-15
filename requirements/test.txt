@@ -63,7 +63,7 @@ edx-toggles==5.0.0
     # via -r requirements/base.txt
 exceptiongroup==1.1.1
     # via pytest
-fastavro==1.7.3
+fastavro==1.7.4
     # via
     #   -r requirements/base.txt
     #   openedx-events
@@ -81,7 +81,7 @@ newrelic==8.8.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-openedx-events==7.1.0
+openedx-events==7.2.0
     # via -r requirements/base.txt
 packaging==23.1
     # via pytest
@@ -127,7 +127,7 @@ pyyaml==6.0
     # via
     #   -r requirements/base.txt
     #   code-annotations
-redis==4.5.4
+redis==4.5.5
     # via
     #   -r requirements/base.txt
     #   walrus
