@@ -80,7 +80,6 @@ class TestConsumer(TestCase):
             self.event_consumer = RedisEventConsumer(
                 'local-some-topic',
                 'test_group_id',
-                self.signal,
                 consumer_name='test_group_id.c1',
                 check_backlog=True,
                 claim_msgs_older_than=10,
@@ -125,7 +124,6 @@ class TestConsumer(TestCase):
             RedisEventConsumer(
                 'local-some-topic',
                 'test_group_id',
-                self.signal,
                 consumer_name='test_group_id.c1',
                 last_read_msg_id=last_read_msg_id,
                 check_backlog=check_backlog,
@@ -200,8 +198,6 @@ class TestConsumer(TestCase):
         assert "Error consuming event from Redis: ValueError('something broke') in context" in exc_log_msg
         assert "full_topic='local-some-topic'" in exc_log_msg
         assert "consumer_group='test_group_id'" in exc_log_msg
-        assert ("expected_signal=<OpenEdxPublicSignal: "
-                "org.openedx.learning.auth.session.login.completed.v1>") in exc_log_msg
         assert "-- event details: " in exc_log_msg
         assert str(self.normal_message) in exc_log_msg
 
@@ -385,8 +381,6 @@ class TestConsumer(TestCase):
         assert f"Error consuming event from Redis: {repr(exception)} in context" in exc_log_msg
         assert "full_topic='local-some-topic'" in exc_log_msg
         assert "consumer_group='test_group_id'" in exc_log_msg
-        assert ("expected_signal=<OpenEdxPublicSignal: "
-                "org.openedx.learning.auth.session.login.completed.v1>") in exc_log_msg
         assert "-- no event available" in exc_log_msg
 
         expected_custom_attribute_calls = [
@@ -473,7 +467,7 @@ class TestConsumer(TestCase):
                 (lambda x:x, Exception("for lambda")),
                 # This would actually raise an error inside send_robust(), but it will serve well enough for testing...
                 ("not even a function", ValueError("just plain bad")),
-            ])
+            ], self.signal)
         assert exc_info.value.args == (
             "2 receiver(s) out of 2 produced errors (stack trace elsewhere in logs) "
             "when handling signal <OpenEdxPublicSignal: "

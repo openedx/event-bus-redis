@@ -3,7 +3,7 @@ Redis message wrapper.
 """
 from typing import Dict, NamedTuple, Optional
 
-from openedx_events.tooling import EventsMetadata, OpenEdxPublicSignal
+from openedx_events.tooling import EventsMetadata
 
 from edx_event_bus_redis.internal.utils import get_headers_from_metadata, get_metadata_from_headers
 
@@ -35,14 +35,13 @@ class RedisMessage(NamedTuple):
         return data
 
     @classmethod
-    def parse(cls, msg: tuple, topic: str, expected_signal: Optional[OpenEdxPublicSignal] = None):
+    def parse(cls, msg: tuple, topic: str):
         """
         Takes message from redis stream and parses it to return an instance of RedisMessage.
 
         Args:
             msg: Tuple with 1st item being msg_id and 2nd data from message.
             topic: Stream name.
-            expected_signal [Optional]: If passed, the signal type is matched with type in msg.
 
         Returns:
             RedisMessage with msg_id
@@ -54,9 +53,4 @@ class RedisMessage(NamedTuple):
         except Exception as e:
             raise UnusableMessageError(f"Error determining metadata from message headers: {e}") from e
 
-        if expected_signal and metadata.event_type != expected_signal.event_type:
-            raise UnusableMessageError(
-                f"Signal types do not match. Expected {expected_signal.event_type}. "
-                f"Received message of type {metadata.event_type}."
-            )
         return cls(msg_id=msg_id, event_data=event_data_bytes, event_metadata=metadata, topic=topic)

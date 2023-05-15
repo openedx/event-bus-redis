@@ -16,6 +16,13 @@ Unreleased
 
 *
 
+[0.2.1] - 2023-05-12
+************************************************
+
+Changed
+=======
+* Deprecated ``signal`` argument in consumer (made optional in preparation for removal)
+
 [0.1.1] - 2023-05-12
 ************************************************
 
