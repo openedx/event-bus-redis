@@ -128,6 +128,7 @@ class RedisEventProducer(EventBusProducer):
             stream_data = message.to_binary_dict()
 
             stream = self.client.Stream(full_topic)
+            # Read docs/decisions/0003-limiting-stream-length.rst for explanation about maxlen and approximate options.
             msg_id = stream.add(stream_data, maxlen=STREAM_MAX_LEN, approximate=True)
             context.on_event_deliver(msg_id)
         except Exception as e:  # pylint: disable=broad-except
