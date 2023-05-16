@@ -34,10 +34,12 @@ logger = logging.getLogger(__name__)
 REDIS_CONSUMERS_ENABLED = SettingToggle('EVENT_BUS_REDIS_CONSUMERS_ENABLED', default=True)
 
 # .. setting_name: EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT
-# .. setting_default: 1
-# .. setting_description: How long the consumer should wait, in seconds, for the Redis broker
-#   to respond to a poll() call.
-CONSUMER_POLL_TIMEOUT = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT', 1)
+# .. setting_default: 60
+# .. setting_description: How long the consumer should wait for new entries in a stream.
+# .. As we are running the consumer in a while True loop, changing this setting doesn't make much difference
+# .. expect for changing number of monitoring messages while waiting for new events.
+# .. https://redis.io/commands/xread/#blocking-for-data
+CONSUMER_POLL_TIMEOUT = getattr(settings, 'EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT', 60)
 
 # .. setting_name: EVENT_BUS_REDIS_CONSUMER_POLL_FAILURE_SLEEP
 # .. setting_default: 1.0

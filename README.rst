@@ -15,8 +15,11 @@ This package implements an event bus for Open EdX using Redis streams.
 
 The event bus acts as a broker between services publishing events and other services that consume these events.
 
-This package contains both the publishing code, which processes events into messages to send to the stream, and the consumer code,
-which polls the stream using a `while True` loop in order to turn messages back into event data to be emitted.
+This package contains both the publishing code, which processes events into
+messages to send to the stream, and the consumer code, which polls the stream
+using a `while True` loop in order to turn messages back into django signal to
+be emitted. This django signal contains event data which can be consumed by the
+host application which does the actual event handling.
 The actual Redis host is configurable.
 
 The repository works together with the openedx/openedx-events repository to make the fully functional event bus.
@@ -27,12 +30,18 @@ Documentation
 To use this implementation of the Event Bus with openedx-events, you'll need to ensure that below the following Django settings are set::
 
     # redis connection url
-    EVENT_BUS_REDIS_CONNECTION_URL: ...
-    EVENT_BUS_TOPIC_PREFIX: ...
+    # https://redis.readthedocs.io/en/stable/examples/ssl_connection_examples.html#Connecting-to-a-Redis-instance-via-a-URL-string
+    EVENT_BUS_REDIS_CONNECTION_URL: redis://:password@localhost:6379/
+    EVENT_BUS_TOPIC_PREFIX: dev
 
     # Required, on the producing side only:
+    # https://github.com/openedx/openedx-events/blob/06635f3642cee4020d6787df68bba694bd1233fe/openedx_events/event_bus/__init__.py#L105-L112
+    # This will load a producer class which can send events to redis streams.
     EVENT_BUS_PRODUCER: edx_event_bus_redis.create_producer
+
     # Required, on the consumer side only:
+    # https://github.com/openedx/openedx-events/blob/06635f3642cee4020d6787df68bba694bd1233fe/openedx_events/event_bus/__init__.py#L150-L157
+    # This will load a consumer class which can consume events from redis streams.
     EVENT_BUS_CONSUMER: edx_event_bus_redis.RedisEventConsumer
 
 Optional settings that are worth considering::
@@ -40,11 +49,14 @@ Optional settings that are worth considering::
     # If the consumer encounters this many consecutive errors, exit with an error. This is intended to be used in a context where a management system (such as Kubernetes) will relaunch the consumer automatically.
     EVENT_BUS_REDIS_CONSUMER_CONSECUTIVE_ERRORS_LIMIT (defaults to None)
 
-    # How long the consumer should wait, in seconds, for the Redis broker
-    EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT (defaults to 1 second)
+    # How long the consumer should wait for new entries in a stream.
+    # As we are running the consumer in a while True loop, changing this setting doesn't make much difference
+    # expect for changing number of monitoring messages while waiting for new events.
+    # https://redis.io/commands/xread/#blocking-for-data
+    EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT (defaults to 60 seconds)
 
     # Limits stream size to approximately this number
-    EVENT_BUS_REDIS_STREAM_MAX_LEN (defaults to 10,000)
+    EVENT_BUS_REDIS_STREAM_MAX_LEN (defaults to 10_000)
 
 For manual local testing, see ``Testing locally`` section below.
 
@@ -136,26 +148,35 @@ To consume events, openedx_events provides a management command called
 
 .. code-block:: bash
 
-   # consume XBLOCK_DELETED signal
-   python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "test_group.c1"}'
+   # consume events from topic xblock-status
+   python manage.py consume_events --topic xblock-status --group_id test_group --extra '{"consumer_name": "test_group.c1"}'
 
    # replay events from specific redis msg id
-   python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "test_group.c1", "last_read_msg_id": "1679676448892-0"}'
+   python manage.py consume_events --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "test_group.c1", "last_read_msg_id": "1679676448892-0"}'
 
    # process all messages that were not read by this consumer group.
-    python manage.py consume_events -t user-login -g user-activity-service \
-    -s org.openedx.learning.auth.session.login.completed.v1 \
-    --extra '{"check_backlog": true, "consumer_name": "c1"}'
+   python manage.py consume_events -t user-login -g user-activity-service --extra '{"check_backlog": true, "consumer_name": "c1"}'
 
    # claim messages pending for more than 30 minutes (1,800,000 milliseconds) from other consumers in the group.
-    python manage.py consume_events -t user-login -g user-activity-service \
-    -s org.openedx.learning.auth.session.login.completed.v1 \
-    --extra '{"claim_msgs_older_than": 1800000, "consumer_name": "c1"}'
-
+   python manage.py consume_events -t user-login -g user-activity-service --extra '{"claim_msgs_older_than": 1800000, "consumer_name": "c1"}'
 
 Note that the ``consumer_name`` in ``--extra`` argument is required for redis
 event bus as this name uniquely identifies the consumer in a group and helps
 with tracking processed and pending messages.
+
+If required, you can also replay events i.e. process messages from a specific
+point in history.
+
+.. code-block:: bash
+
+   # replay events from specific redis msg id
+   python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "c1", "last_read_msg_id": "1684306039300-0"}'
+
+The redis message id can be found from the producer logs in the host application, example:
+
+.. code-block::
+
+   Message delivered to Redis event bus: topic=dev-xblock-deleted, message_id=ab289110-f47e-11ed-bd90-1c83413013cb, signal=<OpenEdxPublicSignal: org.openedx.content_authoring.xblock.deleted.v1>, redis_msg_id=b'1684306039300-0'
 
 Getting Help
 ************
@@ -233,8 +254,8 @@ Reporting Security Issues
 
 Please do not report security issues in public. Please email security@tcril.org.
 
-.. |pypi-badge| image:: https://img.shields.io/pypi/v/event-bus-redis.svg
-    :target: https://pypi.python.org/pypi/event-bus-redis/
+.. |pypi-badge| image:: https://img.shields.io/pypi/v/edx-event-bus-redis.svg
+    :target: https://pypi.python.org/pypi/edx-event-bus-redis/
     :alt: PyPI
 
 .. |ci-badge| image:: https://github.com/openedx/event-bus-redis/workflows/Python%20CI/badge.svg?branch=main
@@ -245,11 +266,11 @@ Please do not report security issues in public. Please email security@tcril.org.
     :target: https://codecov.io/github/openedx/event-bus-redis?branch=main
     :alt: Codecov
 
-.. |doc-badge| image:: https://readthedocs.org/projects/event-bus-redis/badge/?version=latest
+.. |doc-badge| image:: https://readthedocs.org/projects/edx-event-bus-redis/badge/?version=latest
     :target: https://event-bus-redis.readthedocs.io/en/latest/
     :alt: Documentation
 
-.. |pyversions-badge| image:: https://img.shields.io/pypi/pyversions/event-bus-redis.svg
+.. |pyversions-badge| image:: https://img.shields.io/pypi/pyversions/edx-event-bus-redis.svg
     :target: https://pypi.python.org/pypi/event-bus-redis/
     :alt: Supported Python versions
 
