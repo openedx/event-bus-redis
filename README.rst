@@ -1,13 +1,6 @@
 edx_event_bus_redis
 #############################
 
-.. note::
-
-  This README was auto-generated. Maintainer: please review its contents and
-  update all relevant sections. Instructions to you are marked with
-  "PLACEHOLDER" or "TODO". Update or remove those sections, and remove this
-  note when you are done.
-
 |pypi-badge| |ci-badge| |codecov-badge| |doc-badge| |pyversions-badge|
 |license-badge| |status-badge|
 
@@ -15,6 +8,46 @@ Purpose
 *******
 
 Redis Streams implementation for the Open edX event bus.
+
+Overview
+********
+This package implements an event bus for Open EdX using Redis streams.
+
+The event bus acts as a broker between services publishing events and other services that consume these events.
+
+This package contains both the publishing code, which processes events into messages to send to the stream, and the consumer code,
+which polls the stream using a `while True` loop in order to turn messages back into event data to be emitted.
+The actual Redis host is configurable.
+
+The repository works together with the openedx/openedx-events repository to make the fully functional event bus.
+
+Documentation
+*************
+
+To use this implementation of the Event Bus with openedx-events, you'll need to ensure that below the following Django settings are set::
+
+    # redis connection url
+    EVENT_BUS_REDIS_CONNECTION_URL: ...
+    EVENT_BUS_TOPIC_PREFIX: ...
+
+    # Required, on the producing side only:
+    EVENT_BUS_PRODUCER: edx_event_bus_redis.create_producer
+    # Required, on the consumer side only:
+    EVENT_BUS_CONSUMER: edx_event_bus_redis.RedisEventConsumer
+
+Optional settings that are worth considering::
+
+    # If the consumer encounters this many consecutive errors, exit with an error. This is intended to be used in a context where a management system (such as Kubernetes) will relaunch the consumer automatically.
+    EVENT_BUS_REDIS_CONSUMER_CONSECUTIVE_ERRORS_LIMIT (defaults to None)
+
+    # How long the consumer should wait, in seconds, for the Redis broker
+    EVENT_BUS_REDIS_CONSUMER_POLL_TIMEOUT (defaults to 1 second)
+
+    # Limits stream size to approximately this number
+    EVENT_BUS_REDIS_STREAM_MAX_LEN (defaults to 10,000)
+
+For manual local testing, see ``Testing locally`` section below.
+
 
 Getting Started
 ***************
@@ -92,12 +125,37 @@ Testing locally
 Deploying
 =========
 
-TODO: How can a new user go about deploying this component? Is it just a few
-commands? Is there a larger how-to that should be linked here?
+After setting up required configuration, events are produced using the
+``openedx_events.get_producer().send()`` method which needs to be called from
+the producing side. For more information, visit this `link`_.
 
-PLACEHOLDER: For details on how to deploy this component, see the `deployment how-to`_
+.. _link: https://openedx.atlassian.net/wiki/spaces/AC/pages/3508699151/How+to+start+using+the+Event+Bus#Producing-a-signal
 
-.. _deployment how-to: https://docs.openedx.org/projects/event-bus-redis/how-tos/how-to-deploy-this-component.html
+To consume events, openedx_events provides a management command called
+``consume_events`` which can be called like so:
+
+.. code-block:: bash
+
+   # consume XBLOCK_DELETED signal
+   python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "test_group.c1"}'
+
+   # replay events from specific redis msg id
+   python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "test_group.c1", "last_read_msg_id": "1679676448892-0"}'
+
+   # process all messages that were not read by this consumer group.
+    python manage.py consume_events -t user-login -g user-activity-service \
+    -s org.openedx.learning.auth.session.login.completed.v1 \
+    --extra '{"check_backlog": true, "consumer_name": "c1"}'
+
+   # claim messages pending for more than 30 minutes (1,800,000 milliseconds) from other consumers in the group.
+    python manage.py consume_events -t user-login -g user-activity-service \
+    -s org.openedx.learning.auth.session.login.completed.v1 \
+    --extra '{"claim_msgs_older_than": 1800000, "consumer_name": "c1"}'
+
+
+Note that the ``consumer_name`` in ``--extra`` argument is required for redis
+event bus as this name uniquely identifies the consumer in a group and helps
+with tracking processed and pending messages.
 
 Getting Help
 ************
