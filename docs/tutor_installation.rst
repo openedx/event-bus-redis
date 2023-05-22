@@ -44,13 +44,26 @@ Setup example with openedx, course discovery and tutor.
 
   * Enable the plugin as mentioned in the tutorial.
 
-* Run Open Edx
+* Save tutor config and run Open Edx using below commands:
   .. code-block:: shell
 
+     tutor config save
      tutor dev start
+
 * To consume events, start a consumer in the IDA. For example, if we want to consume events from event bus in discovery:
 
   .. code-block:: shell
 
-     tutor dev run discovery ./manage.py consume_events -t user-login -g user-activity-service \
-                 -s org.openedx.learning.auth.session.login.completed.v1 --extra '{"consumer_name": "c1"}'
+     # Run below command and delete any xblock from studio to see the event logs flow in the consumer.
+     tutor dev run discovery ./manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "c1"}'
+
+Troubleshooting
+***************
+
+If the ``consume_events`` command fails with ``unknown argument --extra``
+error, rebuild discovery image to use latest changes from the repository and re
+run the command. To rebuild image run below command.
+
+.. code-block:: shell
+
+   tutor images build -a DISCOVERY_REPOSITORY=https://github.com/openedx/course-discovery/ discovery
