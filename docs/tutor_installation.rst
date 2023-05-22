@@ -45,6 +45,7 @@ Setup example with openedx, course discovery and tutor.
   * Enable the plugin as mentioned in the tutorial.
 
 * Save tutor config and run Open Edx using below commands:
+
   .. code-block:: shell
 
      tutor config save
