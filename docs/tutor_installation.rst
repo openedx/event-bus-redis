@@ -1,15 +1,10 @@
-Example setup with openedx, course discovery and tutor.
+Setup example with openedx, course discovery and tutor.
 =======================================================
 
 * Setup `tutor-nightly <https://docs.tutor.overhang.io/tutorials/nightly.html>`_ till Palm is released, after that we can use stable tutor version.
-* Add ``git+https://github.com/openedx/event-bus-redis@main`` to openedx extra requirements using one of the `options mentioned here <https://docs.tutor.overhang.io/configuration.html#installing-extra-xblocks-and-requirements>`_.
 * Enable discovery tutor plugin using ``tutor plugins enable discovery``
-* Add event_bus_redis to discovery extra requirements:
-
-  .. code-block:: shell
-
-     tutor config save --set 'DISCOVERY_EXTRA_PIP_REQUIREMENTS=["git+https://github.com/openedx/event-bus-redis@main"]'
-
+* Make sure ``edx-event-bus-redis`` is part of the pip requirements file in
+  both edx-platform and course-discovery.
 * Add below settings to your tutor setup with your preferred method:
 
   .. code-block:: python
@@ -22,8 +17,7 @@ Example setup with openedx, course discovery and tutor.
 * One of the ways to add these settings to tutor is to create a small plugin using below steps:
 
   * Create a plugin file as mentioned in `tutor tutorial <https://docs.tutor.overhang.io/tutorials/plugin.html#writing-a-plugin-as-a-single-python-module>`_
-  *
-    Replace the contents of the plugin file with:
+  * Replace the contents of the plugin file with:
 
     .. code-block:: python
 
@@ -51,6 +45,9 @@ Example setup with openedx, course discovery and tutor.
   * Enable the plugin as mentioned in the tutorial.
 
 * Run Open Edx
+  .. code-block:: shell
+
+     tutor dev start
 * To consume events, start a consumer in the IDA. For example, if we want to consume events from event bus in discovery:
 
   .. code-block:: shell
