@@ -2,7 +2,8 @@
 -c constraints.txt
 
 Django             # Web application framework
-openedx-events>=7.1.0                   # consumer api and consume_events provided
+# openedx-events 8.0.0 removes an argument from consumer initialization
+openedx-events>=8.0.0                   # Events API
 edx_django_utils
 edx_toggles
 
