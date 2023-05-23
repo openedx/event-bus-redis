@@ -56,7 +56,7 @@ Setup example with openedx, course discovery and tutor.
   .. code-block:: shell
 
      # Run below command and delete any xblock from studio to see the event logs flow in the consumer.
-     tutor dev run discovery ./manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "c1"}'
+     tutor dev run discovery ./manage.py consume_events --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "c1"}'
 
 Troubleshooting
 ***************
