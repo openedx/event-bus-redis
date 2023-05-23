@@ -115,17 +115,17 @@ install_transifex_client: ## Install the Transifex client
 
 ## Local test helpers
 produce_test_event:
-	EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py produce_event --signal openedx_events.content_authoring.signals.XBLOCK_DELETED --topic xblock-deleted --key-field None --data '{"xblock_info": {"usage_key": "block-v1:edx+DemoX+Demo_course+type@video+block@UaEBjyMjcLW65gaTXggB93WmvoxGAJa0JeHRrDThk", "block_type": "video"}}'
+	EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py produce_event --signal openedx_events.content_authoring.signals.XBLOCK_DELETED --topic xblock-status --key-field None --data '{"xblock_info": {"usage_key": "block-v1:edx+DemoX+Demo_course+type@video+block@UaEBjyMjcLW65gaTXggB93WmvoxGAJa0JeHRrDThk", "block_type": "video"}}'
 
 consume_test_event:
-	EVENT_BUS_CONSUMER='edx_event_bus_redis.RedisEventConsumer' EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "test_group.c1"}'
+	EVENT_BUS_CONSUMER='edx_event_bus_redis.RedisEventConsumer' EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py consume_events --topic xblock-status --group_id test_group --extra '{"consumer_name": "test_group.c1"}'
 
 multiple_consumer_test_event:
-	EVENT_BUS_CONSUMER='edx_event_bus_redis.RedisEventConsumer' EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "test_group.c1"}' &
-	EVENT_BUS_CONSUMER='edx_event_bus_redis.RedisEventConsumer' EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py consume_events --signal org.openedx.content_authoring.xblock.deleted.v1 --topic xblock-deleted --group_id test_group --extra '{"consumer_name": "test_group.c2"}' &
+	EVENT_BUS_CONSUMER='edx_event_bus_redis.RedisEventConsumer' EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py consume_events --topic xblock-status --group_id test_group --extra '{"consumer_name": "test_group.c1"}' &
+	EVENT_BUS_CONSUMER='edx_event_bus_redis.RedisEventConsumer' EVENT_BUS_PRODUCER='edx_event_bus_redis.create_producer' EVENT_BUS_REDIS_CONNECTION_URL='redis://:password@localhost:6379/' EVENT_BUS_TOPIC_PREFIX='dev' python manage.py consume_events --topic xblock-status --group_id test_group --extra '{"consumer_name": "test_group.c2"}' &
 
 kill_all_consume_test_events:
-	pgrep -lf python\ manage.py\ consume_events\ --signal\ org.openedx.content_authoring.xblock.deleted.v1\ --topic\ xblock-deleted\ --group_id\ test_group | cut -d" " -f1 | xargs kill -15
+	pgrep -lf python\ manage.py\ consume_events\ --topic\ xblock-status\ --group_id\ test_group | cut -d" " -f1 | xargs kill -15
 
 redis-up:
 	docker compose up

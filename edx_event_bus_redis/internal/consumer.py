@@ -89,7 +89,6 @@ class RedisEventConsumer(EventBusConsumer):
     Attributes:
         topic: Topic/stream name.
         group_id: consumer group name.
-        signal: DEPRECATED, will be removed in a future release
         consumer_name: unique name for consumer within a group.
         last_read_msg_id: Start reading msgs from a specific redis msg id.
         check_backlog: flag to process all messages that were not read by this consumer group.
@@ -101,8 +100,8 @@ class RedisEventConsumer(EventBusConsumer):
         consumer: consumer instance.
     """
 
-    def __init__(self, topic, group_id, consumer_name, signal=None,  # pylint: disable=unused-argument
-                 last_read_msg_id=None, check_backlog=False, claim_msgs_older_than=None):
+    def __init__(self, topic, group_id, consumer_name, last_read_msg_id=None,
+                 check_backlog=False, claim_msgs_older_than=None):
         self.topic = topic
         self.group_id = group_id
         self.consumer_name = consumer_name
