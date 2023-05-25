@@ -135,7 +135,11 @@ class TestEventProducer(TestCase):
             b'sourcelib': b'1.2.3',
         }
 
-        stream_mock.add.assert_called_once_with({b'event_data': b'value-bytes-here', **expected_headers})
+        stream_mock.add.assert_called_once_with(
+            {b'event_data': b'value-bytes-here', **expected_headers},
+            maxlen=10000,
+            approximate=True
+        )
 
     @patch(
         'edx_event_bus_redis.internal.producer.serialize_event_data_to_bytes', autospec=True,

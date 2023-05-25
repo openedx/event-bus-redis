@@ -8,6 +8,7 @@ import logging
 from typing import Optional
 
 import attr
+from django.conf import settings
 from edx_django_utils.monitoring import record_exception
 from openedx_events.data import EventsMetadata
 from openedx_events.event_bus import EventBusProducer
@@ -21,6 +22,12 @@ from .config import get_full_topic, load_common_settings
 from .utils import AUDIT_LOGGING_ENABLED
 
 logger = logging.getLogger(__name__)
+
+# .. setting_name: EVENT_BUS_REDIS_STREAM_MAX_LEN
+# .. setting_default: 10000
+# .. setting_description: Limits stream size to approximately this number, more info can be found in
+# .. docs/decisions/0003-limiting-stream-length.rst
+STREAM_MAX_LEN = int(getattr(settings, 'EVENT_BUS_REDIS_STREAM_MAX_LEN', 10_000))
 
 
 def record_producing_error(error, context):
@@ -121,7 +128,8 @@ class RedisEventProducer(EventBusProducer):
             stream_data = message.to_binary_dict()
 
             stream = self.client.Stream(full_topic)
-            msg_id = stream.add(stream_data)
+            # Read docs/decisions/0003-limiting-stream-length.rst for explanation about maxlen and approximate options.
+            msg_id = stream.add(stream_data, maxlen=STREAM_MAX_LEN, approximate=True)
             context.on_event_deliver(msg_id)
         except Exception as e:  # pylint: disable=broad-except
             record_producing_error(e, context)
