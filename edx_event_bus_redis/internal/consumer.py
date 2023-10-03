@@ -64,6 +64,12 @@ class ReceiverError(Exception):
         self.causes = causes  # just used for testing
 
 
+class EventConsumptionException(Exception):
+    """
+    Indicates that we had an issue in event production. Useful for filtering on later.
+    """
+
+
 def _reconnect_to_db_if_needed():
     """
     Reconnects the db connection if needed.
@@ -371,8 +377,8 @@ class RedisEventConsumer(EventBusConsumer):
         try:
             # This is gross, but our record_exception wrapper doesn't take args at the moment,
             # and will only read the exception from stack context.
-            raise Exception(error)  # pylint: disable=broad-exception-raised
-        except BaseException:
+            raise EventConsumptionException(error)
+        except EventConsumptionException:
             self._add_message_monitoring(run_context=run_context, message=maybe_message, error=error)
             record_exception()
             logger.exception(
