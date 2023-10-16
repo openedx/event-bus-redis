@@ -16,6 +16,14 @@ Unreleased
 
 *
 
+[0.3.3] - 2023-10-13
+************************************************
+
+Added
+=====
+* Use utility from openedx_events to reset application state before processing
+  event
+
 [0.3.2] - 2023-09-01
 ************************************************
 

@@ -6,12 +6,11 @@ import time
 from typing import Optional
 
 from django.conf import settings
-from django.db import connection
 from edx_django_utils.monitoring import record_exception, set_custom_attribute
 from edx_toggles.toggles import SettingToggle
 from openedx_events.event_bus import EventBusConsumer
 from openedx_events.event_bus.avro.deserializer import deserialize_bytes_to_event_data
-from openedx_events.tooling import OpenEdxPublicSignal
+from openedx_events.tooling import OpenEdxPublicSignal, prepare_for_new_work_cycle
 from redis.exceptions import ConnectionError as RedisConnectionError
 from redis.exceptions import ResponseError
 from walrus import Database
@@ -68,21 +67,6 @@ class EventConsumptionException(Exception):
     """
     Indicates that we had an issue in event production. Useful for filtering on later.
     """
-
-
-def _reconnect_to_db_if_needed():
-    """
-    Reconnects the db connection if needed.
-
-    This is important because Django only does connection validity/age checks as part of
-    its request/response cycle, which isn't in effect for the consume-loop. If we don't
-    force these checks, a broken connection will remain broken indefinitely. For most
-    consumers, this will cause event processing to fail.
-    """
-    has_connection = bool(connection.connection)
-    requires_reconnect = has_connection and not connection.is_usable()
-    if requires_reconnect:
-        connection.connect()
 
 
 class RedisEventConsumer(EventBusConsumer):
@@ -240,8 +224,9 @@ class RedisEventConsumer(EventBusConsumer):
                         if isinstance(redis_raw_msg, list):
                             redis_raw_msg = redis_raw_msg[0]
                         msg = RedisMessage.parse(redis_raw_msg, self.full_topic)
-                        # Before processing, make sure our db connection is still active
-                        _reconnect_to_db_if_needed()
+                        # Before processing, try to make sure our application state is cleaned
+                        # up as would happen at the start of a Django request/response cycle.
+                        prepare_for_new_work_cycle()
                         self.emit_signals_from_message(msg)
                         consecutive_errors = 0
 

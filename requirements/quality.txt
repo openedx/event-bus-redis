@@ -47,7 +47,7 @@ ddt==1.7.1
     # via -r requirements/test.txt
 dill==0.3.8
     # via pylint
-django==3.2.23
+django==3.2.24
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/test.txt
@@ -70,6 +70,7 @@ edx-django-utils==5.10.1
     # via
     #   -r requirements/test.txt
     #   edx-toggles
+    #   openedx-events
 edx-lint==5.3.6
     # via -r requirements/quality.in
 edx-opaque-keys[django]==2.5.1
@@ -109,7 +110,7 @@ newrelic==9.6.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-openedx-events==9.4.0
+openedx-events==9.5.0
     # via -r requirements/test.txt
 packaging==23.2
     # via
@@ -168,7 +169,7 @@ pytest-cov==4.1.0
     # via -r requirements/test.txt
 pytest-django==4.8.0
     # via -r requirements/test.txt
-python-slugify==8.0.3
+python-slugify==8.0.4
     # via
     #   -r requirements/test.txt
     #   code-annotations

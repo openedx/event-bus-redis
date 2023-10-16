@@ -287,7 +287,7 @@ class TestConsumer(TestCase):
         assert mock_emit.call_args_list == [call(self.normal_message)] * exception_count
         assert exc_info.value.args == ("Too many consecutive errors, exiting (4 in a row)",)
 
-    @patch('edx_event_bus_redis.internal.consumer.connection')
+    @patch('openedx_events.tooling.connection')
     @ddt.data(
         (False, False, False),  # no connection, don't reconnect
         (True, False, True),  # connection unusable, reconnect expected
