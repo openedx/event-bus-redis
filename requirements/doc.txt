@@ -35,7 +35,7 @@ cffi==1.16.0
     #   -r requirements/test.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.3.0
+charset-normalizer==3.3.1
     # via requests
 click==8.1.7
     # via
@@ -137,7 +137,7 @@ mdurl==0.1.2
     # via markdown-it-py
 more-itertools==10.1.0
     # via jaraco-classes
-newrelic==9.1.0
+newrelic==9.1.1
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -283,7 +283,7 @@ typing-extensions==4.8.0
     #   edx-opaque-keys
     #   pydata-sphinx-theme
     #   rich
-urllib3==2.0.6
+urllib3==2.0.7
     # via
     #   requests
     #   twine
