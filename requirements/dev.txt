@@ -25,12 +25,19 @@ build==1.0.3
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
+cachetools==5.3.2
+    # via
+    #   -r requirements/ci.txt
+    #   tox
 cffi==1.16.0
     # via
     #   -r requirements/quality.txt
     #   pynacl
 chardet==5.2.0
-    # via diff-cover
+    # via
+    #   -r requirements/ci.txt
+    #   diff-cover
+    #   tox
 click==8.1.7
     # via
     #   -r requirements/pip-tools.txt
@@ -49,14 +56,18 @@ code-annotations==1.5.0
     #   -r requirements/quality.txt
     #   edx-lint
     #   edx-toggles
+colorama==0.4.6
+    # via
+    #   -r requirements/ci.txt
+    #   tox
 coverage[toml]==7.3.2
     # via
     #   -r requirements/quality.txt
     #   coverage
     #   pytest-cov
-ddt==1.6.0
+ddt==1.7.0
     # via -r requirements/quality.txt
-diff-cover==8.0.0
+diff-cover==8.0.1
     # via -r requirements/dev.in
 dill==0.3.7
     # via
@@ -66,7 +77,7 @@ distlib==0.3.7
     # via
     #   -r requirements/ci.txt
     #   virtualenv
-django==3.2.22
+django==3.2.23
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/quality.txt
@@ -86,13 +97,13 @@ django-waffle==4.0.0
     #   -r requirements/quality.txt
     #   edx-django-utils
     #   edx-toggles
-edx-django-utils==5.7.0
+edx-django-utils==5.8.0
     # via
     #   -r requirements/quality.txt
     #   edx-toggles
 edx-i18n-tools==1.3.0
     # via -r requirements/dev.in
-edx-lint==5.3.4
+edx-lint==5.3.6
     # via -r requirements/quality.txt
 edx-opaque-keys[django]==2.5.1
     # via
@@ -105,11 +116,11 @@ exceptiongroup==1.1.3
     # via
     #   -r requirements/quality.txt
     #   pytest
-fastavro==1.8.4
+fastavro==1.9.0
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-filelock==3.12.4
+filelock==3.13.1
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -141,11 +152,11 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-newrelic==9.1.1
+newrelic==9.1.2
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
-openedx-events==9.0.0
+openedx-events==9.1.0
     # via -r requirements/quality.txt
 packaging==23.2
     # via
@@ -153,11 +164,12 @@ packaging==23.2
     #   -r requirements/pip-tools.txt
     #   -r requirements/quality.txt
     #   build
+    #   pyproject-api
     #   pytest
     #   tox
 path==16.7.1
     # via edx-i18n-tools
-pbr==5.11.1
+pbr==6.0.0
     # via
     #   -r requirements/quality.txt
     #   stevedore
@@ -165,9 +177,11 @@ pip-tools==7.3.0
     # via -r requirements/pip-tools.txt
 platformdirs==3.11.0
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   pylint
+    #   tox
     #   virtualenv
 pluggy==1.3.0
     # via
@@ -182,10 +196,6 @@ psutil==5.9.6
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
-py==1.11.0
-    # via
-    #   -r requirements/ci.txt
-    #   tox
 pycodestyle==2.11.1
     # via -r requirements/quality.txt
 pycparser==2.21
@@ -207,7 +217,7 @@ pylint-celery==0.3
     # via
     #   -r requirements/quality.txt
     #   edx-lint
-pylint-django==2.5.4
+pylint-django==2.5.5
     # via
     #   -r requirements/quality.txt
     #   edx-lint
@@ -224,18 +234,22 @@ pynacl==1.5.0
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
+pyproject-api==1.6.1
+    # via
+    #   -r requirements/ci.txt
+    #   tox
 pyproject-hooks==1.0.0
     # via
     #   -r requirements/pip-tools.txt
     #   build
-pytest==7.4.2
+pytest==7.4.3
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
     #   pytest-django
 pytest-cov==4.1.0
     # via -r requirements/quality.txt
-pytest-django==4.5.2
+pytest-django==4.7.0
     # via -r requirements/quality.txt
 python-slugify==8.0.1
     # via
@@ -256,10 +270,8 @@ redis==5.0.1
     #   walrus
 six==1.16.0
     # via
-    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   edx-lint
-    #   tox
 snowballstemmer==2.2.0
     # via
     #   -r requirements/quality.txt
@@ -287,17 +299,16 @@ tomli==2.0.1
     #   coverage
     #   pip-tools
     #   pylint
+    #   pyproject-api
     #   pyproject-hooks
     #   pytest
     #   tox
-tomlkit==0.12.1
+tomlkit==0.12.3
     # via
     #   -r requirements/quality.txt
     #   pylint
-tox==3.28.0
-    # via
-    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
-    #   -r requirements/ci.txt
+tox==4.11.3
+    # via -r requirements/ci.txt
 typing-extensions==4.8.0
     # via
     #   -r requirements/quality.txt
@@ -305,13 +316,13 @@ typing-extensions==4.8.0
     #   astroid
     #   edx-opaque-keys
     #   pylint
-virtualenv==20.24.5
+virtualenv==20.24.6
     # via
     #   -r requirements/ci.txt
     #   tox
 walrus==0.9.3
     # via -r requirements/quality.txt
-wheel==0.41.2
+wheel==0.41.3
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
