@@ -112,7 +112,7 @@ edx-opaque-keys[django]==2.5.1
     #   openedx-events
 edx-toggles==5.1.0
     # via -r requirements/quality.txt
-exceptiongroup==1.1.3
+exceptiongroup==1.2.0
     # via
     #   -r requirements/quality.txt
     #   pytest
@@ -204,7 +204,7 @@ pycparser==2.21
     #   cffi
 pydocstyle==6.3.0
     # via -r requirements/quality.txt
-pygments==2.17.1
+pygments==2.17.2
     # via diff-cover
 pylint==3.0.2
     # via
@@ -316,13 +316,13 @@ typing-extensions==4.8.0
     #   astroid
     #   edx-opaque-keys
     #   pylint
-virtualenv==20.24.6
+virtualenv==20.24.7
     # via
     #   -r requirements/ci.txt
     #   tox
 walrus==0.9.3
     # via -r requirements/quality.txt
-wheel==0.41.3
+wheel==0.42.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools

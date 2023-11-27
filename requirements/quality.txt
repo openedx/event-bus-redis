@@ -79,7 +79,7 @@ edx-opaque-keys[django]==2.5.1
     #   openedx-events
 edx-toggles==5.1.0
     # via -r requirements/test.txt
-exceptiongroup==1.1.3
+exceptiongroup==1.2.0
     # via
     #   -r requirements/test.txt
     #   pytest
