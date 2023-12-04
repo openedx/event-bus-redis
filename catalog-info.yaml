@@ -11,11 +11,11 @@ metadata:
     # We use it in Open edX repos to have a comma-separated list of GitHub user
     # names that might be interested in changes to the architecture of this
     # component.
-    openedx.org/arch-interest-groups: "bmtcril"
+    openedx.org/arch-interest-groups: ""
 spec:
 
   # (Required) This can be a group(`group:<group_name>` or a user(`user:<github_username>`)
-  owner: "user:bmtcril"
+  owner: "group:axim-engineering"
 
   # (Required) Acceptable Type Values: service, website, library
   type: 'library'
