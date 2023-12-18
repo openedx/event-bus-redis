@@ -31,7 +31,7 @@ django-crum==0.7.9
     # via
     #   edx-django-utils
     #   edx-toggles
-django-waffle==4.0.0
+django-waffle==4.1.0
     # via
     #   edx-django-utils
     #   edx-toggles
@@ -55,7 +55,7 @@ openedx-events==9.2.0
     # via -r requirements/base.in
 pbr==6.0.0
     # via stevedore
-psutil==5.9.6
+psutil==5.9.7
     # via edx-django-utils
 pycparser==2.21
     # via cffi
