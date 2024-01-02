@@ -12,7 +12,7 @@ async-timeout==4.0.3
     # via
     #   -r requirements/base.txt
     #   redis
-attrs==23.1.0
+attrs==23.2.0
     # via
     #   -r requirements/base.txt
     #   openedx-events
@@ -30,7 +30,7 @@ code-annotations==1.5.0
     #   -r requirements/base.txt
     #   -r requirements/test.in
     #   edx-toggles
-coverage[toml]==7.3.3
+coverage[toml]==7.4.0
     # via
     #   coverage
     #   pytest-cov
@@ -67,7 +67,7 @@ edx-toggles==5.1.0
     # via -r requirements/base.txt
 exceptiongroup==1.2.0
     # via pytest
-fastavro==1.9.1
+fastavro==1.9.2
     # via
     #   -r requirements/base.txt
     #   openedx-events
@@ -111,7 +111,7 @@ pynacl==1.5.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-pytest==7.4.3
+pytest==7.4.4
     # via
     #   pytest-cov
     #   pytest-django
