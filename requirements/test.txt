@@ -34,7 +34,7 @@ coverage[toml]==7.4.0
     # via
     #   coverage
     #   pytest-cov
-ddt==1.7.0
+ddt==1.7.1
     # via -r requirements/test.in
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
