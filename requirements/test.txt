@@ -30,7 +30,7 @@ code-annotations==1.5.0
     #   -r requirements/base.txt
     #   -r requirements/test.in
     #   edx-toggles
-coverage[toml]==7.4.0
+coverage[toml]==7.4.1
     # via
     #   coverage
     #   pytest-cov
@@ -81,11 +81,11 @@ markupsafe==2.1.4
     # via
     #   -r requirements/base.txt
     #   jinja2
-newrelic==9.5.0
+newrelic==9.6.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-openedx-events==9.2.0
+openedx-events==9.3.0
     # via -r requirements/base.txt
 packaging==23.2
     # via pytest
@@ -93,7 +93,7 @@ pbr==6.0.0
     # via
     #   -r requirements/base.txt
     #   stevedore
-pluggy==1.3.0
+pluggy==1.4.0
     # via pytest
 psutil==5.9.8
     # via
@@ -111,7 +111,7 @@ pynacl==1.5.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-pytest==7.4.4
+pytest==8.0.0
     # via
     #   pytest-cov
     #   pytest-django
@@ -119,7 +119,7 @@ pytest-cov==4.1.0
     # via -r requirements/test.in
 pytest-django==4.7.0
     # via -r requirements/test.in
-python-slugify==8.0.1
+python-slugify==8.0.2
     # via
     #   -r requirements/base.txt
     #   code-annotations
