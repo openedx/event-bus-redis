@@ -282,7 +282,7 @@ class RedisEventConsumer(EventBusConsumer):
 
         signal = OpenEdxPublicSignal.get_signal_by_type(msg.event_metadata.event_type)
         event_data = deserialize_bytes_to_event_data(msg.event_data, signal)
-        send_results = signal.send_event_with_custom_metadata(msg.event_metadata, **event_data)
+        send_results = signal.send_event_with_custom_metadata(msg.event_metadata, **event_data, from_event_bus=True)
         # Raise an exception if any receivers errored out. This allows logging of the receivers
         # along with partition, offset, etc. in record_event_consuming_error. Hopefully the
         # receiver code is idempotent and we can just replay any messages that were involved.
