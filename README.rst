@@ -76,7 +76,7 @@ One Time Setup
   cd event-bus-redis
 
   # Set up a virtualenv using virtualenvwrapper with the same name as the repo and activate it
-  mkvirtualenv -p python3.8 event-bus-redis
+  mkvirtualenv -p python3.12 event-bus-redis
 
 
 Every time you develop something in this repo

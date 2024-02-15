@@ -72,9 +72,17 @@ class TestMessage(TestCase):
         with pytest.raises(UnusableMessageError) as excinfo:
             RedisMessage.parse(msg, topic='some-local-topic')
 
-        assert excinfo.value.args == (
-            "Error determining metadata from message headers: "
-            "__init__() missing 1 required positional argument: 'event_type'",
+        assert excinfo.value.args in (
+            # Error in Python <=3.9, can be removed when we drop support for those
+            (
+                "Error determining metadata from message headers: "
+                "__init__() missing 1 required positional argument: 'event_type'",
+            ),
+            # Error in Python 3.10 and above
+            (
+                "Error determining metadata from message headers: "
+                "EventsMetadata.__init__() missing 1 required positional argument: 'event_type'",
+            ),
         )
 
     def test_bad_msg(self):
