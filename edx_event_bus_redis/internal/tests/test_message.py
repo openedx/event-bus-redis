@@ -74,7 +74,7 @@ class TestMessage(TestCase):
 
         assert excinfo.value.args == (
             "Error determining metadata from message headers: "
-            "__init__() missing 1 required positional argument: 'event_type'",
+            "EventsMetadata.__init__() missing 1 required positional argument: 'event_type'",
         )
 
     def test_bad_msg(self):
