@@ -2,8 +2,8 @@
 -c constraints.txt
 
 Django             # Web application framework
-# openedx-events 8.0.0 removes an argument from consumer initialization
-openedx-events>=8.0.0                   # Events API
+# openedx-events 9.5.0 adds utitily to reset app state
+openedx-events>=9.5.0 # Events API
 edx_django_utils
 edx_toggles
 
