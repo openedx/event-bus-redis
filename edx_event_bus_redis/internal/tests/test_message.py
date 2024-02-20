@@ -2,9 +2,10 @@
 Tests for message module.
 """
 
+import re
 from datetime import datetime, timezone
 from uuid import UUID
-import re
+
 import ddt
 import pytest
 from django.test import TestCase
@@ -69,16 +70,17 @@ class TestMessage(TestCase):
 
     def test_no_event_data(self):
         msg = (
-            b'1', 
+            b'1',
             {
-                b'id': b'629f9892-c258-11ed-8dac-1c83413013cb', 
+                b'id': b'629f9892-c258-11ed-8dac-1c83413013cb',
                 b'event_data': self.event_data_bytes,
             }
         )
         with pytest.raises(UnusableMessageError) as excinfo:
             RedisMessage.parse(msg, topic='some-local-topic')
         expected_error_pattern = re.compile(
-            r"Error determining metadata from message headers: .*__init__\(\) missing 1 required positional argument: 'event_type'"
+            r"Error determining metadata from message headers: .*__init__\(\) "
+            r"missing 1 required positional argument: 'event_type'"
         )
         assert expected_error_pattern.search(str(excinfo.value)) is not None
 
