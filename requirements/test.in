@@ -7,3 +7,8 @@ pytest-cov                # pytest extension for code coverage statistics
 pytest-django             # pytest extension for better Django support
 code-annotations          # provides commands used by the pii_check make target.
 ddt                       # Run a test case multiple times with different input
+
+# Needed during Python 3.12 upgrade so that
+# we can run requirements upgrade in 3.8 and
+# get Python 3.12 compatible requirements.
+backports.zoneinfo;python_version<"3.9"

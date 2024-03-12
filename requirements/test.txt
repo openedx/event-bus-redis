@@ -19,6 +19,7 @@ attrs==23.2.0
 backports-zoneinfo==0.2.1
     # via
     #   -r requirements/base.txt
+    #   -r requirements/test.in
     #   django
 cffi==1.16.0
     # via
