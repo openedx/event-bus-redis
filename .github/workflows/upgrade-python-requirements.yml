@@ -9,6 +9,7 @@ on:
          description: 'Target branch to create requirements PR against'
          required: true
          default: 'main'
+         python_version: '3.12'
 jobs:
   call-upgrade-python-requirements-workflow:
     uses: openedx/.github/.github/workflows/upgrade-python-requirements.yml@master
