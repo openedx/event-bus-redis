@@ -128,8 +128,9 @@ filelock==3.13.1
     #   -r requirements/ci.txt
     #   tox
     #   virtualenv
-importlib-metadata==7.0.2
+importlib-metadata==6.11.0
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/pip-tools.txt
     #   build
 iniconfig==2.0.0
@@ -155,7 +156,7 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-newrelic==9.7.0
+newrelic==9.7.1
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
@@ -321,7 +322,7 @@ virtualenv==20.25.1
     #   tox
 walrus==0.9.3
     # via -r requirements/quality.txt
-wheel==0.42.0
+wheel==0.43.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
