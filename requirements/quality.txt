@@ -83,7 +83,7 @@ edx-opaque-keys[django]==2.5.1
     #   openedx-events
 edx-toggles==5.2.0
     # via -r requirements/test.txt
-exceptiongroup==1.2.0
+exceptiongroup==1.2.1
     # via
     #   -r requirements/test.txt
     #   pytest
@@ -109,11 +109,11 @@ markupsafe==2.1.5
     #   jinja2
 mccabe==0.7.0
     # via pylint
-newrelic==9.8.0
+newrelic==9.9.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-openedx-events==9.9.1
+openedx-events==9.9.2
     # via -r requirements/test.txt
 packaging==24.0
     # via
@@ -125,7 +125,7 @@ pbr==6.0.0
     #   stevedore
 platformdirs==4.2.0
     # via pylint
-pluggy==1.4.0
+pluggy==1.5.0
     # via
     #   -r requirements/test.txt
     #   pytest

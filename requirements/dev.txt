@@ -116,7 +116,7 @@ edx-opaque-keys[django]==2.5.1
     #   openedx-events
 edx-toggles==5.2.0
     # via -r requirements/quality.txt
-exceptiongroup==1.2.0
+exceptiongroup==1.2.1
     # via
     #   -r requirements/quality.txt
     #   pytest
@@ -157,11 +157,11 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-newrelic==9.8.0
+newrelic==9.9.0
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
-openedx-events==9.9.1
+openedx-events==9.9.2
     # via -r requirements/quality.txt
 packaging==24.0
     # via
@@ -187,7 +187,7 @@ platformdirs==4.2.0
     #   pylint
     #   tox
     #   virtualenv
-pluggy==1.4.0
+pluggy==1.5.0
     # via
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
@@ -317,7 +317,7 @@ typing-extensions==4.11.0
     #   astroid
     #   edx-opaque-keys
     #   pylint
-virtualenv==20.25.1
+virtualenv==20.25.3
     # via
     #   -r requirements/ci.txt
     #   tox
