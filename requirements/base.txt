@@ -39,12 +39,14 @@ django-waffle==4.1.0
     # via
     #   edx-django-utils
     #   edx-toggles
+dnspython==2.6.1
+    # via pymongo
 edx-django-utils==5.12.0
     # via
     #   -r requirements/base.in
     #   edx-toggles
     #   openedx-events
-edx-opaque-keys[django]==2.5.1
+edx-opaque-keys[django]==2.9.0
     # via openedx-events
 edx-toggles==5.2.0
     # via -r requirements/base.in
@@ -64,7 +66,7 @@ psutil==5.9.8
     # via edx-django-utils
 pycparser==2.22
     # via cffi
-pymongo==3.13.0
+pymongo==4.4.0
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
@@ -72,7 +74,7 @@ python-slugify==8.0.4
     # via code-annotations
 pyyaml==6.0.1
     # via code-annotations
-redis==5.0.3
+redis==5.0.4
     # via walrus
 sqlparse==0.5.0
     # via django
