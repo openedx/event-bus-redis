@@ -57,11 +57,11 @@ coverage[toml]==7.5.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==42.0.6
+cryptography==42.0.7
     # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
-django==4.2.11
+django==4.2.13
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/test.txt
@@ -89,6 +89,10 @@ docutils==0.19
     #   pydata-sphinx-theme
     #   readme-renderer
     #   sphinx
+edx-ccx-keys==1.3.0
+    # via
+    #   -r requirements/test.txt
+    #   openedx-events
 edx-django-utils==5.13.0
     # via
     #   -r requirements/test.txt
@@ -97,6 +101,7 @@ edx-django-utils==5.13.0
 edx-opaque-keys[django]==2.9.0
     # via
     #   -r requirements/test.txt
+    #   edx-ccx-keys
     #   openedx-events
 edx-toggles==5.2.0
     # via -r requirements/test.txt
@@ -160,7 +165,7 @@ newrelic==9.9.0
     #   edx-django-utils
 nh3==0.2.17
     # via readme-renderer
-openedx-events==9.9.2
+openedx-events==9.10.0
     # via -r requirements/test.txt
 packaging==24.0
     # via
@@ -244,6 +249,10 @@ rich==13.7.1
     # via twine
 secretstorage==3.3.3
     # via keyring
+six==1.16.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-ccx-keys
 snowballstemmer==2.2.0
     # via sphinx
 soupsieve==2.5
