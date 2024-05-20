@@ -145,7 +145,7 @@ jinja2==3.1.4
     #   -r requirements/test.txt
     #   code-annotations
     #   sphinx
-keyring==25.2.0
+keyring==25.2.1
     # via twine
 markdown-it-py==3.0.0
     # via rich
@@ -159,7 +159,7 @@ more-itertools==10.2.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-newrelic==9.9.0
+newrelic==9.9.1
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -211,7 +211,7 @@ pynacl==1.5.0
     #   edx-django-utils
 pyproject-hooks==1.1.0
     # via build
-pytest==8.2.0
+pytest==8.2.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -296,7 +296,7 @@ tomli==2.0.1
     #   build
     #   coverage
     #   pytest
-twine==5.0.0
+twine==5.1.0
     # via -r requirements/doc.in
 typing-extensions==4.11.0
     # via
@@ -311,7 +311,7 @@ urllib3==2.2.1
     #   twine
 walrus==0.9.3
     # via -r requirements/test.txt
-zipp==3.18.1
+zipp==3.18.2
     # via
     #   importlib-metadata
     #   importlib-resources
