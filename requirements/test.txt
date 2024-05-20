@@ -93,7 +93,7 @@ markupsafe==2.1.5
     # via
     #   -r requirements/base.txt
     #   jinja2
-newrelic==9.9.0
+newrelic==9.9.1
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -123,7 +123,7 @@ pynacl==1.5.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-pytest==8.2.0
+pytest==8.2.1
     # via
     #   pytest-cov
     #   pytest-django
