@@ -53,7 +53,7 @@ code-annotations==1.8.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
-coverage[toml]==7.5.1
+coverage[toml]==7.5.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -93,7 +93,7 @@ edx-ccx-keys==1.3.0
     # via
     #   -r requirements/test.txt
     #   openedx-events
-edx-django-utils==5.13.0
+edx-django-utils==5.14.1
     # via
     #   -r requirements/test.txt
     #   edx-toggles
@@ -159,7 +159,7 @@ more-itertools==10.2.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-newrelic==9.9.1
+newrelic==9.10.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -236,7 +236,7 @@ redis==5.0.4
     # via
     #   -r requirements/test.txt
     #   walrus
-requests==2.31.0
+requests==2.32.2
     # via
     #   requests-toolbelt
     #   sphinx
@@ -298,7 +298,7 @@ tomli==2.0.1
     #   pytest
 twine==5.1.0
     # via -r requirements/doc.in
-typing-extensions==4.11.0
+typing-extensions==4.12.0
     # via
     #   -r requirements/test.txt
     #   asgiref
@@ -311,7 +311,7 @@ urllib3==2.2.1
     #   twine
 walrus==0.9.3
     # via -r requirements/test.txt
-zipp==3.18.2
+zipp==3.19.0
     # via
     #   importlib-metadata
     #   importlib-resources
