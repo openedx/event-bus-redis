@@ -176,7 +176,7 @@ newrelic==9.10.0
     #   edx-django-utils
 openedx-events==9.10.0
     # via -r requirements/quality.txt
-packaging==24.0
+packaging==24.1
     # via
     #   -r requirements/ci.txt
     #   -r requirements/pip-tools.txt
@@ -223,7 +223,7 @@ pydocstyle==6.3.0
     # via -r requirements/quality.txt
 pygments==2.18.0
     # via diff-cover
-pylint==3.2.2
+pylint==3.2.3
     # via
     #   -r requirements/quality.txt
     #   edx-lint
@@ -260,7 +260,7 @@ pyproject-hooks==1.1.0
     #   -r requirements/pip-tools.txt
     #   build
     #   pip-tools
-pytest==8.2.1
+pytest==8.2.2
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
@@ -278,7 +278,7 @@ pyyaml==6.0.1
     #   -r requirements/quality.txt
     #   code-annotations
     #   edx-i18n-tools
-redis==5.0.4
+redis==5.0.5
     # via
     #   -r requirements/quality.txt
     #   walrus
@@ -321,9 +321,9 @@ tomlkit==0.12.5
     # via
     #   -r requirements/quality.txt
     #   pylint
-tox==4.15.0
+tox==4.15.1
     # via -r requirements/ci.txt
-typing-extensions==4.12.1
+typing-extensions==4.12.2
     # via
     #   -r requirements/quality.txt
     #   asgiref
@@ -340,7 +340,7 @@ wheel==0.43.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
-zipp==3.19.1
+zipp==3.19.2
     # via
     #   -r requirements/pip-tools.txt
     #   importlib-metadata
