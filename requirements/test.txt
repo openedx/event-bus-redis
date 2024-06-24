@@ -35,7 +35,7 @@ code-annotations==1.8.0
     #   -r requirements/base.txt
     #   -r requirements/test.in
     #   edx-toggles
-coverage[toml]==7.5.3
+coverage[toml]==7.5.4
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -97,7 +97,7 @@ newrelic==9.11.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-openedx-events==9.10.0
+openedx-events==9.11.0
     # via -r requirements/base.txt
 packaging==24.1
     # via pytest
@@ -107,7 +107,7 @@ pbr==6.0.0
     #   stevedore
 pluggy==1.5.0
     # via pytest
-psutil==5.9.8
+psutil==6.0.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -170,5 +170,5 @@ typing-extensions==4.12.2
     #   -r requirements/base.txt
     #   asgiref
     #   edx-opaque-keys
-walrus==0.9.3
+walrus==0.9.4
     # via -r requirements/base.txt
