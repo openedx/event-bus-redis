@@ -62,11 +62,11 @@ markupsafe==2.1.5
     # via jinja2
 newrelic==9.11.0
     # via edx-django-utils
-openedx-events==9.10.0
+openedx-events==9.11.0
     # via -r requirements/base.in
 pbr==6.0.0
     # via stevedore
-psutil==5.9.8
+psutil==6.0.0
     # via edx-django-utils
 pycparser==2.22
     # via cffi
@@ -95,5 +95,5 @@ typing-extensions==4.12.2
     # via
     #   asgiref
     #   edx-opaque-keys
-walrus==0.9.3
+walrus==0.9.4
     # via -r requirements/base.in
