@@ -115,7 +115,7 @@ pycparser==2.22
     # via
     #   -r requirements/base.txt
     #   cffi
-pymongo==4.7.3
+pymongo==4.8.0
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
@@ -139,7 +139,7 @@ pyyaml==6.0.1
     # via
     #   -r requirements/base.txt
     #   code-annotations
-redis==5.0.6
+redis==5.0.7
     # via
     #   -r requirements/base.txt
     #   walrus

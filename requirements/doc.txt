@@ -178,7 +178,7 @@ pbr==6.0.0
     # via
     #   -r requirements/test.txt
     #   stevedore
-pkginfo==1.11.1
+pkginfo==1.10.0
     # via twine
 pluggy==1.5.0
     # via
@@ -201,7 +201,7 @@ pygments==2.18.0
     #   readme-renderer
     #   rich
     #   sphinx
-pymongo==4.7.3
+pymongo==4.8.0
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
@@ -232,7 +232,7 @@ pyyaml==6.0.1
     #   code-annotations
 readme-renderer==43.0
     # via twine
-redis==5.0.6
+redis==5.0.7
     # via
     #   -r requirements/test.txt
     #   walrus
@@ -296,7 +296,7 @@ tomli==2.0.1
     #   build
     #   coverage
     #   pytest
-twine==5.1.0
+twine==5.1.1
     # via -r requirements/doc.in
 typing-extensions==4.12.2
     # via
