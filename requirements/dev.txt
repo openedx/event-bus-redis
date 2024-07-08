@@ -321,7 +321,7 @@ tomlkit==0.12.5
     # via
     #   -r requirements/quality.txt
     #   pylint
-tox==4.15.1
+tox==4.16.0
     # via -r requirements/ci.txt
 typing-extensions==4.12.2
     # via
