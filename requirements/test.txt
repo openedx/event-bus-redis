@@ -8,11 +8,11 @@ asgiref==3.8.1
     # via
     #   -r requirements/base.txt
     #   django
-attrs==24.1.0
+attrs==24.2.0
     # via
     #   -r requirements/base.txt
     #   openedx-events
-cffi==1.16.0
+cffi==1.17.0
     # via
     #   -r requirements/base.txt
     #   pynacl
@@ -82,7 +82,7 @@ markupsafe==2.1.5
     # via
     #   -r requirements/base.txt
     #   jinja2
-newrelic==9.12.0
+newrelic==9.13.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -124,7 +124,7 @@ python-slugify==8.0.4
     # via
     #   -r requirements/base.txt
     #   code-annotations
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via
     #   -r requirements/base.txt
     #   code-annotations
