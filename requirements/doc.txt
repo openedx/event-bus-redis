@@ -235,7 +235,7 @@ six==1.16.0
     #   edx-ccx-keys
 snowballstemmer==2.2.0
     # via sphinx
-soupsieve==2.5
+soupsieve==2.6
     # via beautifulsoup4
 sphinx==8.0.2
     # via
