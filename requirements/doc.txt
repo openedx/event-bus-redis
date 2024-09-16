@@ -31,6 +31,7 @@ certifi==2024.8.30
 cffi==1.17.1
     # via
     #   -r requirements/test.txt
+    #   cryptography
     #   pynacl
 charset-normalizer==3.3.2
     # via requests
@@ -47,6 +48,8 @@ coverage[toml]==7.6.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
+cryptography==43.0.1
+    # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
 django==4.2.16
@@ -97,11 +100,11 @@ fastavro==1.9.7
     # via
     #   -r requirements/test.txt
     #   openedx-events
-idna==3.8
+idna==3.10
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==8.4.0
+importlib-metadata==8.5.0
     # via
     #   keyring
     #   twine
@@ -115,6 +118,10 @@ jaraco-context==6.0.1
     # via keyring
 jaraco-functools==4.0.2
     # via keyring
+jeepney==0.8.0
+    # via
+    #   keyring
+    #   secretstorage
 jinja2==3.1.4
     # via
     #   -r requirements/test.txt
@@ -186,7 +193,7 @@ pynacl==1.5.0
     #   edx-django-utils
 pyproject-hooks==1.1.0
     # via build
-pytest==8.3.2
+pytest==8.3.3
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -218,8 +225,10 @@ requests-toolbelt==1.0.0
     # via twine
 rfc3986==2.0.0
     # via twine
-rich==13.8.0
+rich==13.8.1
     # via twine
+secretstorage==3.3.3
+    # via keyring
 six==1.16.0
     # via
     #   -r requirements/test.txt
@@ -268,11 +277,11 @@ typing-extensions==4.12.2
     #   -r requirements/test.txt
     #   edx-opaque-keys
     #   pydata-sphinx-theme
-urllib3==2.2.2
+urllib3==2.2.3
     # via
     #   requests
     #   twine
 walrus==0.9.4
     # via -r requirements/test.txt
-zipp==3.20.1
+zipp==3.20.2
     # via importlib-metadata
