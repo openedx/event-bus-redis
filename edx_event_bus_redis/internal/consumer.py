@@ -186,7 +186,7 @@ class RedisEventConsumer(EventBusConsumer):
             'consumer_name': self.consumer_name,
         }
 
-        try:  # pylint: disable=too-many-nested-blocks
+        try:
             logger.info(f"Running consumer for {run_context!r}")
 
             # How many errors have we seen in a row? If this climbs too high, exit with error.
