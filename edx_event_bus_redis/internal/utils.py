@@ -3,6 +3,7 @@ Utilities for converting between message headers and EventsMetadata
 """
 
 import logging
+import signal
 from datetime import datetime
 from typing import Tuple
 from uuid import UUID
@@ -115,3 +116,31 @@ def get_headers_from_metadata(event_metadata: oed.EventsMetadata):
         values[encode(header.message_header_key)] = encode(header.from_metadata(event_metadata_value))
 
     return values
+
+
+class Timeout:
+    """
+    Context manager to raise a TimeoutError after a specified number of seconds.
+
+    Some redis calls don't have a timeout parameter, so this can be used to enforce a timeout.
+    """
+    def __init__(self, timeout_seconds):
+        self.timeout_seconds = timeout_seconds
+
+    def __enter__(self):
+        """
+        Start the timer, if we don't __exit__ in self.seconds it will raise the TimeoutError.
+        """
+        signal.signal(signal.SIGALRM, Timeout._raise_timeout)
+        signal.alarm(self.timeout_seconds)
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Stop the signal timer on context exit.
+        """
+        signal.alarm(0)
+
+    @staticmethod
+    def _raise_timeout(signum, frame):
+        raise TimeoutError

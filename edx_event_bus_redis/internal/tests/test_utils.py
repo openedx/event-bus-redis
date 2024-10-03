@@ -1,6 +1,7 @@
 """
 Test header conversion utils
 """
+import time
 from datetime import datetime, timezone
 from unittest.mock import Mock, patch
 from uuid import uuid1
@@ -16,6 +17,7 @@ from edx_event_bus_redis.internal.utils import (
     HEADER_ID,
     HEADER_SOURCELIB,
     HEADER_TIME,
+    Timeout,
     encode,
     get_headers_from_metadata,
     get_metadata_from_headers,
@@ -139,3 +141,16 @@ class TestUtils(TestCase):
             expected_metadata = EventsMetadata(event_type="abc", id=TEST_UUID)
             generated_metadata = get_metadata_from_headers(headers)
             self.assertDictEqual(attr.asdict(generated_metadata), attr.asdict(expected_metadata))
+
+
+class TestTimeout(TestCase):
+    """
+    Test the timeout context manager
+    """
+    def test_timeout(self):
+        """
+        Test that the timeout decorator raises a TimeoutError if the function takes too long
+        """
+        with pytest.raises(TimeoutError):
+            with Timeout(1):
+                time.sleep(2)
