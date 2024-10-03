@@ -19,7 +19,7 @@ from walrus.containers import ConsumerGroupStream
 from edx_event_bus_redis.internal.message import RedisMessage
 
 from .config import get_full_topic, load_common_settings
-from .utils import AUDIT_LOGGING_ENABLED
+from .utils import AUDIT_LOGGING_ENABLED, Timeout
 
 logger = logging.getLogger(__name__)
 
@@ -148,11 +148,19 @@ class RedisEventConsumer(EventBusConsumer):
     def _read_pending_msgs(self) -> Optional[tuple]:
         """
         Read pending messages, if no messages found return None.
+
+        These redis calls don't have timout args, and we've seen that they
+        can hang indefinitely when redis goes down. So we wrap them in a
+        timeout context manager.
         """
         logger.debug("Consuming pending msgs first.")
+
         if self.claim_msgs_older_than is not None:
-            self.consumer.autoclaim(self.consumer_name, min_idle_time=self.claim_msgs_older_than, count=1)
-        msg_meta = self.consumer.pending(count=1, consumer=self.consumer_name)
+            with Timeout(5):
+                self.consumer.autoclaim(self.consumer_name, min_idle_time=self.claim_msgs_older_than, count=1)
+        with Timeout(5):
+            msg_meta = self.consumer.pending(count=1, consumer=self.consumer_name)
+
         if msg_meta:
             return self.consumer[msg_meta[0]['message_id']]
         logger.debug("No more pending messages.")
@@ -426,7 +434,7 @@ class RedisEventConsumer(EventBusConsumer):
         Arguments:
             error: An exception instance, or None if no error.
         """
-        if error and isinstance(error, RedisConnectionError):
+        if error and isinstance(error, (RedisConnectionError, TimeoutError)):
             return True
 
         return False
