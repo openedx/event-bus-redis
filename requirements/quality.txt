@@ -6,7 +6,7 @@
 #
 asgiref==3.8.1
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   django
 astroid==3.3.5
     # via
@@ -14,15 +14,15 @@ astroid==3.3.5
     #   pylint-celery
 attrs==24.2.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   openedx-events
 cffi==1.17.1
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   pynacl
 click==8.1.7
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   click-log
     #   code-annotations
     #   edx-django-utils
@@ -31,21 +31,21 @@ click-log==0.4.0
     # via edx-lint
 code-annotations==1.8.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-lint
     #   edx-toggles
 coverage[toml]==7.6.4
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   pytest-cov
 ddt==1.7.2
-    # via -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    # via -r requirements/test.txt
 dill==0.3.9
     # via pylint
 django==4.2.16
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   django-crum
     #   django-waffle
     #   edx-django-utils
@@ -53,43 +53,43 @@ django==4.2.16
     #   openedx-events
 django-crum==0.7.9
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-django-utils
     #   edx-toggles
 django-waffle==4.1.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-django-utils
     #   edx-toggles
 dnspython==2.7.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   pymongo
 edx-ccx-keys==1.3.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   openedx-events
 edx-django-utils==7.0.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-toggles
     #   openedx-events
-edx-lint==5.4.0
+edx-lint==5.4.1
     # via -r requirements/quality.in
 edx-opaque-keys[django]==2.11.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-ccx-keys
     #   openedx-events
 edx-toggles==5.2.0
-    # via -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    # via -r requirements/test.txt
 fastavro==1.9.7
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   openedx-events
 iniconfig==2.0.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   pytest
 isort==5.13.2
     # via
@@ -97,43 +97,43 @@ isort==5.13.2
     #   pylint
 jinja2==3.1.4
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   code-annotations
 markupsafe==3.0.2
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   jinja2
 mccabe==0.7.0
     # via pylint
 newrelic==10.2.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-django-utils
 openedx-events==9.15.0
-    # via -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    # via -r requirements/test.txt
 packaging==24.1
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   pytest
 pbr==6.1.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   stevedore
 platformdirs==4.3.6
     # via pylint
 pluggy==1.5.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   pytest
 psutil==6.1.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-django-utils
 pycodestyle==2.12.1
     # via -r requirements/quality.in
 pycparser==2.22
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   cffi
 pydocstyle==6.3.0
     # via -r requirements/quality.in
@@ -153,59 +153,59 @@ pylint-plugin-utils==0.8.2
     #   pylint-django
 pymongo==4.10.1
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-opaque-keys
 pynacl==1.5.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-django-utils
 pytest==8.3.3
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   pytest-cov
     #   pytest-django
-pytest-cov==5.0.0
-    # via -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+pytest-cov==6.0.0
+    # via -r requirements/test.txt
 pytest-django==4.9.0
-    # via -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    # via -r requirements/test.txt
 python-slugify==8.0.4
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   code-annotations
 pyyaml==6.0.2
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   code-annotations
 redis==5.2.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   walrus
 six==1.16.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-ccx-keys
     #   edx-lint
 snowballstemmer==2.2.0
     # via pydocstyle
 sqlparse==0.5.1
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   django
 stevedore==5.3.0
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
 text-unidecode==1.3
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   python-slugify
 tomlkit==0.13.2
     # via pylint
 typing-extensions==4.12.2
     # via
-    #   -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    #   -r requirements/test.txt
     #   edx-opaque-keys
 walrus==0.9.4
-    # via -r /home/runner/work/event-bus-redis/event-bus-redis/requirements/test.txt
+    # via -r requirements/test.txt
