@@ -111,7 +111,7 @@ newrelic==10.2.0
     #   edx-django-utils
 openedx-events==9.15.0
     # via -r requirements/test.txt
-packaging==24.1
+packaging==24.2
     # via
     #   -r requirements/test.txt
     #   pytest
