@@ -149,7 +149,7 @@ nh3==0.2.18
     # via readme-renderer
 openedx-events==9.15.0
     # via -r requirements/test.txt
-packaging==24.1
+packaging==24.2
     # via
     #   -r requirements/test.txt
     #   build
@@ -282,5 +282,5 @@ urllib3==2.2.3
     #   twine
 walrus==0.9.4
     # via -r requirements/test.txt
-zipp==3.20.2
+zipp==3.21.0
     # via importlib-metadata

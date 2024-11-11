@@ -158,7 +158,7 @@ newrelic==10.2.0
     #   edx-django-utils
 openedx-events==9.15.0
     # via -r requirements/quality.txt
-packaging==24.1
+packaging==24.2
     # via
     #   -r requirements/ci.txt
     #   -r requirements/pip-tools.txt
@@ -303,7 +303,7 @@ virtualenv==20.27.1
     #   tox
 walrus==0.9.4
     # via -r requirements/quality.txt
-wheel==0.44.0
+wheel==0.45.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
