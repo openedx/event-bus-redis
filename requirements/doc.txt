@@ -40,11 +40,11 @@ click==8.1.7
     #   -r requirements/test.txt
     #   code-annotations
     #   edx-django-utils
-code-annotations==1.8.0
+code-annotations==1.8.1
     # via
     #   -r requirements/test.txt
     #   edx-toggles
-coverage[toml]==7.6.4
+coverage[toml]==7.6.7
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -66,7 +66,7 @@ django-crum==0.7.9
     #   -r requirements/test.txt
     #   edx-django-utils
     #   edx-toggles
-django-waffle==4.1.0
+django-waffle==4.2.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
@@ -255,7 +255,7 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
-sqlparse==0.5.1
+sqlparse==0.5.2
     # via
     #   -r requirements/test.txt
     #   django

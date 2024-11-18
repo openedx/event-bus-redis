@@ -21,12 +21,12 @@ click==8.1.7
     #   -r requirements/base.txt
     #   code-annotations
     #   edx-django-utils
-code-annotations==1.8.0
+code-annotations==1.8.1
     # via
     #   -r requirements/base.txt
     #   -r requirements/test.in
     #   edx-toggles
-coverage[toml]==7.6.4
+coverage[toml]==7.6.7
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -43,7 +43,7 @@ django-crum==0.7.9
     #   -r requirements/base.txt
     #   edx-django-utils
     #   edx-toggles
-django-waffle==4.1.0
+django-waffle==4.2.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -136,7 +136,7 @@ six==1.16.0
     # via
     #   -r requirements/base.txt
     #   edx-ccx-keys
-sqlparse==0.5.1
+sqlparse==0.5.2
     # via
     #   -r requirements/base.txt
     #   django
