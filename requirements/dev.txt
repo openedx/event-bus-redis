@@ -47,7 +47,7 @@ click-log==0.4.0
     # via
     #   -r requirements/quality.txt
     #   edx-lint
-code-annotations==1.8.1
+code-annotations==1.8.2
     # via
     #   -r requirements/quality.txt
     #   edx-lint
@@ -56,7 +56,7 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.6.7
+coverage[toml]==7.6.8
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
@@ -100,7 +100,7 @@ edx-ccx-keys==1.3.0
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-edx-django-utils==7.0.0
+edx-django-utils==7.0.1
     # via
     #   -r requirements/quality.txt
     #   edx-toggles
@@ -152,7 +152,7 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-newrelic==10.2.0
+newrelic==10.3.0
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
@@ -277,7 +277,7 @@ sqlparse==0.5.2
     # via
     #   -r requirements/quality.txt
     #   django
-stevedore==5.3.0
+stevedore==5.4.0
     # via
     #   -r requirements/quality.txt
     #   code-annotations
@@ -303,7 +303,7 @@ virtualenv==20.27.1
     #   tox
 walrus==0.9.4
     # via -r requirements/quality.txt
-wheel==0.45.0
+wheel==0.45.1
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
