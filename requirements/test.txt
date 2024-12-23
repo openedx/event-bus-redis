@@ -8,7 +8,7 @@ asgiref==3.8.1
     # via
     #   -r requirements/base.txt
     #   django
-attrs==24.2.0
+attrs==24.3.0
     # via
     #   -r requirements/base.txt
     #   openedx-events
@@ -16,7 +16,7 @@ cffi==1.17.1
     # via
     #   -r requirements/base.txt
     #   pynacl
-click==8.1.7
+click==8.1.8
     # via
     #   -r requirements/base.txt
     #   code-annotations
@@ -68,13 +68,13 @@ edx-opaque-keys[django]==2.11.0
     #   openedx-events
 edx-toggles==5.2.0
     # via -r requirements/base.txt
-fastavro==1.9.7
+fastavro==1.10.0
     # via
     #   -r requirements/base.txt
     #   openedx-events
 iniconfig==2.0.0
     # via pytest
-jinja2==3.1.4
+jinja2==3.1.5
     # via
     #   -r requirements/base.txt
     #   code-annotations
@@ -96,7 +96,7 @@ pbr==6.1.0
     #   stevedore
 pluggy==1.5.0
     # via pytest
-psutil==6.1.0
+psutil==6.1.1
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
