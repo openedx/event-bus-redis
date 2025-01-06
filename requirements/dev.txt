@@ -203,7 +203,7 @@ pycparser==2.22
     #   cffi
 pydocstyle==6.3.0
     # via -r requirements/quality.txt
-pygments==2.18.0
+pygments==2.19.0
     # via diff-cover
 pylint==3.3.3
     # via
@@ -297,7 +297,7 @@ typing-extensions==4.12.2
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
-virtualenv==20.28.0
+virtualenv==20.28.1
     # via
     #   -r requirements/ci.txt
     #   tox

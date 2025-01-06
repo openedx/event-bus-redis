@@ -174,7 +174,7 @@ pycparser==2.22
     #   cffi
 pydata-sphinx-theme==0.16.1
     # via sphinx-book-theme
-pygments==2.18.0
+pygments==2.19.0
     # via
     #   accessible-pygments
     #   pydata-sphinx-theme
