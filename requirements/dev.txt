@@ -203,7 +203,7 @@ pycparser==2.22
     #   cffi
 pydocstyle==6.3.0
     # via -r requirements/quality.txt
-pygments==2.19.0
+pygments==2.19.1
     # via diff-cover
 pylint==3.3.3
     # via
