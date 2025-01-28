@@ -12,7 +12,7 @@ astroid==3.3.8
     # via
     #   pylint
     #   pylint-celery
-attrs==24.3.0
+attrs==25.1.0
     # via
     #   -r requirements/test.txt
     #   openedx-events
@@ -74,7 +74,7 @@ edx-django-utils==7.1.0
     #   -r requirements/test.txt
     #   edx-toggles
     #   openedx-events
-edx-lint==5.4.1
+edx-lint==5.6.0
     # via -r requirements/quality.in
 edx-opaque-keys[django]==2.11.0
     # via
