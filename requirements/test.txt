@@ -82,11 +82,11 @@ markupsafe==3.0.2
     # via
     #   -r requirements/base.txt
     #   jinja2
-newrelic==10.4.0
+newrelic==10.5.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-openedx-events==9.15.2
+openedx-events==9.17.0
     # via -r requirements/base.txt
 packaging==24.2
     # via pytest
@@ -104,7 +104,7 @@ pycparser==2.22
     # via
     #   -r requirements/base.txt
     #   cffi
-pymongo==4.10.1
+pymongo==4.11
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys

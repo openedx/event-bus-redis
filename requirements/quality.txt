@@ -91,7 +91,7 @@ iniconfig==2.0.0
     # via
     #   -r requirements/test.txt
     #   pytest
-isort==5.13.2
+isort==6.0.0
     # via
     #   -r requirements/quality.in
     #   pylint
@@ -105,11 +105,11 @@ markupsafe==3.0.2
     #   jinja2
 mccabe==0.7.0
     # via pylint
-newrelic==10.4.0
+newrelic==10.5.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-openedx-events==9.15.2
+openedx-events==9.17.0
     # via -r requirements/test.txt
 packaging==24.2
     # via
@@ -137,7 +137,7 @@ pycparser==2.22
     #   cffi
 pydocstyle==6.3.0
     # via -r requirements/quality.in
-pylint==3.3.3
+pylint==3.3.4
     # via
     #   edx-lint
     #   pylint-celery
@@ -151,7 +151,7 @@ pylint-plugin-utils==0.8.2
     # via
     #   pylint-celery
     #   pylint-django
-pymongo==4.10.1
+pymongo==4.11
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys

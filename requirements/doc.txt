@@ -16,17 +16,17 @@ attrs==25.1.0
     # via
     #   -r requirements/test.txt
     #   openedx-events
-babel==2.16.0
+babel==2.17.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
 backports-tarfile==1.2.0
     # via jaraco-context
-beautifulsoup4==4.12.3
+beautifulsoup4==4.13.0
     # via pydata-sphinx-theme
 build==1.2.2.post1
     # via -r requirements/doc.in
-certifi==2024.12.14
+certifi==2025.1.31
     # via requests
 cffi==1.17.1
     # via
@@ -141,13 +141,13 @@ more-itertools==10.6.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-newrelic==10.4.0
+newrelic==10.5.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
 nh3==0.2.20
     # via readme-renderer
-openedx-events==9.15.2
+openedx-events==9.17.0
     # via -r requirements/test.txt
 packaging==24.2
     # via
@@ -181,7 +181,7 @@ pygments==2.19.1
     #   readme-renderer
     #   rich
     #   sphinx
-pymongo==4.10.1
+pymongo==4.11
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
@@ -274,6 +274,7 @@ twine==6.1.0
 typing-extensions==4.12.2
     # via
     #   -r requirements/test.txt
+    #   beautifulsoup4
     #   edx-opaque-keys
     #   pydata-sphinx-theme
 urllib3==2.2.3
