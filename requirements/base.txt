@@ -16,7 +16,7 @@ click==8.1.8
     #   edx-django-utils
 code-annotations==2.2.0
     # via edx-toggles
-django==4.2.18
+django==4.2.19
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.in
@@ -54,11 +54,11 @@ jinja2==3.1.5
     # via code-annotations
 markupsafe==3.0.2
     # via jinja2
-newrelic==10.5.0
+newrelic==10.6.0
     # via edx-django-utils
 openedx-events==9.17.0
     # via -r requirements/base.in
-pbr==6.1.0
+pbr==6.1.1
     # via stevedore
 psutil==6.1.1
     # via edx-django-utils
@@ -89,3 +89,6 @@ typing-extensions==4.12.2
     # via edx-opaque-keys
 walrus==0.9.4
     # via -r requirements/base.in
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

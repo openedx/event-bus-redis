@@ -56,7 +56,7 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.6.10
+coverage[toml]==7.6.11
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
@@ -72,7 +72,7 @@ distlib==0.3.9
     # via
     #   -r requirements/ci.txt
     #   virtualenv
-django==4.2.18
+django==4.2.19
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/quality.txt
@@ -152,7 +152,7 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-newrelic==10.5.0
+newrelic==10.6.0
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
@@ -169,7 +169,7 @@ packaging==24.2
     #   tox
 path==16.16.0
     # via edx-i18n-tools
-pbr==6.1.0
+pbr==6.1.1
     # via
     #   -r requirements/quality.txt
     #   stevedore
