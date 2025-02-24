@@ -109,7 +109,7 @@ newrelic==10.6.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-openedx-events==9.18.1
+openedx-events==9.18.2
     # via -r requirements/test.txt
 packaging==24.2
     # via
@@ -191,7 +191,7 @@ sqlparse==0.5.3
     # via
     #   -r requirements/test.txt
     #   django
-stevedore==5.4.0
+stevedore==5.4.1
     # via
     #   -r requirements/test.txt
     #   code-annotations

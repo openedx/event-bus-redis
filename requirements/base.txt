@@ -56,7 +56,7 @@ markupsafe==3.0.2
     # via jinja2
 newrelic==10.6.0
     # via edx-django-utils
-openedx-events==9.18.1
+openedx-events==9.18.2
     # via -r requirements/base.in
 pbr==6.1.1
     # via stevedore
@@ -78,7 +78,7 @@ six==1.17.0
     # via edx-ccx-keys
 sqlparse==0.5.3
     # via django
-stevedore==5.4.0
+stevedore==5.4.1
     # via
     #   code-annotations
     #   edx-django-utils
