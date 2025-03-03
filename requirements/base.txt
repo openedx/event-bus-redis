@@ -37,7 +37,7 @@ dnspython==2.7.0
     # via pymongo
 edx-ccx-keys==2.0.2
     # via openedx-events
-edx-django-utils==7.1.0
+edx-django-utils==7.2.0
     # via
     #   -r requirements/base.in
     #   edx-toggles
