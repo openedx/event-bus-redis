@@ -13,7 +13,7 @@ astroid==3.3.9
     #   -r requirements/quality.txt
     #   pylint
     #   pylint-celery
-attrs==25.1.0
+attrs==25.3.0
     # via
     #   -r requirements/quality.txt
     #   openedx-events
@@ -56,7 +56,7 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.6.12
+coverage[toml]==7.7.0
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
@@ -120,7 +120,7 @@ fastavro==1.10.0
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-filelock==3.17.0
+filelock==3.18.0
     # via
     #   -r requirements/ci.txt
     #   tox
