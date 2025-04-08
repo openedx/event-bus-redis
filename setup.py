@@ -147,15 +147,12 @@ if sys.argv[-1] == "tag":
 README = open(
     os.path.join(os.path.dirname(__file__), "README.rst"), encoding="utf8"
 ).read()
-CHANGELOG = open(
-    os.path.join(os.path.dirname(__file__), "CHANGELOG.rst"), encoding="utf8"
-).read()
 
 setup(
     name="edx_event_bus_redis",
     version=VERSION,
     description="""Redis Streams implementation for the Open edX event bus.""",
-    long_description=README + "\n\n" + CHANGELOG,
+    long_description=README,
     author="edX",
     author_email="oscm@edx.org",
     url="https://github.com/openedx/event-bus-redis",
@@ -164,9 +161,10 @@ setup(
         exclude=["*tests"],
     ),
     include_package_data=True,
+    long_description_content_type="text/x-rst",
     install_requires=load_requirements("requirements/base.in"),
     python_requires=">=3.11",
-    license="AGPL 3.0",
+    license="AGPL-3.0-or-later",
     zip_safe=False,
     keywords="Python edx",
     classifiers=[
@@ -175,7 +173,6 @@ setup(
         "Framework :: Django :: 4.2",
         "Framework :: Django :: 5.2",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.11",

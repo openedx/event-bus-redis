@@ -18,7 +18,6 @@ Contents:
    testing
    internationalization
    modules
-   changelog
    decisions
 
 
