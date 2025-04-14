@@ -47,7 +47,7 @@ click-log==0.4.0
     # via
     #   -r requirements/quality.txt
     #   edx-lint
-code-annotations==2.2.0
+code-annotations==2.3.0
     # via
     #   -r requirements/quality.txt
     #   edx-lint
@@ -100,7 +100,7 @@ edx-ccx-keys==2.0.2
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-edx-django-utils==7.2.0
+edx-django-utils==7.4.0
     # via
     #   -r requirements/quality.txt
     #   edx-toggles
@@ -142,7 +142,7 @@ lxml[html-clean,html_clean]==5.3.2
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
-lxml-html-clean==0.4.1
+lxml-html-clean==0.4.2
     # via lxml
 markupsafe==3.0.2
     # via
@@ -152,11 +152,11 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-newrelic==10.8.1
+newrelic==10.9.0
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
-openedx-events==9.20.0
+openedx-events==10.0.0
     # via -r requirements/quality.txt
 packaging==24.2
     # via
@@ -225,7 +225,7 @@ pylint-plugin-utils==0.8.2
     #   -r requirements/quality.txt
     #   pylint-celery
     #   pylint-django
-pymongo==4.11.3
+pymongo==4.12.0
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
@@ -293,7 +293,7 @@ tomlkit==0.13.2
     #   pylint
 tox==4.25.0
     # via -r requirements/ci.txt
-typing-extensions==4.13.1
+typing-extensions==4.13.2
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
