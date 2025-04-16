@@ -177,6 +177,8 @@ redis==7.1.0
     # via
     #   -r requirements/test.txt
     #   walrus
+ruff==0.11.5
+    # via -r requirements/quality.in
 six==1.17.0
     # via
     #   -r requirements/test.txt
