@@ -201,8 +201,6 @@ pycparser==2.22
     # via
     #   -r requirements/quality.txt
     #   cffi
-pydocstyle==6.3.0
-    # via -r requirements/quality.txt
 pygments==2.19.1
     # via diff-cover
 pylint==3.3.6
@@ -264,17 +262,13 @@ redis==5.2.1
     # via
     #   -r requirements/quality.txt
     #   walrus
-ruff==0.11.5
+ruff==0.11.6
     # via -r requirements/quality.txt
 six==1.17.0
     # via
     #   -r requirements/quality.txt
     #   edx-ccx-keys
     #   edx-lint
-snowballstemmer==2.2.0
-    # via
-    #   -r requirements/quality.txt
-    #   pydocstyle
 sqlparse==0.5.3
     # via
     #   -r requirements/quality.txt
