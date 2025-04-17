@@ -1,5 +1,5 @@
 """
-Utilities for converting between message headers and EventsMetadata
+Utilities for converting between message headers and EventsMetadata.
 """
 
 import logging
@@ -50,12 +50,14 @@ def decode(value: bytes) -> str:
 
 class MessageHeader:
     """
-    Utility class for converting between message headers and EventsMetadata objects
+    Utility class for converting between message headers and EventsMetadata objects.
     """
+
     _mapping = {}
     instances = []
 
     def __init__(self, message_header_key, event_metadata_field, to_metadata=None, from_metadata=None):
+        """Initialize a MessageHeader."""
         self.message_header_key = message_header_key
         self.event_metadata_field = event_metadata_field
         self.to_metadata = to_metadata or (lambda x: x)
@@ -79,12 +81,12 @@ HEADER_SOURCELIB = MessageHeader("sourcelib", event_metadata_field="sourcelib",
 
 def get_metadata_from_headers(headers: dict):
     """
-    Create an EventsMetadata object from the headers of a Redis message
+    Create an EventsMetadata object from the headers of a Redis message.
 
-    Arguments
+    Arguments:
         headers: The list of headers returned from calling message.headers() on a consumed message
 
-    Returns
+    Returns:
         An instance of EventsMetadata with the parameters from the headers. Any fields missing from the headers
          are set to the defaults of the EventsMetadata class
     """
@@ -124,7 +126,9 @@ class Timeout:
 
     Some redis calls don't have a timeout parameter, so this can be used to enforce a timeout.
     """
+
     def __init__(self, timeout_seconds):
+        """Initialize the Timeout context manager with a timeout in seconds."""
         self.timeout_seconds = timeout_seconds
 
     def __enter__(self):

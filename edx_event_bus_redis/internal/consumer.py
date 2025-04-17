@@ -71,8 +71,9 @@ class EventConsumptionException(Exception):
 
 class RedisEventConsumer(EventBusConsumer):
     """
-    Construct consumer for the given topic and group. The consumer can then
-    emit events coming from the topic.
+    Construct consumer for the given topic and group.
+
+    The consumer can then emit events coming from the topic.
 
     Note that the topic should be specified here *without* the optional environment prefix.
 
@@ -94,6 +95,7 @@ class RedisEventConsumer(EventBusConsumer):
 
     def __init__(self, topic, group_id, consumer_name, last_read_msg_id=None,
                  check_backlog=False, claim_msgs_older_than=None):
+        """Initialize consumer."""
         self.topic = topic
         self.group_id = group_id
         self.consumer_name = consumer_name
@@ -109,7 +111,7 @@ class RedisEventConsumer(EventBusConsumer):
 
     def _create_db(self) -> Database:
         """
-        Create a connection to redis
+        Create a connection to redis.
         """
         config = load_common_settings()
         if config is None:
@@ -118,12 +120,11 @@ class RedisEventConsumer(EventBusConsumer):
 
     def _create_consumer(self, db: Database, full_topic: str) -> ConsumerGroupStream:
         """
-        Create a redis stream consumer group and a consumer for the given topic
+        Create a redis stream consumer group and a consumer for the given topic.
 
         Returns
             ConsumerGroupStream
         """
-
         # It is possible to track multiple streams using single consumer group.
         # But for simplicity, we are only supporting one stream till the need arises.
         consumer = db.consumer_group(self.group_id, [full_topic], consumer=self.consumer_name)
@@ -170,7 +171,6 @@ class RedisEventConsumer(EventBusConsumer):
         """
         Consume events from a topic in an infinite loop.
         """
-
         if not REDIS_CONSUMERS_ENABLED.is_enabled():
             logger.error("Redis consumers not enabled, exiting.")
             return
@@ -290,7 +290,7 @@ class RedisEventConsumer(EventBusConsumer):
 
     def _check_receiver_results(self, send_results: list, signal: OpenEdxPublicSignal):
         """
-        Raises exception if any of the receivers produced an exception.
+        Raise exception if any of the receivers produced an exception.
 
         Arguments:
             send_results: Output of ``send_events``, a list of ``(receiver, response)`` tuples.
@@ -425,7 +425,7 @@ class RedisEventConsumer(EventBusConsumer):
 
     def _is_fatal_redis_error(self, error: Optional[Exception]) -> bool:
         """
-        Returns True if error is a RedisConnectionError, False otherwise.
+        Return True if error is a RedisConnectionError, False otherwise.
 
         The redis.ConnectionError can be considered fatal as it is the base exception for errors from which consumer
         might not be able to recover like AuthenticationError, AuthorizationError, MaxConnectionsError etc.

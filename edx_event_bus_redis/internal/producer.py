@@ -31,12 +31,12 @@ STREAM_MAX_LEN = int(getattr(settings, 'EVENT_BUS_REDIS_STREAM_MAX_LEN', 10_000)
 
 
 class EventProductionException(Exception):
-    """ An exception we can check for when errors occur in event production code. """
+    """An exception we can check for when errors occur in event production code."""
 
 
 def record_producing_error(error, context):
     """
-    Record an error in producing an event to both the monitoring system and the regular logs
+    Record an error in producing an event to both the monitoring system and the regular logs.
 
     Arguments:
         error: The exception or error raised during producing
@@ -54,8 +54,9 @@ def record_producing_error(error, context):
 @attr.s(kw_only=True, repr=False)
 class ProducingContext:
     """
-    Wrapper class to allow us to link a call to produce() with the on_event_deliver callback
+    Wrapper class to allow us to link a call to produce() with the on_event_deliver callback.
     """
+
     full_topic = attr.ib(type=str, default=None)
     event_key = attr.ib(type=str, default=None)
     signal = attr.ib(type=OpenEdxPublicSignal, default=None)
@@ -65,15 +66,15 @@ class ProducingContext:
     event_metadata = attr.ib(type=EventsMetadata, default=None)
 
     def __repr__(self):
-        """Create a logging-friendly string"""
+        """Create a logging-friendly string."""
         return " ".join([f"{key}={value!r}" for key, value in attr.asdict(self, recurse=False).items()])
 
     def on_event_deliver(self, redis_msg_id):
         """
-        Simple method for debugging event production
+        Debug event production.
 
         Arguments:
-            msg_id: Stream event msg_id.
+            redis_msg_id: Stream event msg_id.
         """
         # TODO: see if below ADR can be moved to openedx_events.
         # Audit logging on success.
@@ -98,6 +99,7 @@ class RedisEventProducer(EventBusProducer):
     """
 
     def __init__(self, client):
+        """Initialize the RedisEventProducer with a walrus client."""
         self.client = client
 
     def send(
@@ -115,7 +117,6 @@ class RedisEventProducer(EventBusProducer):
             event_data: The event data (kwargs) sent to the signal
             event_metadata: An EventsMetadata object with all the metadata necessary for the CloudEvent spec
         """
-
         # keep track of the initial arguments for recreating the event in the logs if necessary later
         context = ProducingContext(
             signal=signal,
