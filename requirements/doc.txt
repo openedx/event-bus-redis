@@ -22,7 +22,7 @@ babel==2.17.0
     #   sphinx
 backports-tarfile==1.2.0
     # via jaraco-context
-beautifulsoup4==4.13.3
+beautifulsoup4==4.13.4
     # via pydata-sphinx-theme
 build==1.2.2.post1
     # via -r requirements/doc.in
@@ -149,7 +149,7 @@ nh3==0.2.21
     # via readme-renderer
 openedx-events==10.0.0
     # via -r requirements/test.txt
-packaging==24.2
+packaging==25.0
     # via
     #   -r requirements/test.txt
     #   build
@@ -237,7 +237,7 @@ six==1.17.0
     #   edx-ccx-keys
 snowballstemmer==2.2.0
     # via sphinx
-soupsieve==2.6
+soupsieve==2.7
     # via beautifulsoup4
 sphinx==8.2.3
     # via
