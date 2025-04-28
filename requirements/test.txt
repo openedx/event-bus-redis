@@ -61,7 +61,7 @@ edx-django-utils==7.4.0
     #   -r requirements/base.txt
     #   edx-toggles
     #   openedx-events
-edx-opaque-keys[django]==2.12.0
+edx-opaque-keys[django]==3.0.0
     # via
     #   -r requirements/base.txt
     #   edx-ccx-keys
@@ -82,7 +82,7 @@ markupsafe==3.0.2
     # via
     #   -r requirements/base.txt
     #   jinja2
-newrelic==10.9.0
+newrelic==10.10.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils

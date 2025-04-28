@@ -105,11 +105,11 @@ edx-django-utils==7.4.0
     #   -r requirements/quality.txt
     #   edx-toggles
     #   openedx-events
-edx-i18n-tools==1.7.0
+edx-i18n-tools==1.8.0
     # via -r requirements/dev.in
 edx-lint==5.6.0
     # via -r requirements/quality.txt
-edx-opaque-keys[django]==2.12.0
+edx-opaque-keys[django]==3.0.0
     # via
     #   -r requirements/quality.txt
     #   edx-ccx-keys
@@ -138,7 +138,7 @@ jinja2==3.1.6
     #   -r requirements/quality.txt
     #   code-annotations
     #   diff-cover
-lxml[html-clean,html_clean]==5.3.2
+lxml[html-clean,html_clean]==5.4.0
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
@@ -152,7 +152,7 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-newrelic==10.9.0
+newrelic==10.10.0
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils

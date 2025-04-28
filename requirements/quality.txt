@@ -76,7 +76,7 @@ edx-django-utils==7.4.0
     #   openedx-events
 edx-lint==5.6.0
     # via -r requirements/quality.in
-edx-opaque-keys[django]==2.12.0
+edx-opaque-keys[django]==3.0.0
     # via
     #   -r requirements/test.txt
     #   edx-ccx-keys
@@ -105,7 +105,7 @@ markupsafe==3.0.2
     #   jinja2
 mccabe==0.7.0
     # via pylint
-newrelic==10.9.0
+newrelic==10.10.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
