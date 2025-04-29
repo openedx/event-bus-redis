@@ -21,6 +21,7 @@ class RedisMessage(NamedTuple):
     """
     Redis message wrapper with ability to parse to & from redis msg tuple.
     """
+
     topic: str
     event_data: bytes
     event_metadata: EventsMetadata
@@ -28,7 +29,7 @@ class RedisMessage(NamedTuple):
 
     def to_binary_dict(self) -> Dict[bytes, bytes]:
         """
-        Converts instance to dictionary with binary key value pairs.
+        Convert instance to dictionary with binary key value pairs.
         """
         data = get_headers_from_metadata(self.event_metadata)
         data[b"event_data"] = self.event_data
@@ -37,7 +38,7 @@ class RedisMessage(NamedTuple):
     @classmethod
     def parse(cls, msg: tuple, topic: str):
         """
-        Takes message from redis stream and parses it to return an instance of RedisMessage.
+        Take message from redis stream and parses it to return an instance of RedisMessage.
 
         Args:
             msg: Tuple with 1st item being msg_id and 2nd data from message.

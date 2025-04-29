@@ -20,6 +20,7 @@ class Command(BaseCommand):
     """
     Management command to produce a test event to the event bus.
     """
+
     help = """
     Produce a single test event with the given data to the specified Redis topic.
 
@@ -33,7 +34,7 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-
+        """Add command line arguments for producing an event."""
         parser.add_argument(
             '--signal', nargs=1, required=True,
             help="Module:variable path to an OpenEdxPublicSignal instance",
@@ -52,6 +53,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """Handle the command to produce an event."""
         try:
             signal = import_string(options['signal'][0])
             event_type = signal.event_type
