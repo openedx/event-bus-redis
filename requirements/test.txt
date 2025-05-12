@@ -16,7 +16,7 @@ cffi==1.17.1
     # via
     #   -r requirements/base.txt
     #   pynacl
-click==8.1.8
+click==8.2.0
     # via
     #   -r requirements/base.txt
     #   code-annotations
@@ -86,7 +86,7 @@ newrelic==10.11.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-openedx-events==10.1.0
+openedx-events==10.2.0
     # via -r requirements/base.txt
 packaging==25.0
     # via pytest
