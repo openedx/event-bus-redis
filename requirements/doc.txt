@@ -35,7 +35,7 @@ cffi==1.17.1
     #   pynacl
 charset-normalizer==3.4.2
     # via requests
-click==8.1.8
+click==8.2.0
     # via
     #   -r requirements/test.txt
     #   code-annotations
@@ -52,7 +52,7 @@ cryptography==44.0.3
     # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
-django==4.2.20
+django==4.2.21
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/test.txt
@@ -147,7 +147,7 @@ newrelic==10.11.0
     #   edx-django-utils
 nh3==0.2.21
     # via readme-renderer
-openedx-events==10.1.0
+openedx-events==10.2.0
     # via -r requirements/test.txt
 packaging==25.0
     # via
@@ -235,7 +235,7 @@ six==1.17.0
     # via
     #   -r requirements/test.txt
     #   edx-ccx-keys
-snowballstemmer==2.2.0
+snowballstemmer==3.0.1
     # via sphinx
 soupsieve==2.7
     # via beautifulsoup4
