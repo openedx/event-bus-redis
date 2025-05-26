@@ -35,7 +35,7 @@ cffi==1.17.1
     #   pynacl
 charset-normalizer==3.4.2
     # via requests
-click==8.2.0
+click==8.2.1
     # via
     #   -r requirements/test.txt
     #   code-annotations
@@ -44,11 +44,11 @@ code-annotations==2.3.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
-coverage[toml]==7.8.0
+coverage[toml]==7.8.2
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==45.0.2
+cryptography==45.0.3
     # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
@@ -84,7 +84,7 @@ edx-ccx-keys==2.0.2
     # via
     #   -r requirements/test.txt
     #   openedx-events
-edx-django-utils==7.4.0
+edx-django-utils==8.0.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
@@ -141,10 +141,6 @@ more-itertools==10.7.0
     # via
     #   jaraco-classes
     #   jaraco-functools
-newrelic==10.12.0
-    # via
-    #   -r requirements/test.txt
-    #   edx-django-utils
 nh3==0.2.21
     # via readme-renderer
 openedx-events==10.2.1
