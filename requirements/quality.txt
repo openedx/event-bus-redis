@@ -172,7 +172,7 @@ pyyaml==6.0.2
     # via
     #   -r requirements/test.txt
     #   code-annotations
-redis==6.1.0
+redis==6.2.0
     # via
     #   -r requirements/test.txt
     #   walrus

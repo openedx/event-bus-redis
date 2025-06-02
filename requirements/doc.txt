@@ -207,7 +207,7 @@ pyyaml==6.0.2
     #   code-annotations
 readme-renderer==44.0
     # via twine
-redis==6.1.0
+redis==6.2.0
     # via
     #   -r requirements/test.txt
     #   walrus
@@ -283,7 +283,7 @@ urllib3==2.2.3
     #   twine
 walrus==0.9.4
     # via -r requirements/test.txt
-zipp==3.21.0
+zipp==3.22.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
