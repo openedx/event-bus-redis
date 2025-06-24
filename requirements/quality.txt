@@ -126,7 +126,7 @@ psutil==7.0.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-pycodestyle==2.13.0
+pycodestyle==2.14.0
     # via -r requirements/quality.in
 pycparser==2.22
     # via
@@ -134,7 +134,7 @@ pycparser==2.22
     #   cffi
 pydocstyle==6.3.0
     # via -r requirements/quality.in
-pygments==2.19.1
+pygments==2.19.2
     # via
     #   -r requirements/test.txt
     #   pytest
@@ -148,11 +148,11 @@ pylint-celery==0.3
     # via edx-lint
 pylint-django==2.6.1
     # via edx-lint
-pylint-plugin-utils==0.8.2
+pylint-plugin-utils==0.9.0
     # via
     #   pylint-celery
     #   pylint-django
-pymongo==4.13.1
+pymongo==4.13.2
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
@@ -160,7 +160,7 @@ pynacl==1.5.0
     # via
     #   -r requirements/test.txt
     #   edx-django-utils
-pytest==8.4.0
+pytest==8.4.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
