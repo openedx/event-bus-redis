@@ -138,7 +138,7 @@ jinja2==3.1.6
     #   -r requirements/quality.txt
     #   code-annotations
     #   diff-cover
-lxml[html-clean,html_clean]==5.4.0
+lxml[html-clean,html_clean]==6.0.0
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
