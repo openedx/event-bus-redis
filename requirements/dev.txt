@@ -4,7 +4,7 @@
 #
 #    make upgrade
 #
-asgiref==3.8.1
+asgiref==3.9.0
     # via
     #   -r requirements/quality.txt
     #   django
@@ -56,7 +56,7 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.9.1
+coverage[toml]==7.9.2
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
@@ -152,7 +152,7 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-openedx-events==10.2.1
+openedx-events==10.3.0
     # via -r requirements/quality.txt
 packaging==25.0
     # via
@@ -293,7 +293,7 @@ tomlkit==0.13.3
     #   pylint
 tox==4.27.0
     # via -r requirements/ci.txt
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
@@ -301,7 +301,7 @@ virtualenv==20.31.2
     # via
     #   -r requirements/ci.txt
     #   tox
-walrus==0.9.4
+walrus==0.9.5
     # via -r requirements/quality.txt
 wheel==0.45.1
     # via
