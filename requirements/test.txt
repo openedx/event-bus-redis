@@ -4,7 +4,7 @@
 #
 #    make upgrade
 #
-asgiref==3.8.1
+asgiref==3.9.0
     # via
     #   -r requirements/base.txt
     #   django
@@ -26,7 +26,7 @@ code-annotations==2.3.0
     #   -r requirements/base.txt
     #   -r requirements/test.in
     #   edx-toggles
-coverage[toml]==7.9.1
+coverage[toml]==7.9.2
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -82,7 +82,7 @@ markupsafe==3.0.2
     # via
     #   -r requirements/base.txt
     #   jinja2
-openedx-events==10.2.1
+openedx-events==10.3.0
     # via -r requirements/base.txt
 packaging==25.0
     # via pytest
@@ -150,11 +150,11 @@ text-unidecode==1.3
     # via
     #   -r requirements/base.txt
     #   python-slugify
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
-walrus==0.9.4
+walrus==0.9.5
     # via -r requirements/base.txt
 
 # The following packages are considered to be unsafe in a requirements file:
