@@ -44,7 +44,7 @@ code-annotations==2.3.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
-coverage[toml]==7.9.2
+coverage[toml]==7.10.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -143,7 +143,7 @@ more-itertools==10.7.0
     #   jaraco-functools
 nh3==0.3.0
     # via readme-renderer
-openedx-events==10.3.0
+openedx-events==10.4.0
     # via -r requirements/test.txt
 packaging==25.0
     # via
@@ -224,7 +224,7 @@ requests-toolbelt==1.0.0
     # via twine
 rfc3986==2.0.0
     # via twine
-rich==14.0.0
+rich==14.1.0
     # via twine
 roman-numerals-py==3.1.0
     # via sphinx
