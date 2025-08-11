@@ -33,7 +33,7 @@ cffi==1.17.1
     #   -r requirements/test.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via requests
 click==8.2.1
     # via
@@ -44,11 +44,11 @@ code-annotations==2.3.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
-coverage[toml]==7.10.2
+coverage[toml]==7.10.3
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==45.0.5
+cryptography==45.0.6
     # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
@@ -181,7 +181,7 @@ pygments==2.19.2
     #   readme-renderer
     #   rich
     #   sphinx
-pymongo==4.13.2
+pymongo==4.14.0
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
@@ -210,7 +210,7 @@ pyyaml==6.0.2
     #   code-annotations
 readme-renderer==44.0
     # via twine
-redis==6.2.0
+redis==6.4.0
     # via
     #   -r requirements/test.txt
     #   walrus
