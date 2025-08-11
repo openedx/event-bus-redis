@@ -56,7 +56,7 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.10.2
+coverage[toml]==7.10.3
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
@@ -205,7 +205,7 @@ pygments==2.19.2
     #   -r requirements/quality.txt
     #   diff-cover
     #   pytest
-pylint==3.3.7
+pylint==3.3.8
     # via
     #   -r requirements/quality.txt
     #   edx-lint
@@ -225,7 +225,7 @@ pylint-plugin-utils==0.9.0
     #   -r requirements/quality.txt
     #   pylint-celery
     #   pylint-django
-pymongo==4.13.2
+pymongo==4.14.0
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
@@ -260,7 +260,7 @@ pyyaml==6.0.2
     #   -r requirements/quality.txt
     #   code-annotations
     #   edx-i18n-tools
-redis==6.2.0
+redis==6.4.0
     # via
     #   -r requirements/quality.txt
     #   walrus
@@ -297,7 +297,7 @@ typing-extensions==4.14.1
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
-virtualenv==20.33.0
+virtualenv==20.33.1
     # via
     #   -r requirements/ci.txt
     #   tox
