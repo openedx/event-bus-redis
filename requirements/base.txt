@@ -56,7 +56,7 @@ markupsafe==3.0.2
     # via jinja2
 openedx-events==10.4.0
     # via -r requirements/base.in
-pbr==6.1.1
+pbr==7.0.0
     # via stevedore
 psutil==7.0.0
     # via edx-django-utils
