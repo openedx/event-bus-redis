@@ -26,7 +26,7 @@ code-annotations==2.3.0
     #   -r requirements/base.txt
     #   -r requirements/test.in
     #   edx-toggles
-coverage[toml]==7.10.4
+coverage[toml]==7.10.5
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -82,11 +82,11 @@ markupsafe==3.0.2
     # via
     #   -r requirements/base.txt
     #   jinja2
-openedx-events==10.4.0
+openedx-events==10.5.0
     # via -r requirements/base.txt
 packaging==25.0
     # via pytest
-pbr==7.0.0
+pbr==7.0.1
     # via
     #   -r requirements/base.txt
     #   stevedore
@@ -104,7 +104,7 @@ pycparser==2.22
     #   cffi
 pygments==2.19.2
     # via pytest
-pymongo==4.14.0
+pymongo==4.14.1
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
