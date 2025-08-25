@@ -54,15 +54,15 @@ jinja2==3.1.6
     # via code-annotations
 markupsafe==3.0.2
     # via jinja2
-openedx-events==10.4.0
+openedx-events==10.5.0
     # via -r requirements/base.in
-pbr==7.0.0
+pbr==7.0.1
     # via stevedore
 psutil==7.0.0
     # via edx-django-utils
 pycparser==2.22
     # via cffi
-pymongo==4.14.0
+pymongo==4.14.1
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
