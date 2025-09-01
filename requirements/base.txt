@@ -56,8 +56,6 @@ markupsafe==3.0.2
     # via jinja2
 openedx-events==10.5.0
     # via -r requirements/base.in
-pbr==7.0.1
-    # via stevedore
 psutil==7.0.0
     # via edx-django-utils
 pycparser==2.22
@@ -76,14 +74,14 @@ six==1.17.0
     # via edx-ccx-keys
 sqlparse==0.5.3
     # via django
-stevedore==5.4.1
+stevedore==5.5.0
     # via
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
 text-unidecode==1.3
     # via python-slugify
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via edx-opaque-keys
 walrus==0.9.5
     # via -r requirements/base.in
