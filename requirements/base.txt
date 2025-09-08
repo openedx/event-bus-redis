@@ -16,7 +16,7 @@ click==8.2.1
     #   edx-django-utils
 code-annotations==2.3.0
     # via edx-toggles
-django==4.2.23
+django==4.2.24
     # via
     #   -c https:/raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.in
@@ -33,7 +33,7 @@ django-waffle==5.0.0
     # via
     #   edx-django-utils
     #   edx-toggles
-dnspython==2.7.0
+dnspython==2.8.0
     # via pymongo
 edx-ccx-keys==2.0.2
     # via openedx-events
