@@ -13,7 +13,7 @@ astroid==3.3.11
     #   -r requirements/quality.txt
     #   pylint
     #   pylint-celery
-attrs==25.3.0
+attrs==25.4.0
     # via
     #   -r requirements/quality.txt
     #   openedx-events
@@ -21,7 +21,7 @@ build==1.3.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
-cachetools==6.2.0
+cachetools==6.2.1
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -116,11 +116,11 @@ edx-opaque-keys[django]==3.0.0
     #   openedx-events
 edx-toggles==5.4.1
     # via -r requirements/quality.txt
-fastavro==1.12.0
+fastavro==1.12.1
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-filelock==3.19.1
+filelock==3.20.0
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -167,7 +167,7 @@ path==16.16.0
     # via edx-i18n-tools
 pip-tools==7.5.1
     # via -r requirements/pip-tools.txt
-platformdirs==4.4.0
+platformdirs==4.5.0
     # via
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
@@ -221,7 +221,7 @@ pylint-plugin-utils==0.9.0
     #   -r requirements/quality.txt
     #   pylint-celery
     #   pylint-django
-pymongo==4.15.2
+pymongo==4.15.3
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
@@ -229,7 +229,7 @@ pynacl==1.6.0
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
-pyproject-api==1.9.1
+pyproject-api==1.10.0
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -287,13 +287,13 @@ tomlkit==0.13.3
     # via
     #   -r requirements/quality.txt
     #   pylint
-tox==4.30.3
+tox==4.31.0
     # via -r requirements/ci.txt
 typing-extensions==4.15.0
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
-virtualenv==20.34.0
+virtualenv==20.35.3
     # via
     #   -r requirements/ci.txt
     #   tox

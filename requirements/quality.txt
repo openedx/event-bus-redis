@@ -12,7 +12,7 @@ astroid==3.3.11
     # via
     #   pylint
     #   pylint-celery
-attrs==25.3.0
+attrs==25.4.0
     # via
     #   -r requirements/test.txt
     #   openedx-events
@@ -83,7 +83,7 @@ edx-opaque-keys[django]==3.0.0
     #   openedx-events
 edx-toggles==5.4.1
     # via -r requirements/test.txt
-fastavro==1.12.0
+fastavro==1.12.1
     # via
     #   -r requirements/test.txt
     #   openedx-events
@@ -111,7 +111,7 @@ packaging==25.0
     # via
     #   -r requirements/test.txt
     #   pytest
-platformdirs==4.4.0
+platformdirs==4.5.0
     # via pylint
 pluggy==1.6.0
     # via
@@ -148,7 +148,7 @@ pylint-plugin-utils==0.9.0
     # via
     #   pylint-celery
     #   pylint-django
-pymongo==4.15.2
+pymongo==4.15.3
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys
