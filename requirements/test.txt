@@ -26,7 +26,7 @@ code-annotations==2.3.0
     #   -r requirements/base.txt
     #   -r requirements/test.in
     #   edx-toggles
-coverage[toml]==7.11.1
+coverage[toml]==7.11.3
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -108,7 +108,7 @@ pynacl==1.6.0
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-pytest==8.4.2
+pytest==9.0.0
     # via
     #   pytest-cov
     #   pytest-django
