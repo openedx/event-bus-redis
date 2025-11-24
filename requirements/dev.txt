@@ -4,7 +4,7 @@
 #
 #    make upgrade
 #
-asgiref==3.10.0
+asgiref==3.11.0
     # via
     #   -r requirements/quality.txt
     #   django
@@ -56,7 +56,7 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.11.3
+coverage[toml]==7.12.0
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
@@ -256,7 +256,7 @@ pyyaml==6.0.3
     #   -r requirements/quality.txt
     #   code-annotations
     #   edx-i18n-tools
-redis==7.0.1
+redis==7.1.0
     # via
     #   -r requirements/quality.txt
     #   walrus
@@ -273,7 +273,7 @@ sqlparse==0.5.3
     # via
     #   -r requirements/quality.txt
     #   django
-stevedore==5.5.0
+stevedore==5.6.0
     # via
     #   -r requirements/quality.txt
     #   code-annotations
