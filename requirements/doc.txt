@@ -8,7 +8,7 @@ accessible-pygments==0.0.5
     # via pydata-sphinx-theme
 alabaster==1.0.0
     # via sphinx
-asgiref==3.10.0
+asgiref==3.11.0
     # via
     #   -r requirements/test.txt
     #   django
@@ -44,7 +44,7 @@ code-annotations==2.3.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
-coverage[toml]==7.11.3
+coverage[toml]==7.12.0
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -206,7 +206,7 @@ pyyaml==6.0.3
     #   code-annotations
 readme-renderer==44.0
     # via twine
-redis==7.0.1
+redis==7.1.0
     # via
     #   -r requirements/test.txt
     #   walrus
@@ -224,7 +224,7 @@ rich==14.2.0
     # via twine
 roman-numerals-py==3.1.0
     # via sphinx
-secretstorage==3.4.1
+secretstorage==3.5.0
     # via keyring
 six==1.17.0
     # via
@@ -257,7 +257,7 @@ sqlparse==0.5.3
     # via
     #   -r requirements/test.txt
     #   django
-stevedore==5.5.0
+stevedore==5.6.0
     # via
     #   -r requirements/test.txt
     #   code-annotations
