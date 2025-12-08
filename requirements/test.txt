@@ -100,7 +100,7 @@ pycparser==2.23
     #   cffi
 pygments==2.19.2
     # via pytest
-pymongo==4.15.4
+pymongo==4.15.5
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
@@ -108,7 +108,7 @@ pynacl==1.6.1
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
-pytest==9.0.1
+pytest==9.0.2
     # via
     #   pytest-cov
     #   pytest-django
