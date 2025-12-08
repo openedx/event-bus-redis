@@ -72,7 +72,7 @@ distlib==0.4.0
     # via
     #   -r requirements/ci.txt
     #   virtualenv
-django==5.2.8
+django==5.2.9
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/quality.txt
@@ -167,7 +167,7 @@ path==16.16.0
     # via edx-i18n-tools
 pip-tools==7.5.2
     # via -r requirements/pip-tools.txt
-platformdirs==4.5.0
+platformdirs==4.5.1
     # via
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
@@ -221,7 +221,7 @@ pylint-plugin-utils==0.9.0
     #   -r requirements/quality.txt
     #   pylint-celery
     #   pylint-django
-pymongo==4.15.4
+pymongo==4.15.5
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
@@ -238,7 +238,7 @@ pyproject-hooks==1.2.0
     #   -r requirements/pip-tools.txt
     #   build
     #   pip-tools
-pytest==9.0.1
+pytest==9.0.2
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
