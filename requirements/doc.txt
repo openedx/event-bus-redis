@@ -75,7 +75,7 @@ dnspython==2.8.0
     # via
     #   -r requirements/test.txt
     #   pymongo
-docutils==0.22.3
+docutils==0.22.4
     # via
     #   pydata-sphinx-theme
     #   readme-renderer
@@ -106,7 +106,7 @@ idna==3.11
     # via requests
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==8.7.0
+importlib-metadata==8.7.1
     # via keyring
 iniconfig==2.3.0
     # via
@@ -116,7 +116,7 @@ jaraco-classes==3.4.0
     # via keyring
 jaraco-context==6.0.1
     # via keyring
-jaraco-functools==4.3.0
+jaraco-functools==4.4.0
     # via keyring
 jeepney==0.9.0
     # via
@@ -222,7 +222,7 @@ rfc3986==2.0.0
     # via twine
 rich==14.2.0
     # via twine
-roman-numerals==3.1.0
+roman-numerals==4.1.0
     # via sphinx
 secretstorage==3.5.0
     # via keyring
@@ -232,7 +232,7 @@ six==1.17.0
     #   edx-ccx-keys
 snowballstemmer==3.0.1
     # via sphinx
-soupsieve==2.8
+soupsieve==2.8.1
     # via beautifulsoup4
 sphinx==9.0.4
     # via
@@ -253,7 +253,7 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
-sqlparse==0.5.4
+sqlparse==0.5.5
     # via
     #   -r requirements/test.txt
     #   django
