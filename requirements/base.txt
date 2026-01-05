@@ -56,13 +56,13 @@ markupsafe==3.0.3
     # via jinja2
 openedx-events==10.5.0
     # via -r requirements/base.in
-psutil==7.2.0
+psutil==7.2.1
     # via edx-django-utils
 pycparser==2.23
     # via cffi
 pymongo==4.15.5
     # via edx-opaque-keys
-pynacl==1.6.1
+pynacl==1.6.2
     # via edx-django-utils
 python-slugify==8.0.4
     # via code-annotations
