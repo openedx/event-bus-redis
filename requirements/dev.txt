@@ -8,7 +8,7 @@ asgiref==3.11.0
     # via
     #   -r requirements/quality.txt
     #   django
-astroid==3.3.11
+astroid==4.0.3
     # via
     #   -r requirements/quality.txt
     #   pylint
@@ -62,7 +62,7 @@ coverage[toml]==7.13.1
     #   pytest-cov
 ddt==1.7.2
     # via -r requirements/quality.txt
-diff-cover==10.0.0
+diff-cover==10.1.0
     # via -r requirements/dev.in
 dill==0.4.0
     # via
@@ -120,7 +120,7 @@ fastavro==1.12.1
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-filelock==3.20.1
+filelock==3.20.2
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -129,7 +129,7 @@ iniconfig==2.3.0
     # via
     #   -r requirements/quality.txt
     #   pytest
-isort==6.1.0
+isort==7.0.0
     # via
     #   -r requirements/quality.txt
     #   pylint
@@ -184,7 +184,7 @@ pluggy==1.6.0
     #   tox
 polib==1.2.0
     # via edx-i18n-tools
-psutil==7.2.0
+psutil==7.2.1
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
@@ -201,7 +201,7 @@ pygments==2.19.2
     #   -r requirements/quality.txt
     #   diff-cover
     #   pytest
-pylint==3.3.9
+pylint==4.0.4
     # via
     #   -r requirements/quality.txt
     #   edx-lint
@@ -212,7 +212,7 @@ pylint-celery==0.3
     # via
     #   -r requirements/quality.txt
     #   edx-lint
-pylint-django==2.6.1
+pylint-django==2.7.0
     # via
     #   -r requirements/quality.txt
     #   edx-lint
@@ -225,7 +225,7 @@ pymongo==4.15.5
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
-pynacl==1.6.1
+pynacl==1.6.2
     # via
     #   -r requirements/quality.txt
     #   edx-django-utils
@@ -287,7 +287,7 @@ tomlkit==0.13.3
     # via
     #   -r requirements/quality.txt
     #   pylint
-tox==4.32.0
+tox==4.33.0
     # via -r requirements/ci.txt
 typing-extensions==4.15.0
     # via

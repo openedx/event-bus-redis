@@ -90,7 +90,7 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-psutil==7.2.0
+psutil==7.2.1
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
@@ -104,7 +104,7 @@ pymongo==4.15.5
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
-pynacl==1.6.1
+pynacl==1.6.2
     # via
     #   -r requirements/base.txt
     #   edx-django-utils
