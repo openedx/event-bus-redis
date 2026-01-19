@@ -64,7 +64,7 @@ ddt==1.7.2
     # via -r requirements/quality.txt
 diff-cover==10.2.0
     # via -r requirements/dev.in
-dill==0.4.0
+dill==0.4.1
     # via
     #   -r requirements/quality.txt
     #   pylint
@@ -283,7 +283,7 @@ text-unidecode==1.3
     # via
     #   -r requirements/quality.txt
     #   python-slugify
-tomlkit==0.13.3
+tomlkit==0.14.0
     # via
     #   -r requirements/quality.txt
     #   pylint
@@ -297,7 +297,7 @@ virtualenv==20.36.1
     # via
     #   -r requirements/ci.txt
     #   tox
-walrus==0.9.7
+walrus==0.9.8
     # via -r requirements/quality.txt
 wheel==0.45.1
     # via
