@@ -58,7 +58,7 @@ openedx-events==10.5.0
     # via -r requirements/base.in
 psutil==7.2.1
     # via edx-django-utils
-pycparser==2.23
+pycparser==3.0
     # via cffi
 pymongo==4.16.0
     # via edx-opaque-keys
