@@ -128,8 +128,6 @@ pycparser==3.0
     # via
     #   -r requirements/test.txt
     #   cffi
-pydocstyle==6.3.0
-    # via -r requirements/quality.in
 pygments==2.19.2
     # via
     #   -r requirements/test.txt
@@ -177,15 +175,13 @@ redis==7.1.0
     # via
     #   -r requirements/test.txt
     #   walrus
-ruff==0.11.6
+ruff==0.14.14
     # via -r requirements/quality.in
 six==1.17.0
     # via
     #   -r requirements/test.txt
     #   edx-ccx-keys
     #   edx-lint
-snowballstemmer==3.0.1
-    # via pydocstyle
 sqlparse==0.5.5
     # via
     #   -r requirements/test.txt

@@ -195,8 +195,6 @@ pycparser==3.0
     # via
     #   -r requirements/quality.txt
     #   cffi
-pydocstyle==6.3.0
-    # via -r requirements/quality.txt
 pygments==2.19.2
     # via
     #   -r requirements/quality.txt
@@ -261,22 +259,14 @@ redis==7.1.0
     # via
     #   -r requirements/quality.txt
     #   walrus
-ruff==0.11.6
+ruff==0.14.14
     # via -r requirements/quality.txt
 six==1.17.0
     # via
     #   -r requirements/quality.txt
     #   edx-ccx-keys
     #   edx-lint
-<<<<<<< HEAD
-snowballstemmer==3.0.1
-    # via
-    #   -r requirements/quality.txt
-    #   pydocstyle
 sqlparse==0.5.5
-=======
-sqlparse==0.5.3
->>>>>>> 6e0673d (chore: remove pydocstyle references)
     # via
     #   -r requirements/quality.txt
     #   django
