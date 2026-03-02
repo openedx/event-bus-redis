@@ -26,7 +26,7 @@ beautifulsoup4==4.14.3
     # via pydata-sphinx-theme
 build==1.4.0
     # via -r requirements/doc.in
-certifi==2026.1.4
+certifi==2026.2.25
     # via requests
 cffi==2.0.0
     # via
@@ -89,7 +89,7 @@ edx-django-utils==8.0.1
     #   -r requirements/test.txt
     #   edx-toggles
     #   openedx-events
-edx-opaque-keys[django]==3.0.0
+edx-opaque-keys[django]==3.1.0
     # via
     #   -r requirements/test.txt
     #   edx-ccx-keys
@@ -206,7 +206,7 @@ pyyaml==6.0.3
     #   code-annotations
 readme-renderer==44.0
     # via twine
-redis==7.2.0
+redis==7.2.1
     # via
     #   -r requirements/test.txt
     #   walrus
