@@ -61,7 +61,7 @@ edx-django-utils==8.0.1
     #   -r requirements/base.txt
     #   edx-toggles
     #   openedx-events
-edx-opaque-keys[django]==3.0.0
+edx-opaque-keys[django]==3.1.0
     # via
     #   -r requirements/base.txt
     #   edx-ccx-keys
@@ -124,7 +124,7 @@ pyyaml==6.0.3
     # via
     #   -r requirements/base.txt
     #   code-annotations
-redis==7.2.0
+redis==7.2.1
     # via
     #   -r requirements/base.txt
     #   walrus

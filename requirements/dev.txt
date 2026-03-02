@@ -30,10 +30,7 @@ cffi==2.0.0
     #   -r requirements/quality.txt
     #   pynacl
 chardet==6.0.0.post1
-    # via
-    #   -r requirements/ci.txt
-    #   diff-cover
-    #   tox
+    # via diff-cover
 click==8.3.1
     # via
     #   -r requirements/pip-tools.txt
@@ -109,7 +106,7 @@ edx-i18n-tools==1.9.0
     # via -r requirements/dev.in
 edx-lint==5.6.0
     # via -r requirements/quality.txt
-edx-opaque-keys[django]==3.0.0
+edx-opaque-keys[django]==3.1.0
     # via
     #   -r requirements/quality.txt
     #   edx-ccx-keys
@@ -120,16 +117,17 @@ fastavro==1.12.1
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-filelock==3.24.3
+filelock==3.25.0
     # via
     #   -r requirements/ci.txt
+    #   python-discovery
     #   tox
     #   virtualenv
 iniconfig==2.3.0
     # via
     #   -r requirements/quality.txt
     #   pytest
-isort==8.0.0
+isort==8.0.1
     # via
     #   -r requirements/quality.txt
     #   pylint
@@ -142,7 +140,7 @@ lxml[html-clean]==6.0.2
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
-lxml-html-clean==0.4.3
+lxml-html-clean==0.4.4
     # via lxml
 markupsafe==3.0.3
     # via
@@ -173,6 +171,7 @@ platformdirs==4.9.2
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   pylint
+    #   python-discovery
     #   tox
     #   virtualenv
 pluggy==1.6.0
@@ -248,6 +247,10 @@ pytest-cov==7.0.0
     # via -r requirements/quality.txt
 pytest-django==4.12.0
     # via -r requirements/quality.txt
+python-discovery==1.1.0
+    # via
+    #   -r requirements/ci.txt
+    #   virtualenv
 python-slugify==8.0.4
     # via
     #   -r requirements/quality.txt
@@ -257,7 +260,7 @@ pyyaml==6.0.3
     #   -r requirements/quality.txt
     #   code-annotations
     #   edx-i18n-tools
-redis==7.2.0
+redis==7.2.1
     # via
     #   -r requirements/quality.txt
     #   walrus
@@ -288,13 +291,13 @@ tomlkit==0.14.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-tox==4.44.0
+tox==4.47.0
     # via -r requirements/ci.txt
 typing-extensions==4.15.0
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
-virtualenv==20.39.0
+virtualenv==21.1.0
     # via
     #   -r requirements/ci.txt
     #   tox
