@@ -9,7 +9,10 @@ on:
          description: 'Target branch to create requirements PR against'
          required: true
          default: 'main'
-         python_version: '3.12'
+       python_version:
+         description: 'The target Python Version'
+         required: false
+         default: '3.12'
 jobs:
   call-upgrade-python-requirements-workflow:
     uses: openedx/.github/.github/workflows/upgrade-python-requirements.yml@master
@@ -21,6 +24,7 @@ jobs:
       team_reviewers: 'axim-aximprovements'
       email_address: 'aximimprovements@axim.org'
       # send_success_notification: false
+      python_version: ${{ github.event.inputs.python_version || '3.12' }}
     secrets:
       requirements_bot_github_token: ${{ secrets.REQUIREMENTS_BOT_GITHUB_TOKEN }}
       requirements_bot_github_email: ${{ secrets.REQUIREMENTS_BOT_GITHUB_EMAIL }}
