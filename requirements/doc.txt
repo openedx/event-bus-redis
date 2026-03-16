@@ -31,14 +31,14 @@ cffi==2.0.0
     #   -r requirements/test.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.5
+charset-normalizer==3.4.6
     # via requests
 click==8.3.1
     # via
     #   -r requirements/test.txt
     #   code-annotations
     #   edx-django-utils
-code-annotations==2.3.2
+code-annotations==3.0.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
