@@ -8,7 +8,7 @@ asgiref==3.11.1
     # via
     #   -r requirements/base.txt
     #   django
-attrs==25.4.0
+attrs==26.1.0
     # via
     #   -r requirements/base.txt
     #   openedx-events
@@ -26,7 +26,7 @@ code-annotations==3.0.0
     #   -r requirements/base.txt
     #   -r requirements/test.in
     #   edx-toggles
-coverage[toml]==7.13.4
+coverage[toml]==7.13.5
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -112,7 +112,7 @@ pytest==9.0.2
     # via
     #   pytest-cov
     #   pytest-django
-pytest-cov==7.0.0
+pytest-cov==7.1.0
     # via -r requirements/test.in
 pytest-django==4.12.0
     # via -r requirements/test.in
