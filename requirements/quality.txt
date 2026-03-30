@@ -105,7 +105,7 @@ markupsafe==3.0.3
     #   jinja2
 mccabe==0.7.0
     # via pylint
-openedx-events==10.5.0
+openedx-events==11.1.0
     # via -r requirements/test.txt
 packaging==26.0
     # via
@@ -130,7 +130,7 @@ pycparser==3.0
     #   cffi
 pydocstyle==6.3.0
     # via -r requirements/quality.in
-pygments==2.19.2
+pygments==2.20.0
     # via
     #   -r requirements/test.txt
     #   pytest
@@ -173,7 +173,7 @@ pyyaml==6.0.3
     # via
     #   -r requirements/test.txt
     #   code-annotations
-redis==7.3.0
+redis==7.4.0
     # via
     #   -r requirements/test.txt
     #   walrus
