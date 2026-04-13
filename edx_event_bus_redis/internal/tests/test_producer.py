@@ -7,18 +7,40 @@ from datetime import datetime, timezone
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
+import attr
 import ddt
 import openedx_events.event_bus
 import openedx_events.learning.signals
 from django.core.management import call_command
 from django.test import override_settings
 from openedx_events.data import EventsMetadata
-from openedx_events.event_bus.avro.tests.test_utilities import SubTestData0, create_simple_signal
 from openedx_events.learning.data import UserData, UserPersonalData
+from openedx_events.tooling import OpenEdxPublicSignal
 
 import edx_event_bus_redis.internal.producer as ep
 from edx_event_bus_redis.internal.utils import encode
 from edx_event_bus_redis.management.commands.produce_event import Command
+
+
+def create_simple_signal(data_dict, event_type="simple.signal"):
+    """
+    Create a basic OpenEdxPublicSignal with init_data = data_dict.
+
+    Arguments:
+        data_dict: Description of attributes passed to the signal
+        event_type: A custom event type string. Defaults to 'simple.signal'
+    """
+    return OpenEdxPublicSignal(  # pylint: disable=missing-or-incorrect-annotation
+        event_type=event_type,
+        data=data_dict
+    )
+
+
+@attr.s(auto_attribs=True)
+class SubTestData0:
+    """Subclass for testing nested attrs"""
+    sub_name: str
+    course_id: str
 
 
 @ddt.ddt
