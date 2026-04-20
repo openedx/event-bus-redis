@@ -107,7 +107,7 @@ mccabe==0.7.0
     # via pylint
 openedx-events==11.1.1
     # via -r requirements/test.txt
-packaging==26.0
+packaging==26.1
     # via
     #   -r requirements/test.txt
     #   pytest

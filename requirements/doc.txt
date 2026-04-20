@@ -141,7 +141,7 @@ nh3==0.3.4
     # via readme-renderer
 openedx-events==11.1.1
     # via -r requirements/test.txt
-packaging==26.0
+packaging==26.1
     # via
     #   -r requirements/test.txt
     #   build
