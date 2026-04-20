@@ -29,7 +29,7 @@ cffi==2.0.0
     # via
     #   -r requirements/quality.txt
     #   pynacl
-chardet==7.4.2
+chardet==7.4.3
     # via diff-cover
 click==8.3.2
     # via
@@ -117,7 +117,7 @@ fastavro==1.12.1
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-filelock==3.25.2
+filelock==3.29.0
     # via
     #   -r requirements/ci.txt
     #   python-discovery
@@ -136,7 +136,7 @@ jinja2==3.1.6
     #   -r requirements/quality.txt
     #   code-annotations
     #   diff-cover
-lxml[html-clean]==6.0.4
+lxml[html-clean]==6.1.0
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
@@ -152,7 +152,7 @@ mccabe==0.7.0
     #   pylint
 openedx-events==11.1.1
     # via -r requirements/quality.txt
-packaging==26.0
+packaging==26.1
     # via
     #   -r requirements/ci.txt
     #   -r requirements/pip-tools.txt
@@ -296,13 +296,13 @@ tomlkit==0.14.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-tox==4.52.1
+tox==4.53.0
     # via -r requirements/ci.txt
 typing-extensions==4.15.0
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
-virtualenv==21.2.1
+virtualenv==21.2.4
     # via
     #   -r requirements/ci.txt
     #   tox
