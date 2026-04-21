@@ -100,7 +100,7 @@ fastavro==1.12.1
     #   openedx-events
 id==1.6.1
     # via twine
-idna==3.11
+idna==3.12
     # via requests
 imagesize==2.0.0
     # via sphinx
@@ -139,7 +139,7 @@ more-itertools==11.0.2
     #   jaraco-functools
 nh3==0.3.4
     # via readme-renderer
-openedx-events==11.1.1
+openedx-events @ git+https://github.com/openedx/openedx-events.git@bmtcril/type_hints
     # via -r requirements/test.txt
 packaging==26.1
     # via
@@ -172,7 +172,7 @@ pygments==2.20.0
     #   readme-renderer
     #   rich
     #   sphinx
-pymongo==4.16.0
+pymongo==4.17.0
     # via
     #   -r requirements/test.txt
     #   edx-opaque-keys

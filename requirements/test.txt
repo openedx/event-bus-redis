@@ -82,7 +82,7 @@ markupsafe==3.0.3
     # via
     #   -r requirements/base.txt
     #   jinja2
-openedx-events==11.1.1
+openedx-events @ git+https://github.com/openedx/openedx-events.git@bmtcril/type_hints
     # via -r requirements/base.txt
 packaging==26.1
     # via pytest
@@ -100,7 +100,7 @@ pycparser==3.0
     #   cffi
 pygments==2.20.0
     # via pytest
-pymongo==4.16.0
+pymongo==4.17.0
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
