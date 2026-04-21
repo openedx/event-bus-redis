@@ -2,8 +2,7 @@
 -c constraints.txt
 
 Django             # Web application framework
-# openedx-events 9.5.0 adds utitily to reset app state
-openedx-events>=9.5.0 # Events API
+git+https://github.com/openedx/openedx-events.git@bmtcril/type_hints               # Events API
 edx_django_utils
 edx_toggles
 
