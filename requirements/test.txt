@@ -16,7 +16,7 @@ cffi==2.0.0
     # via
     #   -r requirements/base.txt
     #   pynacl
-click==8.3.2
+click==8.3.3
     # via
     #   -r requirements/base.txt
     #   code-annotations
@@ -68,7 +68,7 @@ edx-opaque-keys[django]==4.0.0
     #   openedx-events
 edx-toggles==6.0.0
     # via -r requirements/base.txt
-fastavro==1.12.1
+fastavro==1.12.2
     # via
     #   -r requirements/base.txt
     #   openedx-events
@@ -82,9 +82,9 @@ markupsafe==3.0.3
     # via
     #   -r requirements/base.txt
     #   jinja2
-openedx-events==11.1.1
+openedx-events==11.2.0
     # via -r requirements/base.txt
-packaging==26.1
+packaging==26.2
     # via pytest
 pluggy==1.6.0
     # via
@@ -100,7 +100,7 @@ pycparser==3.0
     #   cffi
 pygments==2.20.0
     # via pytest
-pymongo==4.16.0
+pymongo==4.17.0
     # via
     #   -r requirements/base.txt
     #   edx-opaque-keys
