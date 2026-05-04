@@ -22,7 +22,7 @@ babel==2.18.0
     #   sphinx
 beautifulsoup4==4.14.3
     # via pydata-sphinx-theme
-build==1.4.4
+build==1.5.0
     # via -r requirements/doc.in
 certifi==2026.4.22
     # via requests
