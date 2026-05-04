@@ -74,7 +74,7 @@ edx-django-utils==8.0.1
     #   -r requirements/test.txt
     #   edx-toggles
     #   openedx-events
-edx-lint==6.0.0
+edx-lint==6.1.0
     # via -r requirements/quality.in
 edx-opaque-keys[django]==4.0.0
     # via
@@ -199,7 +199,9 @@ text-unidecode==1.3
     #   -r requirements/test.txt
     #   python-slugify
 tomlkit==0.14.0
-    # via pylint
+    # via
+    #   edx-lint
+    #   pylint
 typing-extensions==4.15.0
     # via
     #   -r requirements/test.txt
