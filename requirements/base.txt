@@ -10,7 +10,7 @@ attrs==26.1.0
     # via openedx-events
 cffi==2.0.0
     # via pynacl
-click==8.3.3
+click==8.4.0
     # via
     #   code-annotations
     #   edx-django-utils
