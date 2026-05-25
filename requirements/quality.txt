@@ -20,7 +20,7 @@ cffi==2.0.0
     # via
     #   -r requirements/test.txt
     #   pynacl
-click==8.4.0
+click==8.4.1
     # via
     #   -r requirements/test.txt
     #   click-log
@@ -182,13 +182,13 @@ six==1.17.0
     #   -r requirements/test.txt
     #   edx-ccx-keys
     #   edx-lint
-snowballstemmer==3.0.1
+snowballstemmer==3.1.0
     # via pydocstyle
 sqlparse==0.5.5
     # via
     #   -r requirements/test.txt
     #   django
-stevedore==5.7.0
+stevedore==5.8.0
     # via
     #   -r requirements/test.txt
     #   code-annotations

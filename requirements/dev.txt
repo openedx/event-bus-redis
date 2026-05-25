@@ -21,7 +21,7 @@ build==1.5.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
-cachetools==7.1.2
+cachetools==7.1.4
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -31,7 +31,7 @@ cffi==2.0.0
     #   pynacl
 chardet==7.4.3
     # via diff-cover
-click==8.4.0
+click==8.4.1
     # via
     #   -r requirements/pip-tools.txt
     #   -r requirements/quality.txt
@@ -59,7 +59,7 @@ coverage[toml]==7.14.0
     #   pytest-cov
 ddt==1.7.2
     # via -r requirements/quality.txt
-diff-cover==10.2.0
+diff-cover==10.2.1
     # via -r requirements/dev.in
 dill==0.4.1
     # via
@@ -136,11 +136,11 @@ jinja2==3.1.6
     #   -r requirements/quality.txt
     #   code-annotations
     #   diff-cover
-lxml[html-clean]==6.1.0
+lxml[html-clean]==6.1.1
     # via
     #   edx-i18n-tools
     #   lxml-html-clean
-lxml-html-clean==0.4.4
+lxml-html-clean==0.4.5
     # via lxml
 markupsafe==3.0.3
     # via
@@ -270,7 +270,7 @@ six==1.17.0
     #   -r requirements/quality.txt
     #   edx-ccx-keys
     #   edx-lint
-snowballstemmer==3.0.1
+snowballstemmer==3.1.0
     # via
     #   -r requirements/quality.txt
     #   pydocstyle
@@ -278,7 +278,7 @@ sqlparse==0.5.5
     # via
     #   -r requirements/quality.txt
     #   django
-stevedore==5.7.0
+stevedore==5.8.0
     # via
     #   -r requirements/quality.txt
     #   code-annotations
