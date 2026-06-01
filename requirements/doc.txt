@@ -42,7 +42,7 @@ code-annotations==3.0.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
-coverage[toml]==7.14.0
+coverage[toml]==7.14.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -100,7 +100,7 @@ fastavro==1.12.2
     #   openedx-events
 id==1.6.1
     # via twine
-idna==3.16
+idna==3.17
     # via requests
 imagesize==2.0.0
     # via sphinx
@@ -201,7 +201,7 @@ pyyaml==6.0.3
     #   code-annotations
 readme-renderer==44.0
     # via twine
-redis==7.4.0
+redis==8.0.0
     # via
     #   -r requirements/test.txt
     #   walrus
