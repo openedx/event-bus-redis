@@ -22,16 +22,16 @@ babel==2.18.0
     #   sphinx
 beautifulsoup4==4.15.0
     # via pydata-sphinx-theme
-build==1.5.0
+build==1.5.1
     # via -r requirements/doc.in
 certifi==2026.6.17
     # via requests
-cffi==2.0.0
+cffi==2.1.0
     # via
     #   -r requirements/test.txt
     #   cryptography
     #   pynacl
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
     # via requests
 click==8.4.2
     # via
@@ -42,7 +42,7 @@ code-annotations==3.0.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
-coverage[toml]==7.15.0
+coverage[toml]==7.15.1
     # via
     #   -r requirements/test.txt
     #   pytest-cov
@@ -50,7 +50,7 @@ cryptography==49.0.0
     # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
-django==5.2.15
+django==5.2.16
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/test.txt
