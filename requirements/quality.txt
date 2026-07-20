@@ -105,7 +105,7 @@ markupsafe==3.0.3
     #   jinja2
 mccabe==0.7.0
     # via pylint
-openedx-events==11.2.0
+openedx-events @ git+https://github.com/openedx/openedx-events.git@bmtcril/type_hints
     # via -r requirements/test.txt
 packaging==26.2
     # via

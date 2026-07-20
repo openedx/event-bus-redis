@@ -140,7 +140,7 @@ more-itertools==11.1.0
     #   jaraco-functools
 nh3==0.3.6
     # via readme-renderer
-openedx-events==11.2.0
+openedx-events @ git+https://github.com/openedx/openedx-events.git@bmtcril/type_hints
     # via -r requirements/test.txt
 packaging==26.2
     # via

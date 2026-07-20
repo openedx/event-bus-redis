@@ -82,7 +82,7 @@ markupsafe==3.0.3
     # via
     #   -r requirements/base.txt
     #   jinja2
-openedx-events==11.2.0
+openedx-events @ git+https://github.com/openedx/openedx-events.git@bmtcril/type_hints
     # via -r requirements/base.txt
 packaging==26.2
     # via pytest
