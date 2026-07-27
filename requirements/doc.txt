@@ -24,7 +24,7 @@ beautifulsoup4==4.15.0
     # via pydata-sphinx-theme
 build==1.5.0
     # via -r requirements/doc.in
-certifi==2026.6.17
+certifi==2026.7.22
     # via requests
 cffi==2.1.0
     # via
@@ -228,7 +228,7 @@ six==1.17.0
     #   edx-ccx-keys
 snowballstemmer==3.1.1
     # via sphinx
-soupsieve==2.9
+soupsieve==2.9.1
     # via beautifulsoup4
 sphinx==9.1.0
     # via
