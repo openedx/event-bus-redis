@@ -55,7 +55,3 @@ docs/_build
 docs/modules.rst
 docs/edx_event_bus_redis.rst
 docs/edx_event_bus_redis.*.rst
-
-# Private requirements
-requirements/private.in
-requirements/private.txt

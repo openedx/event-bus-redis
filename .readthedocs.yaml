@@ -9,7 +9,14 @@ version: 2
 sphinx:
   configuration: docs/conf.py
 
+build:
+  os: "ubuntu-lts-latest"
+  tools:
+    python: "3.12"
+
 python:
-  version: 3.12
   install:
-    - requirements: requirements/doc.txt
+    - method: uv
+      command: sync
+      groups:
+        - doc

@@ -9,5 +9,5 @@ from edx_event_bus_redis.internal.producer import create_producer
 
 try:
     __version__ = version("edx-event-bus-redis")
-except PackageNotFoundError:
+except PackageNotFoundError:  # pragma: no cover
     pass
