@@ -38,7 +38,7 @@ INSTALLED_APPS = (
 )
 
 LOCALE_PATHS = [
-    root("edx_event_bus_redis", "conf", "locale"),
+    root("src", "edx_event_bus_redis", "conf", "locale"),
 ]
 
 LOGGING = {

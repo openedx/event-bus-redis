@@ -136,7 +136,7 @@ def is_requirement(line):
     )
 
 
-VERSION = get_version("edx_event_bus_redis", "__init__.py")
+VERSION = get_version("src", "edx_event_bus_redis", "__init__.py")
 
 if sys.argv[-1] == "tag":
     print("Tagging the version on github:")
@@ -157,9 +157,11 @@ setup(
     author_email="oscm@edx.org",
     url="https://github.com/openedx/event-bus-redis",
     packages=find_packages(
+        where="src",
         include=["edx_event_bus_redis", "edx_event_bus_redis.*"],
         exclude=["*tests"],
     ),
+    package_dir={"": "src"},
     include_package_data=True,
     long_description_content_type="text/x-rst",
     install_requires=load_requirements("requirements/base.in"),

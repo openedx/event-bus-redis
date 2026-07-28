@@ -1,7 +1,7 @@
 [run]
 branch = True
 data_file = .coverage
-source=edx_event_bus_redis
+source=src/edx_event_bus_redis
 omit =
     test_settings
     *migrations*
