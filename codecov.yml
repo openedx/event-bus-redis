@@ -4,6 +4,13 @@ coverage:
       default:
         enabled: yes
         target: auto
+        # The uv/pyproject.toml migration added */tests/* to [tool.coverage.run].omit
+        # (the standard modern config), which excludes test modules themselves from
+        # the coverage measurement. Those files were previously counted and are
+        # trivially ~100% covered (their own lines run whenever the tests run), so
+        # excluding them causes a one-time, expected ~1 point drop in the reported
+        # project percentage with no actual change in production-code coverage.
+        threshold: 1%
     patch:
       default:
         enabled: yes
