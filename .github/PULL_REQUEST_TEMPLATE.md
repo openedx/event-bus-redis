@@ -8,12 +8,5 @@
 
 - [ ] All reviewers approved
 - [ ] CI build is green
-- [ ] Version bumped
 - [ ] Documentation updated (not only docstrings)
 - [ ] Commits are squashed
-
-**Post merge:**
-
-- [ ] Create a tag
-- [ ] Check new version is pushed to PyPI after tag-triggered build is
-      finished.
