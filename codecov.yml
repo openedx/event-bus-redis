@@ -10,7 +10,11 @@ coverage:
         # trivially ~100% covered (their own lines run whenever the tests run), so
         # excluding them causes a one-time, expected ~1 point drop in the reported
         # project percentage with no actual change in production-code coverage.
-        threshold: 1%
+        # No threshold added: `target: auto` compares against each PR's own
+        # base commit, so once this PR merges, the new percentage becomes
+        # the baseline for every future comparison -- there's no lingering
+        # gap to accommodate, and this status check isn't required for
+        # merging anyway.
     patch:
       default:
         enabled: yes

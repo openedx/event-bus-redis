@@ -104,6 +104,12 @@ exclude = ["*tests"]
 version_scheme = "only-version"
 local_scheme = "no-local-version"
 fallback_version = "0.0.0"
+# The default `git describe` match glob (`*[0-9]*`) also matches this repo's
+# org-wide named-release tags (e.g. `release/verawood.1`), which aren't
+# parseable as a package version and make the build fail whenever one of
+# those tags is closer than the last real `vX.Y.Z` tag. Restrict matching to
+# this package's own version tags.
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v[0-9]*"]
 
 [tool.semantic_release]
 build_command = "python -m pip install --upgrade build && SETUPTOOLS_SCM_PRETEND_VERSION=$NEW_VERSION python -m build"
