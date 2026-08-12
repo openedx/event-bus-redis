@@ -12,7 +12,7 @@ attrs==26.1.0
     # via
     #   -r requirements/base.txt
     #   openedx-events
-cffi==2.1.0
+cffi==2.1.1
     # via
     #   -r requirements/base.txt
     #   pynacl
@@ -26,7 +26,7 @@ code-annotations==3.0.0
     #   -r requirements/base.txt
     #   -r requirements/test.in
     #   edx-toggles
-coverage[toml]==7.15.2
+coverage[toml]==7.15.4
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -84,7 +84,7 @@ markupsafe==3.0.3
     #   jinja2
 openedx-events==11.2.0
     # via -r requirements/base.txt
-packaging==26.2
+packaging==26.3
     # via pytest
 pluggy==1.6.0
     # via
@@ -114,7 +114,7 @@ pytest==9.1.1
     #   pytest-django
 pytest-cov==7.1.0
     # via -r requirements/test.in
-pytest-django==4.12.0
+pytest-django==4.14.0
     # via -r requirements/test.in
 python-slugify==8.0.4
     # via
@@ -124,7 +124,7 @@ pyyaml==6.0.3
     # via
     #   -r requirements/base.txt
     #   code-annotations
-redis==8.0.1
+redis==8.1.0
     # via
     #   -r requirements/base.txt
     #   walrus

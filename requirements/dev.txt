@@ -21,15 +21,15 @@ build==1.5.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
-cachetools==7.1.6
+cachetools==7.1.7
     # via
     #   -r requirements/ci.txt
     #   tox
-cffi==2.1.0
+cffi==2.1.1
     # via
     #   -r requirements/quality.txt
     #   pynacl
-chardet==7.4.3
+chardet==7.5.1
     # via diff-cover
 click==8.4.2
     # via
@@ -53,13 +53,13 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.15.2
+coverage[toml]==7.15.4
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
 ddt==1.7.2
     # via -r requirements/quality.txt
-diff-cover==10.4.1
+diff-cover==10.5.0
     # via -r requirements/dev.in
 dill==0.4.1
     # via
@@ -69,7 +69,7 @@ distlib==0.4.3
     # via
     #   -r requirements/ci.txt
     #   virtualenv
-django==5.2.16
+django==5.2.17
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/quality.txt
@@ -117,7 +117,7 @@ fastavro==1.12.2
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-filelock==3.32.0
+filelock==3.32.2
     # via
     #   -r requirements/ci.txt
     #   python-discovery
@@ -152,7 +152,7 @@ mccabe==0.7.0
     #   pylint
 openedx-events==11.2.0
     # via -r requirements/quality.txt
-packaging==26.2
+packaging==26.3
     # via
     #   -r requirements/ci.txt
     #   -r requirements/pip-tools.txt
@@ -164,14 +164,13 @@ packaging==26.2
     #   wheel
 path==16.16.0
     # via edx-i18n-tools
-pip-tools==7.6.0
+pip-tools==7.6.1
     # via -r requirements/pip-tools.txt
-platformdirs==4.11.0
+platformdirs==4.11.2
     # via
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   pylint
-    #   python-discovery
     #   tox
     #   virtualenv
 pluggy==1.6.0
@@ -201,7 +200,7 @@ pygments==2.20.0
     #   -r requirements/quality.txt
     #   diff-cover
     #   pytest
-pylint==4.0.6
+pylint==4.0.7
     # via
     #   -r requirements/quality.txt
     #   edx-lint
@@ -245,9 +244,9 @@ pytest==9.1.1
     #   pytest-django
 pytest-cov==7.1.0
     # via -r requirements/quality.txt
-pytest-django==4.12.0
+pytest-django==4.14.0
     # via -r requirements/quality.txt
-python-discovery==1.5.0
+python-discovery==1.5.1
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -261,7 +260,7 @@ pyyaml==6.0.3
     #   -r requirements/quality.txt
     #   code-annotations
     #   edx-i18n-tools
-redis==8.0.1
+redis==8.1.0
     # via
     #   -r requirements/quality.txt
     #   walrus
@@ -297,19 +296,21 @@ tomlkit==0.15.1
     #   -r requirements/quality.txt
     #   edx-lint
     #   pylint
-tox==4.58.0
+tox==4.59.0
     # via -r requirements/ci.txt
 typing-extensions==4.16.0
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   edx-opaque-keys
-virtualenv==21.7.0
+    #   tox
+virtualenv==21.7.4
     # via
     #   -r requirements/ci.txt
     #   tox
 walrus==0.9.8
     # via -r requirements/quality.txt
-wheel==0.47.0
+wheel==0.48.0
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
