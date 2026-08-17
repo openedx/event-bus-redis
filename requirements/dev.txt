@@ -29,7 +29,7 @@ cffi==2.1.1
     # via
     #   -r requirements/quality.txt
     #   pynacl
-chardet==7.5.1
+chardet==7.6.0
     # via diff-cover
 click==8.4.2
     # via
@@ -59,7 +59,7 @@ coverage[toml]==7.15.4
     #   pytest-cov
 ddt==1.7.2
     # via -r requirements/quality.txt
-diff-cover==10.5.0
+diff-cover==10.5.1
     # via -r requirements/dev.in
 dill==0.4.1
     # via
@@ -117,7 +117,7 @@ fastavro==1.12.2
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-filelock==3.32.2
+filelock==3.32.3
     # via
     #   -r requirements/ci.txt
     #   python-discovery
@@ -166,7 +166,7 @@ path==16.16.0
     # via edx-i18n-tools
 pip-tools==7.6.1
     # via -r requirements/pip-tools.txt
-platformdirs==4.11.2
+platformdirs==4.11.3
     # via
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
@@ -246,7 +246,7 @@ pytest-cov==7.1.0
     # via -r requirements/quality.txt
 pytest-django==4.14.0
     # via -r requirements/quality.txt
-python-discovery==1.5.1
+python-discovery==1.5.2
     # via
     #   -r requirements/ci.txt
     #   tox
@@ -273,7 +273,7 @@ snowballstemmer==3.1.1
     # via
     #   -r requirements/quality.txt
     #   pydocstyle
-sqlparse==0.5.5
+sqlparse==0.6.0
     # via
     #   -r requirements/quality.txt
     #   django
@@ -296,7 +296,7 @@ tomlkit==0.15.1
     #   -r requirements/quality.txt
     #   edx-lint
     #   pylint
-tox==4.59.0
+tox==4.60.0
     # via -r requirements/ci.txt
 typing-extensions==4.16.0
     # via
