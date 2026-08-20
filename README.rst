@@ -75,22 +75,18 @@ One Time Setup
   git clone git@github.com:openedx/event-bus-redis.git
   cd event-bus-redis
 
-  # Set up a virtualenv using virtualenvwrapper with the same name as the repo and activate it
-  mkvirtualenv -p python3.11 event-bus-redis
+  # Install uv: https://docs.astral.sh/uv/getting-started/installation/
 
 
 Every time you develop something in this repo
 ---------------------------------------------
 .. code-block::
 
-  # Activate the virtualenv
-  workon event-bus-redis
-
   # Grab the latest code
   git checkout main
   git pull
 
-  # Install/update the dev requirements
+  # Install/update the dev requirements into this repo's own uv-managed .venv
   make requirements
 
   # Run the tests and quality checks (to verify the status before you make any changes)
