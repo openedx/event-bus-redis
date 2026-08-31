@@ -22,7 +22,7 @@ babel==2.18.0
     #   sphinx
 beautifulsoup4==4.15.0
     # via pydata-sphinx-theme
-build==1.5.0
+build==1.6.0
     # via -r requirements/doc.in
 certifi==2026.7.22
     # via requests
@@ -33,7 +33,7 @@ cffi==2.1.1
     #   pynacl
 charset-normalizer==3.5.1
     # via requests
-click==8.4.2
+click==8.5.0
     # via
     #   -r requirements/test.txt
     #   code-annotations
@@ -42,11 +42,11 @@ code-annotations==3.0.0
     # via
     #   -r requirements/test.txt
     #   edx-toggles
-coverage[toml]==7.15.4
+coverage[toml]==7.16.0
     # via
     #   -r requirements/test.txt
     #   pytest-cov
-cryptography==50.0.0
+cryptography==50.0.1
     # via secretstorage
 ddt==1.7.2
     # via -r requirements/test.txt
@@ -82,7 +82,7 @@ edx-ccx-keys==2.0.2
     # via
     #   -r requirements/test.txt
     #   openedx-events
-edx-django-utils==8.0.1
+edx-django-utils==8.0.2
     # via
     #   -r requirements/test.txt
     #   edx-toggles
@@ -102,7 +102,7 @@ id==1.6.1
     # via twine
 idna==3.19
     # via requests
-imagesize==2.0.0
+imagesize==2.0.1
     # via sphinx
 iniconfig==2.3.0
     # via
@@ -200,7 +200,7 @@ pyyaml==6.0.3
     # via
     #   -r requirements/test.txt
     #   code-annotations
-readme-renderer==45.0
+readme-renderer==46.0
     # via twine
 redis==8.1.0
     # via

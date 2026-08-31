@@ -10,7 +10,7 @@ attrs==26.1.0
     # via openedx-events
 cffi==2.1.1
     # via pynacl
-click==8.4.2
+click==8.5.0
     # via
     #   code-annotations
     #   edx-django-utils
@@ -37,7 +37,7 @@ dnspython==2.8.0
     # via pymongo
 edx-ccx-keys==2.0.2
     # via openedx-events
-edx-django-utils==8.0.1
+edx-django-utils==8.0.2
     # via
     #   -r requirements/base.in
     #   edx-toggles

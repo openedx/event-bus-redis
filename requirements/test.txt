@@ -16,7 +16,7 @@ cffi==2.1.1
     # via
     #   -r requirements/base.txt
     #   pynacl
-click==8.4.2
+click==8.5.0
     # via
     #   -r requirements/base.txt
     #   code-annotations
@@ -26,7 +26,7 @@ code-annotations==3.0.0
     #   -r requirements/base.txt
     #   -r requirements/test.in
     #   edx-toggles
-coverage[toml]==7.15.4
+coverage[toml]==7.16.0
     # via pytest-cov
 ddt==1.7.2
     # via -r requirements/test.in
@@ -56,7 +56,7 @@ edx-ccx-keys==2.0.2
     # via
     #   -r requirements/base.txt
     #   openedx-events
-edx-django-utils==8.0.1
+edx-django-utils==8.0.2
     # via
     #   -r requirements/base.txt
     #   edx-toggles
