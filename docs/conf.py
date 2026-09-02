@@ -14,7 +14,7 @@ serve to show the default.
 import os
 import sys
 from datetime import datetime
-from importlib.metadata import version as get_distribution_version
+from importlib.metadata import version as get_version
 from subprocess import check_call
 
 from django import setup as django_setup
@@ -22,7 +22,7 @@ from django import setup as django_setup
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(REPO_ROOT)
 
-VERSION = get_distribution_version('edx-event-bus-redis')
+VERSION = get_version('edx-event-bus-redis')
 
 # Configure Django for autodoc usage
 os.environ['DJANGO_SETTINGS_MODULE'] = 'test_settings'
