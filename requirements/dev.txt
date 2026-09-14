@@ -17,7 +17,7 @@ attrs==26.1.0
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-build==1.6.0
+build==1.6.1
     # via
     #   -r requirements/pip-tools.txt
     #   pip-tools
@@ -53,7 +53,7 @@ colorama==0.4.6
     # via
     #   -r requirements/ci.txt
     #   tox
-coverage[toml]==7.16.0
+coverage[toml]==7.16.1
     # via
     #   -r requirements/quality.txt
     #   pytest-cov
@@ -117,7 +117,7 @@ fastavro==1.12.2
     # via
     #   -r requirements/quality.txt
     #   openedx-events
-filelock==3.32.5
+filelock==3.32.6
     # via
     #   -r requirements/ci.txt
     #   python-discovery
@@ -170,7 +170,7 @@ path==16.16.0
     # via edx-i18n-tools
 pip-tools==7.6.1
     # via -r requirements/pip-tools.txt
-platformdirs==4.11.7
+platformdirs==4.11.8
     # via
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
@@ -224,7 +224,7 @@ pylint-plugin-utils==0.9.0
     #   -r requirements/quality.txt
     #   pylint-celery
     #   pylint-django
-pymongo==4.18.0
+pymongo==4.18.1
     # via
     #   -r requirements/quality.txt
     #   edx-opaque-keys
@@ -255,7 +255,7 @@ python-discovery==1.6.0
     #   -r requirements/ci.txt
     #   tox
     #   virtualenv
-python-slugify==8.0.4
+python-slugify==9.0.0
     # via
     #   -r requirements/quality.txt
     #   code-annotations
@@ -300,7 +300,7 @@ tomlkit==0.15.1
     #   -r requirements/quality.txt
     #   edx-lint
     #   pylint
-tox==4.61.2
+tox==4.61.4
     # via -r requirements/ci.txt
 typing-extensions==4.16.0
     # via
@@ -308,7 +308,7 @@ typing-extensions==4.16.0
     #   -r requirements/quality.txt
     #   edx-opaque-keys
     #   tox
-virtualenv==21.7.8
+virtualenv==21.7.9
     # via
     #   -r requirements/ci.txt
     #   tox

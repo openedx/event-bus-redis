@@ -60,11 +60,11 @@ psutil==7.2.2
     # via edx-django-utils
 pycparser==3.0
     # via cffi
-pymongo==4.18.0
+pymongo==4.18.1
     # via edx-opaque-keys
 pynacl==1.6.2
     # via edx-django-utils
-python-slugify==8.0.4
+python-slugify==9.0.0
     # via code-annotations
 pyyaml==6.0.3
     # via code-annotations
