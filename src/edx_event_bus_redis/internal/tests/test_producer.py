@@ -88,7 +88,7 @@ class TestEventProducer(TestCase):
         metadata = EventsMetadata(
             event_type=self.signal.event_type,
             time=datetime.now(timezone.utc),
-            sourcelib=(1, 2, 3),
+            sourcelib=('1', '2', '3'),
         )
 
         context = ep.ProducingContext(
@@ -135,7 +135,7 @@ class TestEventProducer(TestCase):
         ):
             now = datetime.now(timezone.utc)
             metadata = EventsMetadata(event_type=self.signal.event_type,
-                                      time=now, sourcelib=(1, 2, 3))
+                                      time=now, sourcelib=('1', '2', '3'))
             producer_api = ep.create_producer()
             with patch.object(producer_api, 'client', autospec=True) as mock_client:
                 stream_mock = Mock()
