@@ -117,7 +117,7 @@ class TestUtils(TestCase):
         (TEST_UUID_BYTES, None, None, False),  # As long as we have a id header, we can continue
         (b'bad', None, None, True),  # bad uuid
         (TEST_UUID_BYTES, b'bad', None, True),  # badly-formatted time
-        (TEST_UUID_BYTES, None, b'bad', True),  # badly-formatted sourcelib
+        (TEST_UUID_BYTES, None, b'9.10.post1', False),  # PEP 440 post-release
     )
     @ddt.unpack
     def test_generate_metadata_from_missing_or_bad_headers(self, msg_id, msg_time, source_lib, should_raise, mock_dt):
@@ -138,7 +138,11 @@ class TestUtils(TestCase):
         else:
             # check that we use all the regular EventsMetadata defaults for missing fields by constructing one
             # and comparing it to the one generated from get_metadata_from_headers
-            expected_metadata = EventsMetadata(event_type="abc", id=TEST_UUID)
+            if source_lib == b'9.10.post1':
+                expected_sourcelib = (9, 10, 'post1')
+            else:
+                expected_sourcelib = EventsMetadata(event_type="abc").sourcelib
+            expected_metadata = EventsMetadata(event_type="abc", id=TEST_UUID, sourcelib=expected_sourcelib)
             generated_metadata = get_metadata_from_headers(headers)
             self.assertDictEqual(attr.asdict(generated_metadata), attr.asdict(expected_metadata))
 
