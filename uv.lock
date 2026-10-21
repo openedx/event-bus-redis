@@ -122,11 +122,11 @@ wheels = [
 
 [[package]]
 name = "certifi"
-version = "2026.10.18"
+version = "2026.10.19"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7e/eb/a2aa1ac3ea30dd3f30ca57f40232138b6b0040719316ecb85daf61167771/certifi-2026.10.18.tar.gz", hash = "sha256:b9995d97b64d0431a5af837d8ca8cd6238104d1f319f04bd93ea43124d6c861e", size = 135227, upload-time = "2026-10-18T16:21:07.655Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/bd/1436c50cc46699de0230fbaacc1d1de7bfec413176099949e9d5112e88f2/certifi-2026.10.19.tar.gz", hash = "sha256:035c1e85572b141bf1c3a3eff0e33a8eb74917522f2559075ff8d2fea780a1ae", size = 137598, upload-time = "2026-10-20T02:24:16.604Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/08/ba/95dd616042484f7c83a06974388b37b837732740ee70bc5dc715b5fcd55a/certifi-2026.10.18-py3-none-any.whl", hash = "sha256:73191c47aaa79da394e8fee2dbc2ec827432cab56311122c9e47abf79e390f62", size = 134093, upload-time = "2026-10-18T16:21:06.276Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/51/29046e48f693c54e5b7412216d447a1d8362c9653148d98c02cdf65fa733/certifi-2026.10.19-py3-none-any.whl", hash = "sha256:42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b", size = 136464, upload-time = "2026-10-20T02:24:15.072Z" },
 ]
 
 [[package]]
@@ -134,7 +134,7 @@ name = "cffi"
 version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'group-19-edx-event-bus-redis-ci' and extra == 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-dev' and extra == 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "pycparser", marker = "implementation_name != 'PyPy'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9e/ef/008a1939e372c06329a3fce4279c02f328488f3526744906eeec3da7ad5f/cffi-2.1.1.tar.gz", hash = "sha256:dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be", size = 530807, upload-time = "2026-08-03T21:21:18.939Z" }
 wheels = [
@@ -657,7 +657,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgiref" },
     { name = "sqlparse" },
-    { name = "tzdata", marker = "(sys_platform == 'win32' and extra == 'group-19-edx-event-bus-redis-ci') or (sys_platform == 'win32' and extra == 'group-19-edx-event-bus-redis-dev') or (sys_platform == 'win32' and extra != 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-ci' and extra == 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-dev' and extra == 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "tzdata", marker = "(sys_platform == 'win32' and extra != 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-ci' and extra == 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-dev' and extra == 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/85/fe/79e692b430c7721bf4b812c328bfe687e73e3f28f56611a6a18a97e887cc/django-5.2.18.tar.gz", hash = "sha256:461c5dd06d2ea16bd5ca37d3f46e4def1d6b0fe7588c6f4e2119517bb0af8b2d", size = 10910238, upload-time = "2026-10-06T13:01:09.371Z" }
 wheels = [
@@ -670,7 +670,7 @@ version = "0.7.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", version = "4.2.30", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-django42'" },
-    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or extra == 'group-19-edx-event-bus-redis-doc' or extra == 'group-19-edx-event-bus-redis-quality' or extra == 'group-19-edx-event-bus-redis-test'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/34/1d/c56588f67130aeef8828e47535e8551337d2ae02f91f1414da61bc5e49fb/django-crum-0.7.9.tar.gz", hash = "sha256:65e9bc0f070a663fafc4d9e357f45fd4e6f01838b20a9e2fb7670f5706754288", size = 5168, upload-time = "2020-11-10T17:15:35.124Z" }
 wheels = [
@@ -683,7 +683,7 @@ version = "5.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", version = "4.2.30", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-django42'" },
-    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or extra == 'group-19-edx-event-bus-redis-doc' or extra == 'group-19-edx-event-bus-redis-quality' or extra == 'group-19-edx-event-bus-redis-test'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/22/e1/6f533da0d4ac89f427dfd9410e39bfc14ae3a23335ecd549d76be4b2a834/django_waffle-5.0.0.tar.gz", hash = "sha256:62f9d00eedf68dafb82657beab56e601bddedc1ea1ccfef91d83df8658708509", size = 37761, upload-time = "2025-06-12T07:38:54.895Z" }
 wheels = [
@@ -728,7 +728,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "django", version = "4.2.30", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-django42'" },
-    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or extra == 'group-19-edx-event-bus-redis-doc' or extra == 'group-19-edx-event-bus-redis-quality' or extra == 'group-19-edx-event-bus-redis-test'" },
     { name = "django-crum" },
     { name = "django-waffle" },
     { name = "psutil" },
@@ -745,7 +745,7 @@ name = "edx-event-bus-redis"
 source = { editable = "." }
 dependencies = [
     { name = "django", version = "4.2.30", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-django42'" },
-    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or extra == 'group-19-edx-event-bus-redis-doc' or extra == 'group-19-edx-event-bus-redis-quality' or extra == 'group-19-edx-event-bus-redis-test'" },
     { name = "edx-django-utils" },
     { name = "edx-toggles" },
     { name = "openedx-events" },
@@ -919,7 +919,7 @@ version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" } },
-    { name = "lxml", extra = ["html-clean"], marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "lxml", extra = ["html-clean"], marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or extra == 'group-19-edx-event-bus-redis-doc' or extra == 'group-19-edx-event-bus-redis-quality' or extra == 'group-19-edx-event-bus-redis-test'" },
     { name = "path" },
     { name = "polib" },
     { name = "pyyaml" },
@@ -969,7 +969,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "code-annotations" },
     { name = "django", version = "4.2.30", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-django42'" },
-    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or extra == 'group-19-edx-event-bus-redis-doc' or extra == 'group-19-edx-event-bus-redis-quality' or extra == 'group-19-edx-event-bus-redis-test'" },
     { name = "django-crum" },
     { name = "django-waffle" },
     { name = "edx-django-utils" },
@@ -1506,7 +1506,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "django", version = "4.2.30", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-django42'" },
-    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "django", version = "5.2.18", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'group-19-edx-event-bus-redis-ci' or extra == 'group-19-edx-event-bus-redis-dev' or extra != 'group-19-edx-event-bus-redis-django42' or extra == 'group-19-edx-event-bus-redis-doc' or extra == 'group-19-edx-event-bus-redis-quality' or extra == 'group-19-edx-event-bus-redis-test'" },
     { name = "edx-ccx-keys" },
     { name = "edx-django-utils" },
     { name = "edx-opaque-keys" },
@@ -1779,7 +1779,7 @@ name = "pynacl"
 version = "1.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "platform_python_implementation != 'PyPy' or (extra == 'group-19-edx-event-bus-redis-ci' and extra == 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-dev' and extra == 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "cffi", marker = "platform_python_implementation != 'PyPy'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d9/9a/4019b524b03a13438637b11538c82781a5eda427394380381af8f04f467a/pynacl-1.6.2.tar.gz", hash = "sha256:018494d6d696ae03c7e656e5e74cdfd8ea1326962cc401bcf018f1ed8436811c", size = 3511692, upload-time = "2026-01-01T17:48:10.851Z" }
 wheels = [
@@ -1835,7 +1835,7 @@ name = "pytest"
 version = "9.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'group-19-edx-event-bus-redis-ci' and extra == 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-dev' and extra == 'group-19-edx-event-bus-redis-django42') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-doc') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-quality') or (extra == 'group-19-edx-event-bus-redis-django42' and extra == 'group-19-edx-event-bus-redis-test')" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
